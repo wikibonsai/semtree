@@ -100,6 +100,36 @@ Each node in the tree contains:
 
 `text`: Contains the node text, which should be unique across all nodes in the tree and is used as an identifier in each nodes' other properties `ancestors` and `children`.
 
+⚠️ Note: Keep in mind preceeding newlines should be stripped from markdown content. For example:
+
+```js
+// 👍
+const semTreeText: Record<string, string> = {
+  // key: filename; value: file content
+  'fname-a':
+`- [[node-1]]
+  - [[node-1a]]
+  - [[node-2]]
+`
+};
+```
+
+```js
+// 👎 error: the preceeding newlines will break parsing
+
+const semTreeText: Record<string, string> = {
+  // key: filename; value: file content
+  'fname-a':
+// 👇 these newlines will break parsing 👇
+`
+
+- [[node-1]]
+  - [[node-1a]]
+  - [[node-2]]
+`
+};
+```
+
 ## Syntax and Validity
 
 Parsing:
