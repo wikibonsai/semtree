@@ -104,7 +104,7 @@ describe('semtree; virtual trunk', () => {
 
 });
 
-describe('semtree; virtual trunk', () => {
+describe('semtree; concrete trunk', () => {
 
   beforeEach(() => {
     console.warn = (msg) => msg + '\n';
@@ -118,6 +118,10 @@ describe('semtree; virtual trunk', () => {
 
     it('default; leave existing id; 2 spaces; wiki', () => {
       assert.deepEqual(semtree.parse(wikiContentsWithIDWithSpaces, 'root'), treeWithIDConcreteTrunk);
+    });
+
+    it('ensure index and entry type nodes can be siblings', () => {
+      assert.deepEqual(semtree.parse(wikiContentsIndexAndEntrySiblings, 'i.bonsai'), treeIndexAndEntrySiblings);
     });
 
     it('error; must define root with multiple files', () => {

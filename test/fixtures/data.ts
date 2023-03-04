@@ -793,3 +793,107 @@ export const treeNoSuffix: any = [
     'text': 'st'
   }
 ];
+
+export const treeIndexAndEntrySiblings: any = [
+  {
+    'ancestors': [],
+    'children': ['root'],
+    'text': 'i.bonsai',
+  },
+  {
+    'ancestors': ['i.bonsai'],
+    'children': ['semantic-tree'],
+    'text': 'root',
+  },
+  {
+    'ancestors': [
+      'i.bonsai',
+      'root',
+    ],
+    'children': ['i.social-science'],
+    'text': 'semantic-tree',
+  },
+  {
+    'ancestors': [
+      'i.bonsai',
+      'root',
+      'semantic-tree',
+    ],
+    'children': ['social-science'],
+    'text': 'i.social-science',
+  },
+  {
+    'ancestors': [
+      'i.bonsai',
+      'root',
+      'semantic-tree',
+      'i.social-science'
+    ],
+    'children': [
+      'discourse',
+      'i.education',
+    ],
+    'text': 'social-science',
+  },
+  {
+    'ancestors': [
+      'i.bonsai',
+      'root',
+      'semantic-tree',
+      'i.social-science',
+      'social-science',
+    ],
+    'children': [],
+    'text': 'discourse',
+  },
+  {
+    'ancestors': [
+      'i.bonsai',
+      'root',
+      'semantic-tree',
+      'i.social-science',
+      'social-science',
+    ],
+    'children': ['learning-theory'],
+    'text': 'i.education',
+  },
+  {
+    'ancestors': [
+      'i.bonsai',
+      'root',
+      'semantic-tree',
+      'i.social-science',
+      'social-science',
+      'i.education',
+    ],
+    'children': ['conditioning'],
+    'text': 'learning-theory',
+  },
+  {
+    'ancestors': [
+      'i.bonsai',
+      'root',
+      'semantic-tree',
+      'i.social-science',
+      'social-science',
+      'i.education',
+      'learning-theory',
+    ],
+    'children': ['classical-conditioning'],
+    'text': 'conditioning',
+  },
+  {
+    'ancestors': [
+      'i.bonsai',
+      'root',
+      'semantic-tree',
+      'i.social-science',
+      'social-science',
+      'i.education',
+      'learning-theory',
+      'conditioning',
+    ],
+    'children': [],
+    'text': 'classical-conditioning',
+  },
+];

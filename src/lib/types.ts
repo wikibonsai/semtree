@@ -11,3 +11,11 @@ export interface SemTreeOpts {
   virtualTrunk: boolean;                              // whether or not to include the semtree/index files themselves as nodes in the tree
   wikitext: boolean;                                  // whether or not to expect [[wikilink square brackets]] so they may be ignored when processing tree text
 }
+
+export interface TreeNode {
+  line: number;
+  level: number;
+  text: string;
+  ancestors: string[];
+  children: TreeNode[];
+}

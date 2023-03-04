@@ -1,4 +1,4 @@
-import type { SemTreeOpts } from './types';
+import type { SemTreeOpts, TreeNode } from './types';
 
 import { customAlphabet } from 'nanoid';
 
@@ -129,19 +129,18 @@ export class SemTree {
   public buildTree(
     curKey: string,
     content: Record<string, string[]>,
-    parents: any[] = [],
+    ancestors: any[] = [],
     totalLevel: number = 0,
     // virtualLevels: number = 0,
   ): any {
-    let node: any = {};
-    let parent: any = {};
+    let node: TreeNode = {} as TreeNode;
     // if the trunk isn't virtual, handle index/trunk file
     if (!this.virtualTrunk) {
       node = {
         line: -1,
         level: totalLevel,
         text: curKey,
-        ancestors: parents.map(p => this.rawText(p.text)),
+        ancestors: ancestors.map(p => this.rawText(p.text)),
         children: [],
       };
       if (totalLevel === 0) {
@@ -149,7 +148,7 @@ export class SemTree {
       } else {
         this.addBranch(curKey, node.ancestors);
       }
-      parents.push(node);
+      ancestors.push(node);
       totalLevel += 1;
     }
     // handle file...
@@ -163,9 +162,9 @@ export class SemTree {
       }
       // calculate numbers
       const lineNum: number = i + 1;
-      const levelMatch = line.match(REGEX.LEVEL);
+      const levelMatch: RegExpMatchArray | null = line.match(REGEX.LEVEL);
       //  number of spaces
-      if (!levelMatch) { continue; }
+      if (levelMatch === null) { continue; }
       const size: number | undefined = this.getWhitespaceSize(levelMatch[0]);
       const level: number = this.getLevel(size) + totalLevel;
       if (this.chunkSize < 0) { this.chunkSize = 2; }
@@ -187,14 +186,15 @@ export class SemTree {
           node.text = this.textWithID(node.text);
         }
         this.addRoot(this.rawText(node.text));
-        parents.push(node);
+        ancestors.push(node);
       // node
       } else {
         // connect subtree via 'virtual' semantic-tree node
         // todo: if (curKey === this.rawText(text), print a warning: don't do that.
         if ((curKey !== this.rawText(text)) && Object.keys(content).includes(this.rawText(text))) {
           // virtualLevels += this.chunkSize;
-          this.buildTree(this.rawText(text), content, this.deepcopy(parents), this.getLevel(size));
+          ancestors = this.calcAncestry(level, ancestors);
+          this.buildTree(this.rawText(text), content, this.deepcopy(ancestors), this.getLevel(size));
           continue;
         }
         node = {
@@ -203,7 +203,7 @@ export class SemTree {
           text: text,
           ancestors: [],
           children: [],
-        };
+        } as TreeNode;
         if (this.suffix === 'loc') {
           const padLevel = this.levelMax.toString().length;
           const padLine = lines.length.toString().length;
@@ -213,24 +213,9 @@ export class SemTree {
           node.text = this.textWithID(node.text);
         }
         node.text = this.rawText(node.text);
-        parent = parents[parents.length - 1];
-        // child
-        if (parent.level === (level - 1)) {
-          // continue...
-        // sibling
-        } else if (parent.level === level) {
-          parents.pop();
-          parent = parents[parents.length - 1];
-        // unrelated (great+) (grand)parent
-        } else { // (parent.level < level)
-          const levelDiff: number = parent.level - level;
-          for (let i = 1; i <= levelDiff + 1; i++) {
-            parents.pop();
-          }
-          parent = parents[parents.length - 1];
-        }
-        node.ancestors = parents.map(p => this.rawText(p.text));
-        parents.push(node);
+        ancestors = this.calcAncestry(level, ancestors);
+        node.ancestors = ancestors.map(p => this.rawText(p.text));
+        ancestors.push(node);
         this.addBranch(node.text, node.ancestors, curKey);
       }
     }
@@ -264,6 +249,34 @@ export class SemTree {
       // only return the fully-built tree -- not subtrees
       return this.deepcopy(this.tree);
     }
+  }
+
+  private calcAncestry(level: number, ancestors: TreeNode[]): TreeNode[] {
+    const parent: TreeNode = ancestors[ancestors.length - 1];
+    const isChild: boolean = (parent.level === (level - 1));
+    const isSibling: boolean = (parent.level === level);
+    // child:
+    // - [[parent]]
+    //   - [[child]]
+    if (isChild) {
+      // continue...
+    // sibling:
+    // - [[sibling]]
+    // - [[sibling]]
+    } else if (isSibling) {
+      // we can safely throw away the last node name because
+      // it can't have children if we've already decreased the level
+      ancestors.pop();
+    // unrelated (great+) (grand)parent:
+    //     - [[descendent]]
+    // - [[great-grandparent]]
+    } else { // (parent.level < level)
+      const levelDiff: number = parent.level - level;
+      for (let i = 1; i <= levelDiff + 1; i++) {
+        ancestors.pop();
+      }
+    }
+    return ancestors;
   }
 
   private clear() {

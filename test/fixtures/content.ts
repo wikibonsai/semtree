@@ -186,3 +186,21 @@ export const wikiContentsWithIDWithSpaces: any = {
   - [[web-(0a1b2)]]
 `
 };
+
+export const wikiContentsIndexAndEntrySiblings: any = {
+  'i.bonsai':
+`- [[root]]
+  - [[semantic-tree]]
+    - [[i.social-science]]
+`,
+  'i.social-science':
+`- [[social-science]]
+  - [[discourse]]
+  - [[i.education]]
+`,
+  'i.education':
+`- [[learning-theory]]
+  - [[conditioning]]
+    - [[classical-conditioning]]
+`
+};
