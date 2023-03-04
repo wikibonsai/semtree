@@ -3,6 +3,8 @@ import sinon from 'sinon';
 
 import {
   content,
+  wikiContentsIndexAndEntrySiblings,
+  wikiContentWithIDWithSpacesWithPreceedingNewlines,
   wikiContentWithDuplicatesWithSpaces,
   wikiContentWithIDWithSpaces,
   wikiContentsWithIDWithSpaces,
@@ -11,6 +13,7 @@ import {
   contentWithIDWithTabs,
 } from './fixtures/content';
 import {
+  treeIndexAndEntrySiblings,
   treeNoSuffix,
   treeWithIDConcreteTrunk,
   treeWithIDVirtualTrunk,
@@ -122,6 +125,10 @@ describe('semtree; concrete trunk', () => {
 
     it('ensure index and entry type nodes can be siblings', () => {
       assert.deepEqual(semtree.parse(wikiContentsIndexAndEntrySiblings, 'i.bonsai'), treeIndexAndEntrySiblings);
+    });
+
+    it.skip('default; leave existing id; 2 spaces; wiki; strip preceeding newlines', () => {
+      assert.deepEqual(semtree.parse(wikiContentWithIDWithSpacesWithPreceedingNewlines), treeWithIDConcreteTrunk);
     });
 
     it('error; must define root with multiple files', () => {
