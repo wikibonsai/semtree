@@ -205,4 +205,4 @@ But none of these solutions accommodate the specific aim of trying to build a "s
 
 This implementation attempts to ameliorate these issues with the primary focus on facilitating semantic tree cultivation.
 
-Side-Note: If you already have a collection of markdown notes, good candidates for index/tree(trunk) files might be "[zettelkasten hubs](https://zettelkasten.de/posts/zettelkasten-hubs/)" or "[maps of content](https://forum.obsidian.md/t/lyt-kit-6-downloadable-and-now-with-lessons/390)" (will likely require some tweaking to fit the model required by this package).
+Side-Note: If you already have a collection of markdown notes, good candidates for index/tree(trunk) files might be "[zettelkasten hubs](https://zettelkasten.de/posts/zettelkasten-hubs/)" or "[maps of content](https://notes.linkingyourthinking.com/Cards/MOCs+Overview)" (will likely require some tweaking to fit the model required by this package).
