@@ -1,7 +1,7 @@
 {
   "name": "semtree",
   "version": "0.0.2",
-  "description": "It is important to view knowledge as a sort of semantic tree. Make sure you understand the fundamental principles, i.e., the trunk and big branches before you get into the leaves/details or there is nothing for them to hang on to. ~ Elon Musk.",
+  "description": "Utilities to build a semantic tree (in markdown).",
   "license": "GPL-3.0",
   "author": {
     "name": "manunamz",
