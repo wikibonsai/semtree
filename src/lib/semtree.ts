@@ -23,6 +23,7 @@ export class SemTree {
   // data
   public root: string                        = '';
   public tree: any[]                         = [];
+  public trunk: string[]                     = []; // list of index filenames
   public petioleMap: Record<string, string>  = {}; // 'petiole': "the stalk that joins a leaf to a stem; leafstalk"; or in this case, leaf to trunk.
   public duplicates: string[]                = [];
   // nanoid
@@ -134,6 +135,7 @@ export class SemTree {
     // virtualLevels: number = 0,
   ): any {
     let node: TreeNode = {} as TreeNode;
+    this.trunk = Object.keys(content);
     // if the trunk isn't virtual, handle index/trunk file
     if (!this.virtualTrunk) {
       node = {
