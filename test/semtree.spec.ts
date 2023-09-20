@@ -19,12 +19,14 @@ import {
   treeWithIDVirtualTrunk,
   treeWithLoc,
 } from './fixtures/data';
+import { outputWithID } from './fixtures/output';
 
 import { SemTree } from '../src/index';
 
 
 let fakeConsoleWarn: any;
 let semtree: SemTree;
+let fakeConsoleLog: any;
 
 describe('semtree; virtual trunk', () => {
 
@@ -35,6 +37,14 @@ describe('semtree; virtual trunk', () => {
       testing: true,
       virtualTrunk: true,
     });
+    // suppress console
+    console.log = (msg) => msg + '\n';
+    // fake console
+    fakeConsoleLog = sinon.spy(console, 'log');
+  });
+
+  afterEach(() => {
+    fakeConsoleLog.restore();
   });
 
   describe('parse; single file', () => {
@@ -101,6 +111,16 @@ describe('semtree; virtual trunk', () => {
       assert.strictEqual(semtree.parse(wikiContentsWithIDWithSpaces), undefined);
       assert.strictEqual(fakeConsoleWarn.called, true);
       assert.strictEqual(fakeConsoleWarn.getCall(0).args[0], 'Cannot parse multiple files without a "root" defined');
+    });
+
+  });
+
+  describe('print; single file', () => {
+
+    it('default; leave existing id; 2 spaces; wiki', () => {
+      semtree.parse(wikiContentWithIDWithSpaces);
+      semtree.print();
+      assert.deepEqual(fakeConsoleLog.getCall(0).args[0], outputWithID);
     });
 
   });

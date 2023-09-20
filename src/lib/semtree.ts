@@ -57,6 +57,10 @@ export class SemTree {
 
   // target api methods
 
+  public print(): void {
+    console.log(this.buildTreeStr());
+  }
+
   // single file
   public parse(content: string): any;
   // multiple files
@@ -395,5 +399,24 @@ export class SemTree {
       if (node.line !== Number(line)) { lineText = line.padStart(padLine, '0'); }
     }
     return `${node.text}-${lineText}-${levelText}`;
+  }
+
+  // print
+
+  public buildTreeStr(
+    curNodeName: string = this.root,
+    prefix: string = '',
+  ): string {
+    let output: string = curNodeName + '\n';
+    const node: TreeNode | undefined = this.tree.find((node: TreeNode) => node.text === curNodeName);
+    if (node === undefined) { console.log('SemTree.print: error: undefined node'); return output; }
+    node.children.forEach((child: string, index: number) => {
+      const isLastChild: boolean = (index === node.children.length - 1);
+      const childPrefix: string = prefix + (isLastChild ? '└── ' : '├── ');
+      const grandchildPrefix: string = prefix + (isLastChild ? '    ' : '|   ');
+      const subtree: string = this.buildTreeStr(child, grandchildPrefix);
+      output += childPrefix + subtree;
+    });
+    return output;
   }
 }
