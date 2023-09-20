@@ -1,4 +1,4 @@
-import type { SemTreeOpts, TreeNode } from './types';
+import type { SemTreeOpts, TreeNode, TreeNodeBuilder } from './types';
 
 import { customAlphabet } from 'nanoid';
 
@@ -22,7 +22,7 @@ export class SemTree {
   private virtualTrunk: boolean              = false;
   // data
   public root: string                        = '';
-  public tree: any[]                         = [];
+  public tree: TreeNode[]                    = [];
   public trunk: string[]                     = []; // list of index filenames
   public petioleMap: Record<string, string>  = {}; // 'petiole': "the stalk that joins a leaf to a stem; leafstalk"; or in this case, leaf to trunk.
   public duplicates: string[]                = [];
@@ -92,15 +92,15 @@ export class SemTree {
   public buildTree(
     curKey: string,
     content: Record<string, string[]>,
-    ancestors: any[] = [],
+    ancestors: TreeNodeBuilder[] = [],
     totalLevel: number = 0,
     // virtualLevels: number = 0,
   ): any {
-    let node: TreeNode = {} as TreeNode;
+    let nodeBuilder: TreeNodeBuilder;
     this.trunk = Object.keys(content);
     // if the trunk isn't virtual, handle index/trunk file
     if (!this.virtualTrunk) {
-      node = {
+      nodeBuilder = {
         line: -1,
         level: totalLevel,
         text: curKey,
@@ -110,9 +110,9 @@ export class SemTree {
       if (totalLevel === 0) {
         this.addRoot(curKey);
       } else {
-        this.addBranch(curKey, node.ancestors);
+        this.addBranch(curKey, nodeBuilder.ancestors);
       }
-      ancestors.push(node);
+      ancestors.push(nodeBuilder);
       totalLevel += 1;
     }
     // handle file...
@@ -134,23 +134,17 @@ export class SemTree {
       if (this.chunkSize < 0) { this.chunkSize = 2; }
       // root
       if ((totalLevel === 0) && (i === 0)) {
-        node = {
+        // init
+        nodeBuilder = {
           line: lineNum,
           level: level,
           text: text,
           ancestors: [],
           children: [],
         };
-        if (this.suffix === 'loc') {
-          const padLevel = this.levelMax.toString().length;
-          const padLine = lines.length.toString().length;
-          node.text = this.textWithLoc(node, padLevel, padLine);
-        }
-        if(this.suffix === 'id') {
-          node.text = this.textWithID(node.text);
-        }
-        this.addRoot(this.rawText(node.text));
-        ancestors.push(node);
+        this.handleSuffix(nodeBuilder, lines);
+        this.addRoot(this.rawText(nodeBuilder.text));
+        ancestors.push(nodeBuilder);
       // node
       } else {
         // connect subtree via 'virtual' semantic-tree node
@@ -161,26 +155,20 @@ export class SemTree {
           this.buildTree(this.rawText(text), content, this.deepcopy(ancestors), this.getLevel(size));
           continue;
         }
-        node = {
+        // init
+        nodeBuilder = {
           line: lineNum,
           level: level,
           text: text,
           ancestors: [],
           children: [],
-        } as TreeNode;
-        if (this.suffix === 'loc') {
-          const padLevel = this.levelMax.toString().length;
-          const padLine = lines.length.toString().length;
-          node.text = this.textWithLoc(node, padLevel, padLine);
-        }
-        if(this.suffix === 'id') {
-          node.text = this.textWithID(node.text);
-        }
-        node.text = this.rawText(node.text);
+        } as TreeNodeBuilder;
+        this.handleSuffix(nodeBuilder, lines);
+        nodeBuilder.text = this.rawText(nodeBuilder.text);
         ancestors = this.calcAncestry(level, ancestors);
-        node.ancestors = ancestors.map(p => this.rawText(p.text));
-        ancestors.push(node);
-        this.addBranch(node.text, node.ancestors, curKey);
+        nodeBuilder.ancestors = ancestors.map(p => this.rawText(p.text));
+        ancestors.push(nodeBuilder);
+        this.addBranch(nodeBuilder.text, nodeBuilder.ancestors, curKey);
       }
     }
     delete content[curKey];
@@ -250,6 +238,9 @@ export class SemTree {
     } as TreeNode);
     this.petioleMap[text] = trnkFname;
   }
+
+  private calcAncestry(level: number, ancestors: TreeNodeBuilder[]): TreeNodeBuilder[] {
+    const parent: TreeNodeBuilder = ancestors[ancestors.length - 1];
     const isChild: boolean = (parent.level === (level - 1));
     const isSibling: boolean = (parent.level === level);
     // child:
@@ -347,6 +338,20 @@ export class SemTree {
 
   public getLevel(size: number) {
     return (size / this.chunkSize) + 1;
+  }
+
+  // suffix-handling
+
+  public handleSuffix(node: TreeNode, lines: string[]): void {
+    // update true values
+    if (this.suffix === 'loc') {
+      const padLevel = this.levelMax.toString().length;
+      const padLine = lines.length.toString().length;
+      node.text = this.textWithLoc(node, padLevel, padLine);
+    }
+    if(this.suffix === 'id') {
+      node.text = this.textWithID(node.text);
+    }
   }
 
   public textWithID(text: string): any {

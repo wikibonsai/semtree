@@ -13,9 +13,13 @@ export interface SemTreeOpts {
 }
 
 export interface TreeNode {
-  line: number;
-  level: number;
   text: string;
   ancestors: string[];
-  children: TreeNode[];
+  children: string[];
+}
+
+// whoops...
+export interface TreeNodeBuilder extends TreeNode {
+  line: number;
+  level: number;
 }
