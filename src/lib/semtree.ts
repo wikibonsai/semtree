@@ -108,7 +108,7 @@ export class SemTree {
         line: -1,
         level: totalLevel,
         text: curKey,
-        ancestors: ancestors.map(p => this.rawText(p.text)),
+        ancestors: ancestors.map(n => this.rawText(n.text)),
         children: [],
       };
       if (totalLevel === 0) {
@@ -153,7 +153,8 @@ export class SemTree {
       } else {
         // connect subtree via 'virtual' semantic-tree node
         // todo: if (curKey === this.rawText(text), print a warning: don't do that.
-        if ((curKey !== this.rawText(text)) && Object.keys(content).includes(this.rawText(text))) {
+        const curTxt: string = this.rawText(text);
+        if ((curKey !== curTxt) && Object.keys(content).includes(curTxt)) {
           // virtualLevels += this.chunkSize;
           ancestors = this.calcAncestry(level, ancestors);
           this.buildTree(this.rawText(text), content, this.deepcopy(ancestors), this.getLevel(size));
