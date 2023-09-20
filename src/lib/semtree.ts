@@ -55,44 +55,6 @@ export class SemTree {
     if (opts.virtualTrunk) { this.virtualTrunk   = opts.virtualTrunk; }
   }
 
-  // internal tree-building methods
-
-  public addRoot(text: string) {
-    this.root = text;
-    this.tree.push({
-      text: text,
-      ancestors: [],
-      children: [],
-    });
-    this.petioleMap[text] = text;
-  }
-
-  public addBranch(text: string, ancestryTitles: string[], trnkFname?: string) {
-    if (!trnkFname) { trnkFname = text; }
-    for (const [i, ancestryTitle] of ancestryTitles.entries()) {
-      if (i < (ancestryTitles.length - 1)) {
-        const node = this.tree.find((node) => node.text === ancestryTitle);
-        if (node && !node.children.includes(ancestryTitles[i + 1])) {
-          node.children.push(ancestryTitles[i + 1]);
-        }
-      // i === (ancestryTitles.length - 1)
-      } else {
-        const node = this.tree.find((node) => node.text === ancestryTitle);
-        if (node && !node.children.includes(text)) {
-          node.children.push(text);
-        }
-      }
-    }
-    this.tree.push({
-      text: text,
-      ancestors: ancestryTitles,
-      children: [],
-      // line: lineNum,
-      // level: level,
-    });
-    this.petioleMap[text] = trnkFname;
-  }
-
   // target api methods
 
   // single file
@@ -253,8 +215,41 @@ export class SemTree {
     }
   }
 
-  private calcAncestry(level: number, ancestors: TreeNode[]): TreeNode[] {
-    const parent: TreeNode = ancestors[ancestors.length - 1];
+  // internal tree-building methods
+
+  public addRoot(text: string) {
+    this.root = text;
+    this.tree.push({
+      text: text,
+      ancestors: [],
+      children: [],
+    } as TreeNode);
+    this.petioleMap[text] = text;
+  }
+
+  public addBranch(text: string, ancestryTitles: string[], trnkFname?: string) {
+    if (!trnkFname) { trnkFname = text; }
+    for (const [i, ancestryTitle] of ancestryTitles.entries()) {
+      if (i < (ancestryTitles.length - 1)) {
+        const node = this.tree.find((node) => node.text === ancestryTitle);
+        if (node && !node.children.includes(ancestryTitles[i + 1])) {
+          node.children.push(ancestryTitles[i + 1]);
+        }
+      // i === (ancestryTitles.length - 1)
+      } else {
+        const node = this.tree.find((node) => node.text === ancestryTitle);
+        if (node && !node.children.includes(text)) {
+          node.children.push(text);
+        }
+      }
+    }
+    this.tree.push({
+      text: text,
+      ancestors: ancestryTitles,
+      children: [],
+    } as TreeNode);
+    this.petioleMap[text] = trnkFname;
+  }
     const isChild: boolean = (parent.level === (level - 1));
     const isSibling: boolean = (parent.level === level);
     // child:
