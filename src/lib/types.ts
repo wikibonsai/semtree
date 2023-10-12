@@ -16,6 +16,8 @@ export interface TreeNode {
   text: string;
   ancestors: string[];
   children: string[];
+  // make extendible for flexibly adding other node properties
+  [key: string]: any;
 }
 
 // whoops...
