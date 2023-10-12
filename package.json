@@ -1,6 +1,6 @@
 {
   "name": "semtree",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Utilities to build a semantic tree (in markdown).",
   "license": "GPL-3.0",
   "author": {
