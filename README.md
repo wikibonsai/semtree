@@ -191,6 +191,8 @@ A unique 'id' (see nanoid options) or location 'loc' of the item in the file.
 
 Whether or not to include the semtree/index files themselves as nodes in the tree. This option is a useful toggle between 'tree-building' (non-virtual to allow for index/trunk file traversal) and 'tree-viewing' (virtual to eliminate unnecessary index/trunk files) states. Default is `false`.
 
+Note: If `virtualTrunk` is set to `true`, it is wise to ensure there is a root-level node.
+
 ### `wikitext: boolean`
 
 Whether or not to expect [[wikilink square brackets]] so they may be ignored when processing tree text. Default is `true`.
