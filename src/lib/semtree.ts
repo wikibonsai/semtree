@@ -22,7 +22,7 @@ export class SemTree {
   private virtualTrunk: boolean              = false;
   // data
   public root: string                        = '';
-  public tree: TreeNode[]                    = [];
+  public nodes: TreeNode[]                   = [];
   public trunk: string[]                     = []; // list of index filenames
   public petioleMap: Record<string, string>  = {}; // 'petiole': "the stalk that joins a leaf to a stem; leafstalk"; or in this case, leaf to trunk.
   public duplicates: string[]                = [];
@@ -124,7 +124,7 @@ export class SemTree {
     for (const [i, line] of lines.entries()) {
       const text: string = line.replace(REGEX.LEVEL, '');
       if (!text || text.length == 0) { continue; }
-      if (this.tree.map((node) => node.text).includes(this.rawText(text))) {
+      if (this.nodes.map((node) => node.text).includes(this.rawText(text))) {
         this.duplicates.push(this.rawText(text));
         continue;
       }
@@ -196,7 +196,7 @@ export class SemTree {
       // if given, call option methods
       if (this.action.setRoot && this.action.graft) {
         this.action.setRoot(this.root);
-        for (const node of this.tree) {
+        for (const node of this.nodes) {
           if (this.root !== node.text) {
             this.action.graft(node.text, node.ancestors);
           }
@@ -204,7 +204,7 @@ export class SemTree {
         }
       }
       // only return the fully-built tree -- not subtrees
-      return this.deepcopy(this.tree);
+      return this.deepcopy(this.nodes);
     }
   }
 
@@ -212,7 +212,7 @@ export class SemTree {
 
   public addRoot(text: string) {
     this.root = text;
-    this.tree.push({
+    this.nodes.push({
       text: text,
       ancestors: [],
       children: [],
@@ -224,19 +224,19 @@ export class SemTree {
     if (!trnkFname) { trnkFname = text; }
     for (const [i, ancestryTitle] of ancestryTitles.entries()) {
       if (i < (ancestryTitles.length - 1)) {
-        const node = this.tree.find((node) => node.text === ancestryTitle);
+        const node = this.nodes.find((node) => node.text === ancestryTitle);
         if (node && !node.children.includes(ancestryTitles[i + 1])) {
           node.children.push(ancestryTitles[i + 1]);
         }
       // i === (ancestryTitles.length - 1)
       } else {
-        const node = this.tree.find((node) => node.text === ancestryTitle);
+        const node = this.nodes.find((node) => node.text === ancestryTitle);
         if (node && !node.children.includes(text)) {
           node.children.push(text);
         }
       }
     }
-    this.tree.push({
+    this.nodes.push({
       text: text,
       ancestors: ancestryTitles,
       children: [],
@@ -274,7 +274,7 @@ export class SemTree {
 
   private clear() {
     this.root = '';
-    this.tree = [];
+    this.nodes = [];
     this.petioleMap = {};
     this.duplicates = [];
   }
@@ -409,7 +409,7 @@ export class SemTree {
     prefix: string = '',
   ): string {
     let output: string = curNodeName + '\n';
-    const node: TreeNode | undefined = this.tree.find((node: TreeNode) => node.text === curNodeName);
+    const node: TreeNode | undefined = this.nodes.find((node: TreeNode) => node.text === curNodeName);
     if (node === undefined) { console.log('SemTree.print: error: undefined node'); return output; }
     node.children.forEach((child: string, index: number) => {
       const isLastChild: boolean = (index === node.children.length - 1);
