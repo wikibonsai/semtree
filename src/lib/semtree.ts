@@ -156,7 +156,7 @@ export class SemTree {
         const curTxt: string = this.rawText(text);
         if ((curKey !== curTxt) && Object.keys(content).includes(curTxt)) {
           // virtualLevels += this.chunkSize;
-          ancestors = this.calcAncestry(level, ancestors);
+          ancestors = this.popGrandAncestor(level, ancestors);
           this.buildTree(this.rawText(text), content, this.deepcopy(ancestors), this.getLevel(size));
           continue;
         }
@@ -170,7 +170,7 @@ export class SemTree {
         } as TreeNodeBuilder;
         this.handleSuffix(nodeBuilder, lines);
         nodeBuilder.text = this.rawText(nodeBuilder.text);
-        ancestors = this.calcAncestry(level, ancestors);
+        ancestors = this.popGrandAncestor(level, ancestors);
         nodeBuilder.ancestors = ancestors.map(p => this.rawText(p.text));
         ancestors.push(nodeBuilder);
         this.addBranch(nodeBuilder.text, nodeBuilder.ancestors, curKey);
@@ -244,7 +244,7 @@ export class SemTree {
     this.petioleMap[text] = trnkFname;
   }
 
-  private calcAncestry(level: number, ancestors: TreeNodeBuilder[]): TreeNodeBuilder[] {
+  private popGrandAncestor(level: number, ancestors: TreeNodeBuilder[]): TreeNodeBuilder[] {
     const parent: TreeNodeBuilder = ancestors[ancestors.length - 1];
     const isChild: boolean = (parent.level === (level - 1));
     const isSibling: boolean = (parent.level === level);
