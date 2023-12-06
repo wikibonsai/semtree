@@ -210,7 +210,7 @@ export class SemTree {
 
   // internal tree-building methods
 
-  public addRoot(text: string) {
+  public addRoot(text: string): void {
     this.root = text;
     this.nodes.push({
       text: text,
@@ -220,7 +220,7 @@ export class SemTree {
     this.petioleMap[text] = text;
   }
 
-  public addBranch(text: string, ancestryTitles: string[], trnkFname?: string) {
+  public addBranch(text: string, ancestryTitles: string[], trnkFname?: string): void {
     if (!trnkFname) { trnkFname = text; }
     for (const [i, ancestryTitle] of ancestryTitles.entries()) {
       if (i < (ancestryTitles.length - 1)) {
@@ -282,7 +282,7 @@ export class SemTree {
   // utils
 
   private deepcopy(item: any) {
-    // -_-''
+    // 🦨
     return JSON.parse(JSON.stringify(item));
   }
 
