@@ -314,7 +314,9 @@ describe('semtree; concrete trunk', () => {
 
     describe.skip('fail', () => {
 
-      it('error; duplicate text (leave existing id; 2 spaces; wiki)', () => {});
+      it('error; duplicate text', () => {
+        // todo
+      });
 
     });
 
