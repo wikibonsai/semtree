@@ -25,6 +25,7 @@ export class SemTree {
   public nodes: TreeNode[]                   = [];
   public trunk: string[]                     = []; // list of index filenames
   public petioleMap: Record<string, string>  = {}; // 'petiole': "the stalk that joins a leaf to a stem; leafstalk"; or in this case, leaf to trunk.
+  public dangling: string[]                  = [];
   public duplicates: string[]                = [];
   // nanoid
   public nanoidOpts: any = {
@@ -91,7 +92,62 @@ export class SemTree {
     }
   }
 
-  // api methods
+  // useful for single page updates (of index doctypes)
+  // e.g. the index file is the 'subroot' and the [[wikirefs]] on the page are 'branchNodes'
+  public updateSubTree(content: string | Record<string, string>, subroot?: string): any {
+    let lines: string[];
+    const contentHash: Record<string, string[]> = {};
+    // single file
+    if (typeof content === 'string') {
+      lines = content.split('\n');
+      contentHash['root'] = lines;
+      subroot = 'root';
+    // multi file
+    } else {
+      if (!subroot) {
+        throw Error('cannot update multiple files without a "subroot" defined');
+      }
+      if (!Object.keys(content).includes(subroot)) {
+        throw Error(`content hash does not contain root: '${subroot}'`);
+      }
+      for (const [filename, fileContent] of Object.entries(content)) {
+        contentHash[filename] = fileContent.split('\n');
+      }
+    }
+    // clear the existing subtree from subroot
+    const subrootNode: TreeNode | undefined = this.nodes.find((node: TreeNode) => node.text === subroot);
+    if (subrootNode === undefined) {
+      return `subroot not found in the tree: '${subroot}'`;
+    }
+    const error: void | string = this.pruneSubTree(subroot);
+    if (error) { return error; }
+    // rebuild the subtree from subroot
+    const subrootNodeAncestors: TreeNode[] = this.nodes.filter((node: TreeNode) => subrootNode.ancestors.includes(node.text));
+    const updatedTree: any = this.buildTree(subroot, this.deepcopy(contentHash), subrootNodeAncestors, subrootNode.ancestors.length);
+    // checks
+    if (this.checkDuplicates()) { return this.warnDuplicates(); }
+    if (this.checkDangling()) { this.pruneDangling(); }
+    this.refreshAncestors();
+    return updatedTree;
+  }
+
+  public refreshAncestors() {
+    // impl
+    const updateAncestors = (nodeText: string, ancestors: string[]) => {
+      const node = this.nodes.find(n => n.text === nodeText);
+      if (!node) { return; }
+      node.ancestors = ancestors;
+      for (const childText of node.children) {
+        const updatedAncestors: string[] = [...ancestors, node.text];
+        updateAncestors(childText, updatedAncestors);
+      }
+    };
+    // go
+    const rootNode: TreeNode | undefined = this.nodes.find(n => n.text === this.root);
+    if (rootNode) {
+      updateAncestors(this.root, []);
+    }
+  }
 
   public buildTree(
     curKey: string,
@@ -204,6 +260,13 @@ export class SemTree {
     }
   }
 
+  public clear() {
+    this.root = '';
+    this.nodes = [];
+    this.petioleMap = {};
+    this.duplicates = [];
+  }
+
   // internal tree-building methods
 
   private addRoot(text: string): void {
@@ -271,7 +334,61 @@ export class SemTree {
   }
 
 
+  private pruneDangling() {
+    // console.debug('pruneDangling');
+    const findConnected = (nodeText: string, connected: string[] = []): string[] => {
+      const node = this.nodes.find(n => n.text === nodeText);
+      if (!node) { return connected; }
+      connected.push(node.text);
+      for (const childText of node.children) {
+        connected.concat(...findConnected(childText, connected));
+      }
+      return connected;
+    };
+    // go
+    const rootNode: TreeNode | undefined = this.nodes.find(n => n.text === this.root);
+    if (rootNode) {
+      const connectedNodes: string[] = findConnected(this.root);
+      this.nodes = this.nodes.filter((node: TreeNode) => connectedNodes.includes(node.text));
+    }
+  }
+
+  // this function is written with single-page index doc updates in mind
+  private pruneSubTree(nodeText: string, subroot?: string): void | string {
+    if (subroot === undefined) { subroot = nodeText; }
+    const node: TreeNode | undefined = this.nodes.find((n: TreeNode) => n.text === nodeText);
+    if (node !== undefined) {
+      node.children.forEach((c: string) => this.pruneSubTree(c, subroot));
+      // handle subroot node (should be last operation)
+      if (subroot === nodeText) {
+        const subrootNode: TreeNode | undefined = this.nodes.find((n: TreeNode) => n.text === nodeText);
+        if (subrootNode === undefined) {
+          return `SemTree.pruneSubTree(): subroot node not found for: '${subroot}'`;
+        }
+        // clear children
+        subrootNode.children = [];
+      // handle nodes on subroot (in index doc)
+      } else if (this.petioleMap[nodeText] === subroot) {
+        const curNodeIndex: number | undefined = this.nodes.findIndex((n: TreeNode) => n.text === nodeText);
+        if (curNodeIndex < 0) {
+          return `SemTree.pruneSubTree(): node with text '${nodeText}' not found in subtree`;
+        }
+        // rm node
+        this.nodes.splice(curNodeIndex, 1);
+      } else {
+        return 'SemTree.pruneSubTree(): error in subtree';
+      }
+    }
+  }
+
   // checks
+
+  private checkDangling(): boolean {
+    const allChildren: string[] = this.nodes.flatMap((n: TreeNode) => n.children);
+    // todo: will this catch all duplicates for certain?
+    const dangleNodes: TreeNode[] | undefined = this.nodes.filter((n: TreeNode) => (n.text !== this.root) && !allChildren.includes(n.text));
+    return (dangleNodes.length !== 0);
+  }
 
   private checkDuplicates(nodes?: TreeNode[]): boolean {
     if ((nodes !== undefined) && nodes.length > 0) {

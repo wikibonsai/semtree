@@ -157,9 +157,24 @@ Parse a given file or files and build a tree from the filenames and their conten
 
 ##### `content: string | Record<string, string>`
 
-A content string containing a list or a `Record` whose keys are entities (such as files) and values are content strings of those entities, where a key might be a filename which points to its content value.
+A content string or a `Record` whose keys are entities (such as files) and values are content strings of those entities.
 
 ##### `root: string`
+
+Name of the root node of the tree.
+
+### semtree.updateSubTree(content: string | Record<string, string>, subroot: string): any;
+
+
+#### Parameters
+
+##### `content: string | Record<string, string>`
+
+A content string or a `Record` whose keys are entities (such as files) and values are content strings of those entities.
+
+##### `subroot: string`
+
+Name of the subroot node of the subtree to be replaced.
 
 ### semtree.clear()
 
@@ -189,7 +204,7 @@ A unique 'id' (see nanoid options) or location 'loc' of the item in the file.
 
 ### `virtualTrunk: boolean`
 
-Whether or not to include the semtree/index files themselves as nodes in the tree. This option is a useful toggle between 'tree-building' (non-virtual to allow for index/trunk file traversal) and 'tree-viewing' (virtual to eliminate unnecessary index/trunk files) states. Default is `false`.
+Whether or not to include the semtree/index files themselves as nodes in the tree. This option is a useful toggle between 'tree-building' (non-virtual to allow for index/trunk file traversal) and 'tree-viewing' (virtual to eliminate unnecessary index/trunk files) states. Default is `false`. Best used for things like static site generation where updates are not a usual occurrence.
 
 Note: If `virtualTrunk` is set to `true`, it is wise to ensure there is a root-level node.
 
