@@ -244,7 +244,6 @@ export const treeWithIDConcreteTrunk: any = [
   }
 ];
 
-
 export const treeWithIDVirtualTrunk: any = [
   {
     'ancestors': [],

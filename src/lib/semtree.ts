@@ -1,4 +1,4 @@
-import type { SemTreeOpts, TreeNode, TreeNodeBuilder } from './types';
+import type { SemTreeOpts, TreeNode } from './types';
 
 import { customAlphabet } from 'nanoid';
 
@@ -75,7 +75,7 @@ export class SemTree {
       return this.buildTree('root', { 'root': lines });
     // multiple files
     } else {
-      if (!root) { console.warn('Cannot parse multiple files without a "root" defined'); return; }
+      if (!root) { console.warn('cannot parse multiple files without a "root" defined'); return; }
       if (!Object.keys(content).includes(root)) {
         throw Error(`content hash does not contain: '${root}'; keys are: ${Object.keys(content)}'`);
       }
@@ -96,11 +96,11 @@ export class SemTree {
   public buildTree(
     curKey: string,
     content: Record<string, string[]>,
-    ancestors: TreeNodeBuilder[] = [],
+    ancestors: TreeNode[] = [],
     totalLevel: number = 0,
     // virtualLevels: number = 0,
   ): any {
-    let nodeBuilder: TreeNodeBuilder;
+    let nodeBuilder: TreeNode;
     this.trunk = Object.keys(content);
     // if the trunk isn't virtual, handle index/trunk file
     if (!this.virtualTrunk) {
@@ -167,7 +167,7 @@ export class SemTree {
           text: text,
           ancestors: [],
           children: [],
-        } as TreeNodeBuilder;
+        } as TreeNode;
         this.handleSuffix(nodeBuilder, lines);
         nodeBuilder.text = this.rawText(nodeBuilder.text);
         ancestors = this.popGrandAncestor(level, ancestors);
@@ -183,15 +183,10 @@ export class SemTree {
       return `SemanticTree.buildTree(): Some files were not processed --\n${Object.keys(content)}`;
     }
     if (Object.entries(content).length === 0) {
-      // if duplicate nodes were found, error out
-      if (this.duplicates.length !== 0) {
-        // convert to set to delete duplicates, then convert to array to print
-        const duplicates: string[] = Array.from(new Set(this.duplicates));
-        let errorMsg: string = 'Tree did not build, duplicate nodes found:\n\n';
-        errorMsg += duplicates.join(', ') + '\n\n';
-        this.clear();
-        // throw new Error(errorMsg);
-        return errorMsg;
+      // if duplicate nodes were found, return warning string
+      if (this.checkDuplicates()) {
+        // this.clear();
+        return this.warnDuplicates();
       }
       // if given, call option methods
       if (this.action.setRoot && this.action.graft) {
@@ -201,6 +196,7 @@ export class SemTree {
             this.action.graft(node.text, node.ancestors);
           }
           // todo: print Object.keys(content)
+          // todo: print warning for unused hash content (e.g. hanging index docs)
         }
       }
       // only return the fully-built tree -- not subtrees
@@ -210,7 +206,7 @@ export class SemTree {
 
   // internal tree-building methods
 
-  public addRoot(text: string): void {
+  private addRoot(text: string): void {
     this.root = text;
     this.nodes.push({
       text: text,
@@ -220,17 +216,17 @@ export class SemTree {
     this.petioleMap[text] = text;
   }
 
-  public addBranch(text: string, ancestryTitles: string[], trnkFname?: string): void {
+  private addBranch(text: string, ancestryTitles: string[], trnkFname?: string): void {
     if (!trnkFname) { trnkFname = text; }
     for (const [i, ancestryTitle] of ancestryTitles.entries()) {
       if (i < (ancestryTitles.length - 1)) {
-        const node = this.nodes.find((node) => node.text === ancestryTitle);
+        const node = this.nodes.find((node: TreeNode) => node.text === ancestryTitle);
         if (node && !node.children.includes(ancestryTitles[i + 1])) {
           node.children.push(ancestryTitles[i + 1]);
         }
       // i === (ancestryTitles.length - 1)
       } else {
-        const node = this.nodes.find((node) => node.text === ancestryTitle);
+        const node = this.nodes.find((node: TreeNode) => node.text === ancestryTitle);
         if (node && !node.children.includes(text)) {
           node.children.push(text);
         }
@@ -244,8 +240,8 @@ export class SemTree {
     this.petioleMap[text] = trnkFname;
   }
 
-  private popGrandAncestor(level: number, ancestors: TreeNodeBuilder[]): TreeNodeBuilder[] {
-    const parent: TreeNodeBuilder = ancestors[ancestors.length - 1];
+  private popGrandAncestor(level: number, ancestors: TreeNode[]): TreeNode[] {
+    const parent: TreeNode = ancestors[ancestors.length - 1];
     const isChild: boolean = (parent.level === (level - 1));
     const isSibling: boolean = (parent.level === level);
     // child:
@@ -263,20 +259,38 @@ export class SemTree {
     // unrelated (great+) (grand)parent:
     //     - [[descendent]]
     // - [[great-grandparent]]
-    } else { // (parent.level < level)
+    } else if (parent.level) { // (parent.level < level)
       const levelDiff: number = parent.level - level;
       for (let i = 1; i <= levelDiff + 1; i++) {
         ancestors.pop();
       }
+    } else {
+      console.warn(`SemTree.popGrandAncestor(): unknown ancestor level: ${parent.level}`);
     }
     return ancestors;
   }
 
-  private clear() {
-    this.root = '';
-    this.nodes = [];
-    this.petioleMap = {};
-    this.duplicates = [];
+
+  // checks
+
+  private checkDuplicates(nodes?: TreeNode[]): boolean {
+    if ((nodes !== undefined) && nodes.length > 0) {
+      for (const node of nodes) {
+        if (this.nodes.map((node) => node.text).includes(node.text)) {
+          this.duplicates.push(node.text);
+        }
+      }
+    }
+    return (this.duplicates.length > 0);
+  }
+
+  private warnDuplicates(): string {
+    // delete duplicate duplicates, convert to array
+    const duplicates: string[] = Array.from(new Set(this.duplicates));
+    let errorMsg: string = 'tree did not build, duplicate nodes found:\n\n';
+    errorMsg += duplicates.join(', ') + '\n\n';
+    // throw new Error(errorMsg);
+    return errorMsg;
   }
 
   // utils
