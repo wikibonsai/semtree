@@ -165,6 +165,7 @@ Name of the root node of the tree.
 
 ### semtree.updateSubTree(content: string | Record<string, string>, subroot: string): any;
 
+A method to update a subtree within the semantic tree. (Best used to update individual `index` documents.) Returns the updated tree.
 
 #### Parameters
 

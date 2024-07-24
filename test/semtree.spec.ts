@@ -13,6 +13,7 @@ import {
   contentWithIDWithSpaces,
   contentWithIDWith3Spaces,
   contentWithIDWithTabs,
+  wikiContentsWithIDWithSpacesWithCycle,
 } from './fixtures/content';
 import {
   treeIndexAndEntrySiblings,
@@ -57,7 +58,7 @@ describe('semtree; virtual trunk', () => {
         assert.deepEqual(semtree.parse(wikiContentWithIDWithSpaces), treeWithIDVirtualTrunk);
       });
 
-      it('update', () => {
+      it('no mkdn list; no suffix', () => {
         semtree.opts({
           mkdnList: false,
           suffix: 'none',
@@ -109,6 +110,12 @@ describe('semtree; virtual trunk', () => {
 
       it('default; leave existing id; 2 spaces; wiki', () => {
         assert.deepEqual(semtree.parse(wikiContentsWithIDWithSpaces, 'root'), treeWithIDVirtualTrunk);
+      });
+
+      it('error; cycle detected', () => {
+        assert.strictEqual(semtree.parse(wikiContentsWithIDWithSpacesWithCycle), undefined);
+        assert.strictEqual(fakeConsoleWarn.called, true);
+        assert.strictEqual(fakeConsoleWarn.getCall(0).args[0], 'cannot parse multiple files without a "root" defined');
       });
 
       it('error; must define root with multiple files', () => {
@@ -171,7 +178,6 @@ describe('semtree; concrete trunk', () => {
     it('add leaf', () => {
       // setup
       semtree.parse(wikiContentsWithIDWithSpaces, 'root');
-      // console.debug('before: ', semtree.nodes);
       // go
       const wikiGraphContentWithIDWithSpaces = 
 `- [[graph-(0a1b2)]]
@@ -265,6 +271,7 @@ describe('semtree; concrete trunk', () => {
       // setup
       semtree.parse(wikiContentsIndexAndEntrySiblings, 'i.bonsai');
       // go
+      // this removes 'i.education'
       const rmBranch = 
 `- [[social-science]]
   - [[discourse]]
@@ -273,15 +280,26 @@ describe('semtree; concrete trunk', () => {
         'i.social-science': rmBranch
       }, 'i.social-science');
       // prep expected data...
-      let expectedUpdatedTree = JSON.parse(JSON.stringify(treeIndexAndEntrySiblings));
-      expectedUpdatedTree = expectedUpdatedTree.filter((node: TreeNode) => ((node.text !== 'i.education') && (node.text !== 'learning-theory') && (node.text !== 'conditioning') && (node.text !== 'classical-conditioning')));
+      const tree: TreeNode[] = JSON.parse(JSON.stringify(treeIndexAndEntrySiblings));
+      const expectedUpdatedTree: TreeNode[] = tree.filter((node: TreeNode) => ((node.text !== 'i.education')
+                                                                              && (node.text !== 'learning-theory')
+                                                                              && (node.text !== 'conditioning')
+                                                                              && (node.text !== 'classical-conditioning')));
+      const expectedRmedNodes: TreeNode[] = tree.filter((node: TreeNode) => ((node.text === 'i.education')
+                                                                            || (node.text === 'learning-theory')
+                                                                            || (node.text === 'conditioning')
+                                                                            || (node.text === 'classical-conditioning')));
       const node: TreeNode | undefined = expectedUpdatedTree.find((node: TreeNode) => node.text === 'social-science');
       if (node) node.children = ['discourse'];
       // assert
+      // existing nodes
       for (const expdNode of expectedUpdatedTree) {
         assert.deepStrictEqual(semtree.nodes.find((n: TreeNode) => n.text === expdNode.text), expdNode);
       }
-      assert.strictEqual(semtree.nodes.find((n: TreeNode) => n.text === 'i.education'), undefined);
+      // removed nodes
+      for (const rmNode of expectedRmedNodes) {
+        assert.strictEqual(semtree.nodes.find((n: TreeNode) => n.text === rmNode.text), undefined);
+      }
     });
 
     // this test describes the behavior related to removing a link to an index doc, which contains links to other index docs
@@ -289,6 +307,7 @@ describe('semtree; concrete trunk', () => {
       // setup
       semtree.parse(wikiContentsIndexAndEntrySiblings, 'i.bonsai');
       // go
+      // this removes 'i.social-science' and by extension, 'i.education'
       const rmBranch = 
 `- [[root]]
   - [[semantic-tree]]

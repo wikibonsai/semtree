@@ -228,3 +228,9 @@ export const wikiContentsIndexAndEntrySiblings: any = {
     - [[classical-conditioning]]
 `
 };
+
+export const wikiContentsWithIDWithSpacesWithCycle: any = {
+  'root':
+`- [[root]]
+`,
+};
