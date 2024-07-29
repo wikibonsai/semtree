@@ -7,7 +7,7 @@
 > 
 > ~ [Elon Musk](https://www.reddit.com/r/IAmA/comments/2rgsan/comment/cnfre0a/?utm_source=share&utm_medium=web2x&context=3)
 
-`Semtree` is a utility to construct a semantic tree from  (word) lists/indexes which may span multiple objects, such as files. Can be used in conjunction with [[[wikirefs]]](https://github.com/wikibonsai/wikirefs). See the [context](#context) for more details.
+`SemTree` is a utility to construct a semantic tree from  (word) lists/indexes which may span multiple objects, such as files. Can be used in conjunction with [[[wikirefs]]](https://github.com/wikibonsai/wikirefs) and [treehouze](https://github.com/wikibonsai/treehouze). See the [context](#context) for more details.
 
 🌳 Cultivate a "semantic tree" or "knowledge bonsai" in your [🎋 WikiBonsai](https://github.com/wikibonsai/wikibonsai) digital garden.
 
@@ -139,6 +139,7 @@ Parsing:
 
 Valid Trees:
 - Every node in the tree should be unique; e.g. each list-item's text should be unique.
+- Must be a directed-acyclic-graph (DAG) (this happens naturally if you follow the former point).
 - Each level can have any number of nodes.
 
 Tree requirements are sparse because the idea is to allow the end-user to determine the shape of their tree in their markdown files. This package merely creates a single, virtual tree so as to better present that unified structure to the end-user.
@@ -149,9 +150,9 @@ Tree requirements are sparse because the idea is to allow the end-user to determ
 
 If any of the semantic tree options need to be changed while an instance is in use, this method may be called up update options on the fly.
 
-### semtree.parse(content: string | Record<string, string>, root: string): any;
+### semtree.parse(content: string | Record<string, string>, root: string): TreeNode[] | string;
 
-Parse a given file or files and build a tree from the filenames and their content. Calling this method will override the local copy of the tree. Will throw an error if there are duplicates found in the tree.
+Parse a given file or files and build a tree from the filenames and their content. Calling this method will override the local copy of the tree. Will return the tree node upon successful parse. Will return an error string otherwise, for example if there are duplicates found in the tree.
 
 #### Parameters
 
@@ -163,7 +164,7 @@ A content string or a `Record` whose keys are entities (such as files) and value
 
 Name of the root node of the tree.
 
-### semtree.updateSubTree(content: string | Record<string, string>, subroot: string): any;
+### semtree.updateSubTree(content: string | Record<string, string>, subroot?: string): any;
 
 A method to update a subtree within the semantic tree. (Best used to update individual `index` documents.) Returns the updated tree.
 

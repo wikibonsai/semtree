@@ -1,6 +1,11 @@
-// single file
+// concrete,virtual
+// na,id,loc
 
-export const treeWithIDConcreteTrunk: any = [
+// na - "not available (n/a)"
+// n - "and"
+// w - "with"
+
+export const dataConcreteID: any = [
   {
     'ancestors': [],
     'children': [
@@ -244,7 +249,7 @@ export const treeWithIDConcreteTrunk: any = [
   }
 ];
 
-export const treeWithIDVirtualTrunk: any = [
+export const dataVirtualID: any = [
   {
     'ancestors': [],
     'children': [
@@ -427,7 +432,7 @@ export const treeWithIDVirtualTrunk: any = [
   }
 ];
 
-export const treeWithLoc: any = [
+export const dataVirtualLoc: any = [
   {
     'ancestors': [],
     'children': [
@@ -610,7 +615,7 @@ export const treeWithLoc: any = [
   }
 ];
 
-export const treeNoSuffix: any = [
+export const dataVirtualNa: any = [
   {
     'ancestors': [],
     'children': [
@@ -793,7 +798,7 @@ export const treeNoSuffix: any = [
   }
 ];
 
-export const treeIndexAndEntrySiblings: any = [
+export const dataVirtualNawIndexnEntrySiblings: any = [
   {
     'ancestors': [],
     'children': ['root'],

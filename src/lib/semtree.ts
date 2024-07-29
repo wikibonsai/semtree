@@ -8,6 +8,13 @@ import {
   openBrackets,
   REGEX,
 } from './const';
+import {
+  deepcopy,
+  getChunkSize,
+  getMaxLevel,
+  getWhitespaceSize,
+  lint,
+} from './func';
 
 
 export class SemTree {
@@ -24,8 +31,8 @@ export class SemTree {
   public root: string                        = '';
   public nodes: TreeNode[]                   = [];
   public trunk: string[]                     = []; // list of index filenames
-  public petioleMap: Record<string, string>  = {}; // 'petiole': "the stalk that joins a leaf to a stem; leafstalk"; or in this case, leaf to trunk.
-  public dangling: string[]                  = [];
+  public petioleMap: Record<string, string>  = {}; // a record that tracks what index file a file/leaf-node was listed in; 'petiole': "the stalk that joins a leaf to a stem; leafstalk"; or in this case, leaf to trunk.
+  public dangling: string[]                  = []; // nodes no longer connected via a path of 'children' property pointers
   public duplicates: string[]                = [];
   // nanoid
   public nanoidOpts: any = {
@@ -48,6 +55,7 @@ export class SemTree {
     // overridable methods
     if (opts.setRoot)      { this.action.setRoot = opts.setRoot; }
     if (opts.graft)        { this.action.graft   = opts.graft; }
+    if (opts.prune)        { this.action.prune   = opts.prune; }
     // parsing configurables
     if (opts.mkdnList)     { this.mkdnList       = opts.mkdnList; }
     if (opts.suffix)       { this.suffix         = opts.suffix; }
@@ -63,44 +71,56 @@ export class SemTree {
   }
 
   // single file
-  public parse(content: string): any;
+  public parse(content: string, root?: string): any;
   // multiple files
   public parse(content: Record<string, string>, root: string): any;
   // define
-  public parse(content: string | Record<string, string>, root?: string): any {
-    let lines: string[];
+  public parse(content: string | Record<string, string>, root?: string): TreeNode[] | string {
+    let contentHash: Record<string, string[]> = {};
     // single file
     if (typeof content === 'string') {
-      lines = content.split('\n');
-      this.setUnits(lines);
-      return this.buildTree('root', { 'root': lines });
-    // multiple files
+      if (!root) {
+        root = '';
+      }
+      contentHash[root] = content.split('\n');
+    // multi file
     } else {
-      if (!root) { console.warn('cannot parse multiple files without a "root" defined'); return; }
+      if (!root) {
+        return 'SemTree.parse(): cannot parse multiple files without a "root" defined';
+      }
       if (!Object.keys(content).includes(root)) {
-        throw Error(`content hash does not contain: '${root}'; keys are: ${Object.keys(content)}'`);
+        return `SemTree.parse(): content hash does not contain: '${root}'; keys are: ${Object.keys(content)}`;
       }
-      lines = content[root].split('\n');
-      this.setUnits(lines);
-      const contentHash: Record<string, string[]> = {};
-      for (const [filename, fileContent] of Object.entries(content)) {
-        contentHash[filename] = fileContent.split('\n');
-      }
-      this.clear();
-      // deepcopy content just in case because it is going to be destroyed
-      return this.buildTree(root, this.deepcopy(contentHash));
+      contentHash = Object.fromEntries(
+        Object.entries(content).map(([key, value]) => [key, value.split('\n')])
+      );
     }
+    // set chunk size and lint
+    this.chunkSize = getChunkSize(contentHash[root]);
+    if (this.suffix === 'loc') {
+      this.levelMax = getMaxLevel(contentHash[root], this.chunkSize);
+    }
+    const lintError = lint(content);
+    if (lintError) {
+      return lintError;
+    }
+    // clear and build tree
+    this.clear();
+    return this.buildTree(root, deepcopy(contentHash));
   }
 
-  // useful for single page updates
+  // useful for single page updates (even if page includes links to other index files)
   // e.g. the index file is the 'subroot' and the [[wikirefs]] on the page are 'branchNodes'
+  // single file
   public updateSubTree(content: string, subroot: string): TreeNode[] | string;
+  // multiple files
   public updateSubTree(content: Record<string, string>, subroot: string): TreeNode[] | string;
+  // define
   public updateSubTree(content: string | Record<string, string>, subroot: string): TreeNode[] | string {
     // save state in case subtree is invalid
-    const originalNodes = this.deepcopy(this.nodes);
-    const originalTrunk = [...this.trunk];
-    const originalPetioleMap = { ...this.petioleMap };
+    const originalNodes: TreeNode[] = deepcopy(this.nodes);
+    const originalTrunk: string[] = [...this.trunk];
+    const originalPetioleMap: Record<string, string> = { ...this.petioleMap };
     // input validation and processing
     const contentHash: Record<string, string[]> = {};
     if ((typeof content === 'string') && (subroot !== undefined)) {
@@ -119,7 +139,7 @@ export class SemTree {
     // find and validate subroot node
     const subrootNode: TreeNode | undefined = this.nodes.find((node) => node.text === subroot);
     if (!subrootNode) {
-      return `SemTree.updateSubTree(): subroot not found in the tree: '${subroot}'`;
+      return `SemTree.updateSubTree(): subroot not found in the tree: "${subroot}"`;
     }
     // prune existing subtree
     const pruneError: void | string = this.pruneSubTree(subroot);
@@ -130,8 +150,8 @@ export class SemTree {
     const subrootNodeAncestors: TreeNode[] = this.nodes.filter((node) => subrootNode.ancestors.includes(node.text));
     const updatedTree: any = this.buildTree(
       subroot,
-      this.deepcopy(contentHash),
-      subroot, // the 'root' being passed in is a subroot, not the root
+      deepcopy(contentHash),
+      subroot, // the 'root' being passed in is a subroot, not necessarily the root
       subrootNodeAncestors,
       subrootNode.ancestors.length,
     );
@@ -140,42 +160,17 @@ export class SemTree {
     }
     // post-update checks
     if (this.checkDangling()) { this.pruneDangling(); }
-    if (this.checkDuplicates()) { 
+    if (this.checkDuplicates()) {
       // restore state
       this.nodes = originalNodes;
       this.trunk = originalTrunk;
       this.petioleMap = originalPetioleMap;
-      return this.warnDuplicates(); 
+      return this.warnDuplicates();
     }
     this.refreshAncestors();
     // return subtree nodes
     const subtreeNodes: TreeNode[] = this.nodes.filter(node => this.petioleMap[node.text] === subroot);
-    subtreeNodes.unshift(subrootNode);
-    return this.deepcopy(subtreeNodes);
-  }
-
-  private refreshAncestors(): void {
-    const updateAncestors = (nodeText: string, ancestors: string[]): void => {
-      const node = this.nodes.find(n => n.text === nodeText);
-      if (!node) { return; }
-      node.ancestors = [...ancestors]; // Create a new array to avoid reference issues
-      for (const childText of node.children) {
-        updateAncestors(childText, [...ancestors, node.text]);
-      }
-    };
-    const rootNode = this.nodes.find(n => n.text === this.root);
-    if (rootNode) {
-      updateAncestors(this.root, []);
-    }
-  }
-
-  private getTrunkKey(curKey: string, content: Record<string, string[]>): string | undefined {
-    for (const key of Object.keys(content)) {
-      const items: string[] = content[key].map((txt) => this.rawText(txt).trim().replace(/^[-*+]\s*/, ''));
-      if (items.includes(curKey)) {
-        return key;
-      }
-    }
+    return deepcopy(subtreeNodes);
   }
 
   public buildTree(
@@ -202,7 +197,7 @@ export class SemTree {
         if (totalLevel === 0) {
           this.addRoot(curKey);
         } else {
-          const trnkFname: string | undefined = this.getTrunkKey(curKey, this.deepcopy(content));
+          const trnkFname: string | undefined = this.getTrunkKey(curKey, deepcopy(content));
           if (trnkFname === undefined) {
             console.log(`SemTree.buildTree(): trunk file for '${curKey}' not found in content`);
             return `SemTree.buildTree(): trunk file for '${curKey}' not found in content`;
@@ -227,15 +222,15 @@ export class SemTree {
       const levelMatch: RegExpMatchArray | null = line.match(REGEX.LEVEL);
       //  number of spaces
       if (levelMatch === null) { continue; }
-      const size: number | undefined = this.getWhitespaceSize(levelMatch[0]);
-      const level: number = this.getLevel(size) + totalLevel;
-      if (this.chunkSize < 0) { this.chunkSize = 2; }
+      const size: number | undefined = getWhitespaceSize(levelMatch[0]);
+      const thisLevel: number = (size / this.chunkSize) + 1;
+      const cumulativeLevel: number = thisLevel + totalLevel;
       // root
       if ((totalLevel === 0) && (i === 0)) {
         // init
         nodeBuilder = {
           line: lineNum,
-          level: level,
+          level: cumulativeLevel,
           text: text,
           ancestors: [],
           children: [],
@@ -252,28 +247,27 @@ export class SemTree {
         const curTxt: string = this.rawText(text);
         const trunkNames: string[] = Object.keys(content);
         if ((curKey !== curTxt) && trunkNames.includes(curTxt)) {
-          // virtualLevels += this.chunkSize;
-          ancestors = this.popGrandAncestor(level, ancestors);
+          ancestors = this.popGrandAncestor(cumulativeLevel, ancestors);
           this.buildTree(
             this.rawText(text),
             content,
             subroot,
-            this.deepcopy(ancestors),
-            this.getLevel(size),
+            deepcopy(ancestors),
+            thisLevel,
           );
           continue;
         }
         // init
         nodeBuilder = {
           line: lineNum,
-          level: level,
+          level: cumulativeLevel,
           text: text,
           ancestors: [],
           children: [],
         } as TreeNode;
         this.handleSuffix(nodeBuilder, lines);
         nodeBuilder.text = this.rawText(nodeBuilder.text);
-        ancestors = this.popGrandAncestor(level, ancestors);
+        ancestors = this.popGrandAncestor(cumulativeLevel, ancestors);
         nodeBuilder.ancestors = ancestors.map(p => this.rawText(p.text));
         ancestors.push(nodeBuilder);
         this.addBranch(nodeBuilder.text, nodeBuilder.ancestors, curKey);
@@ -290,13 +284,14 @@ export class SemTree {
       if (!isSubTree) {
         // if duplicate nodes were found, return warning string
         if (this.checkDuplicates()) {
-          // this.clear();
           return this.warnDuplicates();
         }
       }
       // if given, call option methods
-      if (this.action.setRoot && this.action.graft) {
+      if (this.action.setRoot) {
         this.action.setRoot(this.root);
+      }
+      if (this.action.graft) {
         for (const node of this.nodes) {
           if (this.root !== node.text) {
             this.action.graft(node.text, node.ancestors);
@@ -305,13 +300,13 @@ export class SemTree {
           // todo: print warning for unused hash content (e.g. hanging index docs)
         }
       }
-      // only return the fully-built tree -- not subtrees
-      return this.deepcopy(this.nodes);
+      return deepcopy(this.nodes);
     }
     return 'SemanticTree.buildTree(): problem building tree';
   }
 
   public clear() {
+    // tree
     this.root = '';
     this.nodes = [];
     this.trunk = [];
@@ -360,6 +355,30 @@ export class SemTree {
     this.petioleMap[text] = trnkFname;
   }
 
+  private getTrunkKey(curKey: string, content: Record<string, string[]>): string | undefined {
+    for (const key of Object.keys(content)) {
+      const items: string[] = content[key].map((txt) => this.rawText(txt).trim().replace(/^[-*+]\s*/, ''));
+      if (items.includes(curKey)) {
+        return key;
+      }
+    }
+  }
+
+  private refreshAncestors(): void {
+    const updateAncestors = (nodeText: string, ancestors: string[]): void => {
+      const node = this.nodes.find(n => n.text === nodeText);
+      if (!node) { return; }
+      node.ancestors = [...ancestors]; // Create a new array to avoid reference issues
+      for (const childText of node.children) {
+        updateAncestors(childText, [...ancestors, node.text]);
+      }
+    };
+    const rootNode = this.nodes.find(n => n.text === this.root);
+    if (rootNode) {
+      updateAncestors(this.root, []);
+    }
+  }
+
   private popGrandAncestor(level: number, ancestors: TreeNode[]): TreeNode[] {
     const parent: TreeNode = ancestors[ancestors.length - 1];
     const isChild: boolean = (parent.level === (level - 1));
@@ -389,17 +408,6 @@ export class SemTree {
     }
     return ancestors;
   }
-
-  // todo...?
-  // public prune(nodeText: string) {
-  //   const curNodeIndex: number | undefined = this.nodes.findIndex((n: TreeNode) => n.text === nodeText);
-  //   if (curNodeIndex < 0) {
-  //     console.debug(`node with text '${nodeText}' not found in dangling nodes`);
-  //     return;
-  //   }
-  //   // rm node
-  //   this.nodes.splice(curNodeIndex, 1);
-  // }
 
   private pruneDangling() {
     for (const dangle of this.dangling) {
@@ -433,6 +441,7 @@ export class SemTree {
       }
       // rm node
       this.nodes.splice(curNodeIndex, 1);
+      delete this.petioleMap[nodeText];
     } else {
       return `SemTree.pruneSubTree(): error pruning expected nodeText "${nodeText}"`;
     }
@@ -470,10 +479,10 @@ export class SemTree {
     return (this.duplicates.length > 0);
   }
 
-  private warnDuplicates(): string {
+  private warnDuplicates(dup?: string[]): string {
     // delete duplicate duplicates, convert to array
-    const duplicates: string[] = Array.from(new Set(this.duplicates));
-    let errorMsg: string = 'tree did not build, duplicate nodes found:\n\n';
+    const duplicates: string[] = dup ? dup : Array.from(new Set(this.duplicates));
+    let errorMsg: string = 'SemTree.warnDuplicates(): tree did not build, duplicate nodes found:\n\n';
     errorMsg += duplicates.join(', ') + '\n\n';
     // throw new Error(errorMsg);
     return errorMsg;
@@ -481,33 +490,9 @@ export class SemTree {
 
   // utils
 
-  private deepcopy(item: any) {
-    // 🦨
-    return JSON.parse(JSON.stringify(item));
-  }
-
   public genID() {
     const nanoid = customAlphabet(this.nanoidOpts.alphabet, this.nanoidOpts.size);
     return nanoid();
-  }
-
-  public setUnits(lines: string[]) {
-    // calculate number of spaces per level and size of deepest level
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    lines.forEach((line, i) => {
-      let level: number;
-      const levelMatch = line.match(REGEX.LEVEL);
-      // calculates number of spaces
-      if (levelMatch) {
-        if (this.chunkSize < 0) {
-          this.chunkSize = this.defineLevelSize(levelMatch[0]);
-        }
-        level = this.getLevel(levelMatch[0].length);
-      } else {
-        return;
-      }
-      this.levelMax = (level > this.levelMax) ? level : this.levelMax;
-    });
   }
 
   public rawText(fullText: string) {
@@ -515,34 +500,6 @@ export class SemTree {
     fullText = (this.mkdnList && isMarkdownBullet(fullText.substring(0, 2))) ? fullText.slice(2, fullText.length) : fullText;
     // strip wikistring special chars and line breaks (see: https://stackoverflow.com/a/10805292)
     return fullText.replace(openBrackets, '').replace(closeBrackets, '').replace(/\r?\n|\r/g, '');
-  }
-
-  public defineLevelSize(whitespace: string) {
-    if (whitespace[0] == ' ') {
-      return whitespace.length;
-    }
-    if (whitespace[0] == '\t') {
-      const tabSize: number = 4;
-      return tabSize;
-    }
-    // console.warn('defineLevelSize: unknown whitespace:', whitespace);
-    return -1;
-  }
-
-  public getWhitespaceSize(whitespace: string) {
-    if (whitespace.includes(' ')) {
-      return whitespace.length;
-    }
-    if (whitespace.includes('\t')) {
-      const tabSize: number = 4;
-      return whitespace.length * tabSize;
-    }
-    // console.warn('getWhitespaceSize: unknown whitespace:', whitespace);
-    return whitespace.length;
-  }
-
-  public getLevel(size: number) {
-    return (size / this.chunkSize) + 1;
   }
 
   // suffix-handling
@@ -576,10 +533,10 @@ export class SemTree {
       text = this.wikitext ? match[2] : match[1];
       id = this.wikitext ? match[3] : match[2];
     } else {
+      id = this.genID();
       // mocks aren't working with nanoid / customAlphabet
       // see: https://github.com/ai/nanoid/issues/205
-      if (!this.testing) { id = this.genID(); }
-      else { id = '0a1b2'; }
+      if (this.testing) { id = '0a1b2'; }
     }
     return `${text}-(${id})`;
   }
@@ -610,7 +567,10 @@ export class SemTree {
   ): string {
     let output: string = curNodeName + '\n';
     const node: TreeNode | undefined = this.nodes.find((node: TreeNode) => node.text === curNodeName);
-    if (node === undefined) { console.log('SemTree.print: error: undefined node'); return output; }
+    if (node === undefined) {
+      console.log(`SemTree.print: error: no node with text "${curNodeName}"`);
+      return output;
+    }
     node.children.forEach((child: string, index: number) => {
       const isLastChild: boolean = (index === node.children.length - 1);
       const childPrefix: string = prefix + (isLastChild ? '└── ' : '├── ');

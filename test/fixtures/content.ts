@@ -1,6 +1,16 @@
 // single file
 
-export const content: string = 
+// one,multi
+// txt, wiki
+// space (num), tab
+// na,-, *, +,mix
+// na,id,loc
+
+// na - "not available (n/a)"
+// n - "and"
+// w - "with"
+
+export const cntntOneTxtSpace2NaNa: string = 
 `root
   node
     id
@@ -22,7 +32,14 @@ export const content: string =
     st
 `;
 
-export const wikiContentWithIDWithSpaces: string = 
+export const cntntOneTxtSpace2NaNawMisalignedSpacing: string = 
+`root
+  graph
+   tree
+ web
+`;
+
+export const cntntOneWikiSpace2DashID: string = 
 `- [[root-(0a1b2)]]
   - [[node-(0a1b2)]]
     - [[id-(0a1b2)]]
@@ -44,7 +61,30 @@ export const wikiContentWithIDWithSpaces: string =
     - [[st-(0a1b2)]]
 `;
 
-export const wikiContentWithIDWithSpacesWithPreceedingNewlines: string = 
+export const cntntOneWikiSpace2MixNa: string = 
+`- [[root]]
+  * [[node]]
+    + [[id]]
+    + [[data]]
+      - [[filename]]
+      - [[uri]]
+      - [[title]]
+    + [[rels]]
+      - [[famrel]]
+      - [[refs]]
+        - [[attrs]]
+        - [[links]]
+  * [[graph]]
+    + [[tree]]
+    + [[web]]
+  * [[markdown]]
+    + [[wikilinks]]
+  * [[semantic-tree]]
+    + [[st]]
+`;
+
+
+export const cntntOneWikiSpace2DashIDwLeadingWS: string = 
 `
 
 - [[root-(0a1b2)]]
@@ -69,7 +109,7 @@ export const wikiContentWithIDWithSpacesWithPreceedingNewlines: string =
 `;
 
 // 'root-(0a1b2)' is duplicated in the first and last entry
-export const wikiContentWithDuplicatesWithSpaces = 
+export const cntntOneWikiSpace2DashIDwDuplicates = 
 `- [[root-(0a1b2)]]
   - [[node-(0a1b2)]]
     - [[id-(0a1b2)]]
@@ -91,7 +131,7 @@ export const wikiContentWithDuplicatesWithSpaces =
     - [[root-(0a1b2)]]
 `;
 
-export const contentWithIDWithSpaces: string = 
+export const cntntOneTxtSpace2NaID: string = 
 `root-(0a1b2)
   node-(0a1b2)
     id-(0a1b2)
@@ -113,7 +153,7 @@ export const contentWithIDWithSpaces: string =
     st-(0a1b2)
 `;
 
-export const contentWithIDWith3Spaces: string = 
+export const cntntOneTxtSpace3NaID: string = 
 `root-(0a1b2)
    node-(0a1b2)
       id-(0a1b2)
@@ -135,7 +175,7 @@ export const contentWithIDWith3Spaces: string =
       st-(0a1b2)
 `;
 
-export const contentWithIDWithTabs: string = 
+export const cntntOneTxtTabNaID: string = 
 `root-(0a1b2)
 \tnode-(0a1b2)
 \t\tid-(0a1b2)
@@ -157,7 +197,7 @@ export const contentWithIDWithTabs: string =
 \t\tst-(0a1b2)
 `;
 
-export const contentWithLoc: string = 
+export const cntntOneTxtSpace2NaLoc: string = 
 `root-01-1
   node-02-2
     id-03-3
@@ -181,7 +221,7 @@ export const contentWithLoc: string =
 
 // multi file
 
-export const wikiContentsWithIDWithSpaces: any = {
+export const cntntMultiWikiSpace2DashIDnNone: any = {
   'root':
 `- [[root-(0a1b2)]]
   - [[node]]
@@ -211,7 +251,7 @@ export const wikiContentsWithIDWithSpaces: any = {
 `
 };
 
-export const wikiContentsIndexAndEntrySiblings: any = {
+export const cntntMultiWikiSpace2DashNawIndexnEntrySiblings: any = {
   'i.bonsai':
 `- [[root]]
   - [[semantic-tree]]
@@ -229,7 +269,25 @@ export const wikiContentsIndexAndEntrySiblings: any = {
 `
 };
 
-export const wikiContentsWithIDWithSpacesWithCycle: any = {
+export const cntntMultiTxtSpace2NaNawImproperIndent: Record<string, string> = {
+  'i.bonsai':
+`root
+  graph
+   tree
+ web
+`,
+};
+
+export const cntntMultiTxtSpace2NaNawOverIndent: Record<string, string> = {
+  'i.bonsai':
+`root
+  graph
+      tree
+    web
+`,
+};
+
+export const cntntMultiWikiSpace2DashNa: any = {
   'root':
 `- [[root]]
 `,
