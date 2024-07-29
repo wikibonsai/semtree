@@ -20,7 +20,8 @@ import {
   cntntOneTxtSpace2NaNawMisalignedSpacing,
 } from './fixtures/content';
 import {
-  dataConcreteID,
+  dataConcreteOneID,
+  dataConcreteMultiID,
   dataVirtualNawIndexnEntrySiblings,
   dataVirtualID,
   dataVirtualLoc,
@@ -58,10 +59,21 @@ describe('parse()', () => {
       semtree.clear();
     });
 
+    it('empty input', () => {
+      assert.deepStrictEqual(
+        semtree.parse(''),
+        'SemTree.parse(): no root specified and no line with zero indentation found. please provide a root or fix the indentation.',
+      );
+    });
+
     describe('single file', () => {
 
-      it.skip('default; leave existing id; 2 spaces; wiki; strip preceeding newlines', () => {
-        assert.deepStrictEqual(semtree.parse(cntntOneWikiSpace2DashIDwLeadingWS), dataConcreteID);
+      // it.skip('default; leave existing id; 2 spaces; wiki', () => {
+      //   assert.deepStrictEqual(semtree.parse(cntntOneWikiSpace2DashIDwLeadingWS), dataConcreteID);
+      // });
+
+      it('default; leave existing id; 2 spaces; wiki; strip preceeding newlines', () => {
+        assert.deepStrictEqual(semtree.parse(cntntOneWikiSpace2DashIDwLeadingWS), dataConcreteOneID);
       });
 
       describe('error handling', () => {
@@ -80,16 +92,12 @@ describe('parse()', () => {
     describe('multi file', () => {
 
       it('default; leave existing id; 2 spaces; wiki', () => {
-        assert.deepStrictEqual(semtree.parse(cntntMultiWikiSpace2DashIDnNone, 'root'), dataConcreteID);
+        assert.deepStrictEqual(semtree.parse(cntntMultiWikiSpace2DashIDnNone, 'root'), dataConcreteMultiID);
       });
 
       it('root is root filename', () => {
         semtree.parse(cntntMultiWikiSpace2DashIDnNone, 'root');
         assert.strictEqual(semtree.root, 'root');
-      });
-
-      it('empty input', () => {
-        assert.deepStrictEqual(semtree.parse(''), []);
       });
 
       it('ensure index and entry type nodes can be siblings', () => {
@@ -132,7 +140,10 @@ describe('parse()', () => {
     });
 
     it('empty input', () => {
-      assert.deepStrictEqual(semtree.parse(''), []);
+      assert.deepStrictEqual(
+        semtree.parse(''),
+        'SemTree.parse(): no root specified and no line with zero indentation found. please provide a root or fix the indentation.',
+      );
     });
 
     describe('single file', () => {

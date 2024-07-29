@@ -37,9 +37,9 @@ describe('print()', () => {
     describe('single', () => {
 
       it('default', () => {
-        semtree.parse(cntntOneWikiSpace2DashID);
+        semtree.parse(cntntOneWikiSpace2DashID, 'root');
         semtree.print();
-        assert.deepStrictEqual(fakeConsoleLog.getCall(0).args[0], outputWithID);
+        assert.strictEqual(fakeConsoleLog.getCall(0).args[0], outputWithID);
       });
 
     });
@@ -67,7 +67,7 @@ describe('print()', () => {
       it.skip('default', () => {
         semtree.parse(cntntOneWikiSpace2DashID);
         semtree.print();
-        assert.deepStrictEqual(fakeConsoleLog.getCall(0).args[0], outputWithID);
+        assert.strictEqual(fakeConsoleLog.getCall(0).args[0], outputWithID);
       });
 
     });

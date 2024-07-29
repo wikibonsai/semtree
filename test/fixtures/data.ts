@@ -1,11 +1,195 @@
 // concrete,virtual
+// one,multi
 // na,id,loc
 
 // na - "not available (n/a)"
 // n - "and"
 // w - "with"
 
-export const dataConcreteID: any = [
+export const dataConcreteOneID: any = [
+  {
+    'ancestors': [],
+    'children': [
+      'node-(0a1b2)',
+      'graph-(0a1b2)',
+      'markdown-(0a1b2)',
+      'semantic-tree-(0a1b2)'
+    ],
+    'text': 'root-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)',
+    ],
+    'children': [
+      'id-(0a1b2)',
+      'data-(0a1b2)',
+      'rels-(0a1b2)'
+    ],
+    'text': 'node-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)',
+      'node-(0a1b2)'
+    ],
+    'children': [],
+    'text': 'id-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)',
+      'node-(0a1b2)'
+    ],
+    'children': [
+      'filename-(0a1b2)',
+      'uri-(0a1b2)',
+      'title-(0a1b2)',
+    ],
+    'text': 'data-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)',
+      'node-(0a1b2)',
+      'data-(0a1b2)'
+    ],
+    'children': [],
+    'text': 'filename-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)',
+      'node-(0a1b2)',
+      'data-(0a1b2)'
+    ],
+    'children': [],
+    'text': 'uri-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)',
+      'node-(0a1b2)',
+      'data-(0a1b2)'
+    ],
+    'children': [],
+    'text': 'title-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)',
+      'node-(0a1b2)'
+    ],
+    'children': [
+      'famrel-(0a1b2)',
+      'refs-(0a1b2)',
+    ],
+    'text': 'rels-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)',
+      'node-(0a1b2)',
+      'rels-(0a1b2)'
+    ],
+    'children': [],
+    'text': 'famrel-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)',
+      'node-(0a1b2)',
+      'rels-(0a1b2)'
+    ],
+    'children': [
+      'attrs-(0a1b2)',
+      'links-(0a1b2)',
+    ],
+    'text': 'refs-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)',
+      'node-(0a1b2)',
+      'rels-(0a1b2)',
+      'refs-(0a1b2)'
+    ],
+    'children': [],
+    'text': 'attrs-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)',
+      'node-(0a1b2)',
+      'rels-(0a1b2)',
+      'refs-(0a1b2)'
+    ],
+    'children': [],
+    'text': 'links-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)',
+    ],
+    'children': [
+      'tree-(0a1b2)',
+      'web-(0a1b2)',
+    ],
+    'text': 'graph-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)',
+      'graph-(0a1b2)'
+    ],
+    'children': [],
+    'text': 'tree-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)',
+      'graph-(0a1b2)'
+    ],
+    'children': [],
+    'text': 'web-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)'
+    ],
+    'children': [
+      'wikilinks-(0a1b2)',
+    ],
+    'text': 'markdown-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)',
+      'markdown-(0a1b2)'
+    ],
+    'children': [],
+    'text': 'wikilinks-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)'
+    ],
+    'children': [
+      'st-(0a1b2)',
+    ],
+    'text': 'semantic-tree-(0a1b2)'
+  },
+  {
+    'ancestors': [
+      'root-(0a1b2)',
+      'semantic-tree-(0a1b2)'
+    ],
+    'children': [],
+    'text': 'st-(0a1b2)'
+  }
+];
+
+export const dataConcreteMultiID: any = [
   {
     'ancestors': [],
     'children': [

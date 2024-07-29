@@ -1,5 +1,3 @@
-// single file
-
 // one,multi
 // txt, wiki
 // space (num), tab

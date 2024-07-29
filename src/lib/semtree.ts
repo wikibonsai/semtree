@@ -79,10 +79,28 @@ export class SemTree {
     let contentHash: Record<string, string[]> = {};
     // single file
     if (typeof content === 'string') {
-      if (!root) {
-        root = '';
+      const lines: string[] = content.split('\n').filter(line => line.trim().length > 0);
+      this.chunkSize = getChunkSize(lines);
+      const zeroIndentLines: string[] = lines.filter(line => !line.match(/^\s/));
+      // single root does not exist
+      if (zeroIndentLines.length > 1) {
+        return 'SemTree.parse(): multiple lines with zero indentation found. A tree with multiple roots cannot be made. Please add a filename as a "root" parameter or fix the indentation.';
+      // single root does exist
+      } else if (zeroIndentLines.length === 1) {
+        root = this.rawText(zeroIndentLines[0]);
+        // rm root line and adjust indentation for remaining lines
+        if (!this.virtualTrunk) {
+          const remainingLines: string[] = lines.slice(1).filter(line => line.trim().length > 0);
+          contentHash[root] = remainingLines.map((line: string) =>  line.slice(this.chunkSize));
+        } else {
+          contentHash[root] = lines;
+        }
+      } else {
+        if (!root) {
+          return 'SemTree.parse(): no root specified and no line with zero indentation found. please provide a root or fix the indentation.';
+        }
+        contentHash[root] = lines;
       }
-      contentHash[root] = content.split('\n');
     // multi file
     } else {
       if (!root) {
@@ -94,19 +112,20 @@ export class SemTree {
       contentHash = Object.fromEntries(
         Object.entries(content).map(([key, value]) => [key, value.split('\n')])
       );
+      this.chunkSize = getChunkSize(contentHash[root]);
     }
-    // set chunk size and lint
-    this.chunkSize = getChunkSize(contentHash[root]);
+    // todo: this should probably be done for each file
     if (this.suffix === 'loc') {
       this.levelMax = getMaxLevel(contentHash[root], this.chunkSize);
     }
-    const lintError = lint(content);
+    const lintError: string | void = lint(content);
     if (lintError) {
       return lintError;
     }
     // clear and build tree
     this.clear();
-    return this.buildTree(root, deepcopy(contentHash));
+    const tree: TreeNode[] | string = this.buildTree(root, contentHash);
+    return tree;
   }
 
   // useful for single page updates (even if page includes links to other index files)
@@ -179,7 +198,6 @@ export class SemTree {
     subroot: string = '',
     ancestors: TreeNode[] = [],
     totalLevel: number = 0,
-    // virtualLevels: number = 0,
   ): TreeNode[] | string {
     let nodeBuilder: TreeNode;
     const isSubTree: boolean = subroot.length > 0;
@@ -331,6 +349,9 @@ export class SemTree {
     ancestryTitles: string[],
     trnkFname?: string,
   ): void | string {
+    if (this.root.length === 0) {
+      return `SemTree.addBranch(): cannot add branch "${text}" to empty tree`;
+    }
     if (!trnkFname) { trnkFname = text; }
     // build branch
     for (const [i, ancestryTitle] of ancestryTitles.entries()) {

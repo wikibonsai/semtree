@@ -9,7 +9,7 @@ import {
   cntntMultiWikiSpace2DashIDnNone,
 } from './fixtures/content';
 import {
-  dataConcreteID,
+  dataConcreteMultiID,
   dataVirtualNawIndexnEntrySiblings,
 } from './fixtures/data';
 
@@ -55,7 +55,7 @@ describe('updateSubTree()', () => {
   - [[newChild-(0a1b2)]]
 `;
         semtree.updateSubTree({ 'graph': wikiGraphContentWithIDWithSpaces }, 'graph');
-        const expectedUpdatedTree = JSON.parse(JSON.stringify(dataConcreteID));
+        const expectedUpdatedTree = JSON.parse(JSON.stringify(dataConcreteMultiID));
         const nodeIndex = expectedUpdatedTree.findIndex((node: TreeNode) => node.text === 'graph-(0a1b2)');
         expectedUpdatedTree[nodeIndex].children.push('newChild-(0a1b2)');
         expectedUpdatedTree.push(
@@ -77,7 +77,7 @@ describe('updateSubTree()', () => {
   - [[web-(0a1b2)]]
 `;
         semtree.updateSubTree({ 'graph': wikiGraphContentWithIDWithSpaces }, 'graph');
-        const expectedUpdatedTree = JSON.parse(JSON.stringify(dataConcreteID));
+        const expectedUpdatedTree = JSON.parse(JSON.stringify(dataConcreteMultiID));
         const parentNodeIndex = expectedUpdatedTree.findIndex((node: TreeNode) => node.text === 'graph-(0a1b2)');
         expectedUpdatedTree[parentNodeIndex].children = ['web-(0a1b2)'];
         const nodeIndex = expectedUpdatedTree.findIndex((node: TreeNode) => node.text === 'tree-(0a1b2)');
@@ -102,7 +102,7 @@ describe('updateSubTree()', () => {
           'graph': wikiGraphContentWithIDWithSpaces,
           'newbranch': newBranchContent,
         }, 'graph');
-        const expectedUpdatedTree = JSON.parse(JSON.stringify(dataConcreteID));
+        const expectedUpdatedTree = JSON.parse(JSON.stringify(dataConcreteMultiID));
         const nodeIndex = expectedUpdatedTree.findIndex((node: TreeNode) => node.text === 'graph-(0a1b2)');
         expectedUpdatedTree[nodeIndex].children.push('newbranch');
         expectedUpdatedTree.push(
