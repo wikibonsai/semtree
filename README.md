@@ -188,21 +188,9 @@ Delete the local copy of the tree.
 
 A function to execute when each node is added to the tree.
 
-### `mkdnList: boolean`
-
-Whether or not to expect markdown-style list bullets (specifically dashes "- ") before each entry in the semantic tree.
-
-### `nanoid`
-
-See [nanoid options](https://github.com/ai/nanoid#custom-alphabet-or-size). (Supports `nanoid.alphabet` and `nanoid.size`.)
-
 ### `setRoot: (name: string) => void`
 
 A function that can return/operate on the root name of the tree when it is being set.
-
-### `suffix: 'none' | 'id' | 'loc'`
-
-A unique 'id' (see nanoid options) or location 'loc' of the item in the file.
 
 ### `virtualTrunk: boolean`
 

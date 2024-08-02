@@ -27,21 +27,6 @@ export const getChunkSize = (lines: string[]) => {
   return chunkSize;
 };
 
-export const getMaxLevel = (lines: string[], chunkSize: number) => {
-  let level: number = -1;
-  let levelMax: number = -1;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  lines.forEach((line, i) => {
-    const levelMatch: RegExpMatchArray | null = line.match(REGEX.LEVEL);
-    // calculates number of spaces
-    if (levelMatch) {
-      level = (levelMatch[0].length / chunkSize) + 1;
-    }
-    levelMax = (level > levelMax) ? level : levelMax;
-  });
-  return levelMax;
-};
-
 export const getWhitespaceSize = (whitespace: string): number => {
   if (whitespace.includes(' ')) {
     return whitespace.length;

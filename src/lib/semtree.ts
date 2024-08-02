@@ -1,7 +1,5 @@
 import type { SemTreeOpts, TreeNode } from './types';
 
-import { customAlphabet } from 'nanoid';
-
 import {
   closeBrackets,
   isMarkdownBullet,
@@ -11,21 +9,16 @@ import {
 import {
   deepcopy,
   getChunkSize,
-  getMaxLevel,
   getWhitespaceSize,
   lint,
 } from './func';
 
 
 export class SemTree {
-  // for unit tests
-  private testing: boolean                   = false;
   // syntax configurables
-  private suffix: 'none' | 'id' | 'loc'      = 'none';
   private mkdnList: boolean                  = true;
   private wikitext: boolean                  = true;
   private chunkSize: number                  = -1;
-  private levelMax: number                   = -1;
   private virtualTrunk: boolean              = false;
   // data
   public root: string                        = '';
@@ -35,11 +28,6 @@ export class SemTree {
   public dangling: string[]                  = []; // nodes no longer connected via a path of 'children' property pointers
   public duplicates: string[]                = [];
   private visited: Set<string>               = new Set();
-  // nanoid
-  public nanoidOpts: any                     = {
-    alphabet: 'abcdefghijklmnopqrstuvwxyz0123456789',
-    size: 5,
-  };
   public action: any                         = {};
 
   constructor(opts?: Partial<SemTreeOpts>) {
@@ -47,19 +35,12 @@ export class SemTree {
   }
 
   public opts(opts: Partial<SemTreeOpts>): void {
-    // testing
-    if (opts.testing)      { this.testing        = opts.testing; }
-    if (opts.nanoid) {
-      this.nanoidOpts.alphabet                   = opts.nanoid.alphabet;
-      this.nanoidOpts.size                       = opts.nanoid.size;
-    }
     // overridable methods
     if (opts.setRoot)      { this.action.setRoot = opts.setRoot; }
     if (opts.graft)        { this.action.graft   = opts.graft; }
     if (opts.prune)        { this.action.prune   = opts.prune; }
     // parsing configurables
     if (opts.mkdnList)     { this.mkdnList       = opts.mkdnList; }
-    if (opts.suffix)       { this.suffix         = opts.suffix; }
     if (opts.wikitext)     { this.wikitext       = opts.wikitext; }
     // tree shape configurables
     if (opts.virtualTrunk) { this.virtualTrunk   = opts.virtualTrunk; }
@@ -114,10 +95,6 @@ export class SemTree {
         Object.entries(content).map(([key, value]) => [key, value.split('\n')])
       );
       this.chunkSize = getChunkSize(contentHash[root]);
-    }
-    // todo: this should probably be done for each file
-    if (this.suffix === 'loc') {
-      this.levelMax = getMaxLevel(contentHash[root], this.chunkSize);
     }
     const lintError: string | void = lint(content);
     if (lintError) {
@@ -266,7 +243,6 @@ export class SemTree {
           ancestors: [],
           children: [],
         };
-        this.handleSuffix(nodeBuilder, lines);
         if (!isSubTree) {
           this.addRoot(this.rawText(nodeBuilder.text));
         }
@@ -299,7 +275,6 @@ export class SemTree {
           ancestors: [],
           children: [],
         } as TreeNode;
-        this.handleSuffix(nodeBuilder, lines);
         nodeBuilder.text = this.rawText(nodeBuilder.text);
         ancestors = this.popGrandAncestor(cumulativeLevel, ancestors);
         nodeBuilder.ancestors = ancestors.map(p => this.rawText(p.text));
@@ -529,73 +504,11 @@ export class SemTree {
 
   // utils
 
-  public genID() {
-    const nanoid = customAlphabet(this.nanoidOpts.alphabet, this.nanoidOpts.size);
-    return nanoid();
-  }
-
   public rawText(fullText: string) {
     // strip markdown list marker if it exists
     fullText = (this.mkdnList && isMarkdownBullet(fullText.substring(0, 2))) ? fullText.slice(2, fullText.length) : fullText;
     // strip wikistring special chars and line breaks (see: https://stackoverflow.com/a/10805292)
     return fullText.replace(openBrackets, '').replace(closeBrackets, '').replace(/\r?\n|\r/g, '');
-  }
-
-  // suffix-handling
-
-  public handleSuffix(node: TreeNode, lines: string[]): void {
-    // update true values
-    if (this.suffix === 'loc') {
-      const padLevel = this.levelMax.toString().length;
-      const padLine = lines.length.toString().length;
-      node.text = this.textWithLoc(node, padLevel, padLine);
-    }
-    if(this.suffix === 'id') {
-      node.text = this.textWithID(node.text);
-    }
-  }
-
-  public textWithID(text: string): any {
-    let match: RegExpMatchArray | null;
-    let id: string;
-    let textRegex: RegExp;
-    // reject all whitespace
-    match = REGEX.WHITESPACE.exec(text);
-    if (match) { return text; }
-    if (this.wikitext) {
-      textRegex = REGEX.WIKITEXT_WITH_ID;
-    } else {
-      textRegex = REGEX.TEXT_WITH_ID;
-    }
-    match = textRegex.exec(text);
-    if (match) {
-      text = this.wikitext ? match[2] : match[1];
-      id = this.wikitext ? match[3] : match[2];
-    } else {
-      id = this.genID();
-      // mocks aren't working with nanoid / customAlphabet
-      // see: https://github.com/ai/nanoid/issues/205
-      if (this.testing) { id = '0a1b2'; }
-    }
-    return `${text}-(${id})`;
-  }
-
-  // 'loc' or 'location' is a suffix 
-  // defined as '-x-y' where 'x' is the line number and 'y' is the level
-  public textWithLoc(node: any, padLevel: number, padLine: number): any {
-    const match = REGEX.TEXT_WITH_LOC.exec(node.text);
-    let levelText: string = '';
-    let lineText: string = '';
-    if (!match) {
-      levelText = node.level.toString().padStart(padLevel, '0');
-      lineText = node.line.toString().padStart(padLine, '0');
-    } else {
-      const level: string = match[2];
-      const line: string = match[3];
-      if (node.level !== Number(level)) { levelText = level.padStart(padLevel, '0'); }
-      if (node.line !== Number(line)) { lineText = line.padStart(padLine, '0'); }
-    }
-    return `${node.text}-${lineText}-${levelText}`;
   }
 
   // print

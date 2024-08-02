@@ -16,7 +16,6 @@ describe('print()', () => {
     console.log = (msg) => msg + '\n';
     fakeConsoleLog = sinon.spy(console, 'log');
     semtree = new SemTree({
-      testing: true,
       virtualTrunk: true,
     });
   });
@@ -30,9 +29,7 @@ describe('print()', () => {
   describe('concrete trunk', () => {
 
     beforeEach(() => {
-      semtree = new SemTree({
-        testing: true,
-      });
+      semtree = new SemTree();
     });
 
     describe('single', () => {

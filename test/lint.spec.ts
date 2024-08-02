@@ -16,7 +16,6 @@ describe('lint()', () => {
     console.log = (msg) => msg + '\n';
     fakeConsoleLog = sinon.spy(console, 'log');
     semtree = new SemTree({
-      testing: true,
       virtualTrunk: true,
     });
   });

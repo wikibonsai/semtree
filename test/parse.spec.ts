@@ -35,7 +35,6 @@ describe('semtree.parse()', () => {
 
       beforeEach(() => {
         semtree = new SemTree({
-          testing: true,
           virtualTrunk: (trunkType === 'virtual'),
         });
       });

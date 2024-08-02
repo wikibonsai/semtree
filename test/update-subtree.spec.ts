@@ -26,9 +26,7 @@ describe('semtree.updateSubTree()', () => {
   describe('concrete trunk', () => {
 
     beforeEach(() => {
-      semtree = new SemTree({
-        testing: true
-      });
+      semtree = new SemTree();
     });
 
     afterEach(() => {
