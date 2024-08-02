@@ -197,7 +197,7 @@ export class SemTree {
         line: -1,
         level: totalLevel,
         text: curKey,
-        ancestors: ancestors.map(n => this.rawText(n.text)),
+        ancestors: ancestors.map(n => n.text),
         children: [],
       };
       // don't create a new node if we're handling the subroot of a subtree update
@@ -220,9 +220,10 @@ export class SemTree {
     const lines: string[] = content[curKey];
     for (const [i, line] of lines.entries()) {
       const text: string = line.replace(REGEX.LEVEL, '');
+      const rawTxt: string = this.rawText(text);
       if (!text || text.length == 0) { continue; }
-      if (this.nodes.map((node) => node.text).includes(this.rawText(text))) {
-        this.duplicates.push(this.rawText(text));
+      if (this.nodes.map((node) => node.text).includes(rawTxt)) {
+        this.duplicates.push(rawTxt);
         return this.warnDuplicates();
       }
       // calculate numbers
@@ -239,24 +240,24 @@ export class SemTree {
         nodeBuilder = {
           line: lineNum,
           level: cumulativeLevel,
-          text: text,
+          text: rawTxt,
           ancestors: [],
           children: [],
         };
         if (!isSubTree) {
-          this.addRoot(this.rawText(nodeBuilder.text));
+          this.addRoot(rawTxt);
         }
         ancestors.push(nodeBuilder);
       // node
       } else {
         // connect subtree via 'virtual' semantic-tree node
-        // todo: if (curKey === this.rawText(text), print a warning: don't do that.
-        const curTxt: string = this.rawText(text);
+        // todo: if (curKey === rawTxt, print a warning: don't do that.
+        const curTxt: string = rawTxt;
         const trunkNames: string[] = Object.keys(content);
         if ((curKey !== curTxt) && trunkNames.includes(curTxt)) {
           ancestors = this.popGrandAncestor(cumulativeLevel, ancestors);
           const result: TreeNode[] | string = this.buildTree(
-            this.rawText(text),
+            rawTxt,
             content,
             subroot,
             deepcopy(ancestors),
@@ -271,13 +272,12 @@ export class SemTree {
         nodeBuilder = {
           line: lineNum,
           level: cumulativeLevel,
-          text: text,
+          text: rawTxt,
           ancestors: [],
           children: [],
         } as TreeNode;
-        nodeBuilder.text = this.rawText(nodeBuilder.text);
         ancestors = this.popGrandAncestor(cumulativeLevel, ancestors);
-        nodeBuilder.ancestors = ancestors.map(p => this.rawText(p.text));
+        nodeBuilder.ancestors = ancestors.map(p => p.text);
         ancestors.push(nodeBuilder);
         this.addBranch(nodeBuilder.text, nodeBuilder.ancestors, curKey);
       }
