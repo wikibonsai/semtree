@@ -8,6 +8,7 @@ import {
   lint,
   rawText,
 } from './func';
+import { pruneDangling } from './dangling';
 import { checkDuplicates } from './duplicates';
 
 
@@ -152,7 +153,16 @@ export class SemTree {
       return updatedTree;
     }
     // post-update checks
-    if (this.checkDangling()) { this.pruneDangling(); }
+    const pruned: TreeNode[] | string = pruneDangling(deepcopy(this.nodes));
+    if (typeof pruned === 'string') {
+      // restore state
+      this.nodes = originalNodes;
+      this.trunk = originalTrunk;
+      this.petioleMap = originalPetioleMap;
+      return pruned;
+    } else {
+      this.nodes = pruned;
+    }
     const hasDups: string | undefined = checkDuplicates(this.nodes);
     if (typeof hasDups === 'string') {
       // restore state
@@ -422,14 +432,6 @@ export class SemTree {
     return ancestors;
   }
 
-  private pruneDangling() {
-    for (const dangle of this.dangling) {
-      const curNodeIndex: number | undefined = this.nodes.findIndex((n: TreeNode) => n.text === dangle);
-      if (curNodeIndex < 0) { continue; }
-      this.nodes.splice(curNodeIndex, 1);
-    }
-  }
-
   // this function is written with single-page index doc updates in mind
   private pruneSubTree(nodeText: string, subroot?: string): void | string {
     if (subroot === undefined) { subroot = nodeText; }
@@ -458,23 +460,5 @@ export class SemTree {
     } else {
       return `SemTree.pruneSubTree(): error pruning expected nodeText "${nodeText}"`;
     }
-  }
-
-  // checks
-
-  private checkDangling(): boolean {
-    const connectedNodes: Set<string> = new Set<string>();
-    const traverseTree = (nodeText: string) => {
-      if (connectedNodes.has(nodeText)) { return; }
-      connectedNodes.add(nodeText);
-      const node: TreeNode | undefined = this.nodes.find(n => n.text === nodeText);
-      if (node) {
-        node.children.forEach(traverseTree);
-      }
-    };
-    // go
-    traverseTree(this.root);
-    this.dangling = this.nodes.filter((n: TreeNode) => !connectedNodes.has(n.text)).map((n: TreeNode) => n.text);
-    return this.dangling.length > 0;
   }
 }
