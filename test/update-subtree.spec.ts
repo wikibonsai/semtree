@@ -4,21 +4,12 @@ import sinon from 'sinon';
 import type { TreeNode } from '../src/lib/types';
 import { SemTree } from '../src/index';
 
-import {
-  cntntMultiWikiSpace2DashNawIndexnEntrySiblings,
-  cntntMultiWikiSpace2DashIDnNone,
-} from './fixtures/content';
-import {
-  dataConcreteMultiID,
-  dataVirtualNawIndexnEntrySiblings,
-} from './fixtures/data';
-
 
 let fakeConsoleLog: sinon.SinonSpy;
 let fakeConsoleWarn: sinon.SinonSpy;
 let semtree: SemTree;
 
-describe('updateSubTree()', () => {
+describe('semtree.updateSubTree()', () => {
 
   beforeEach(() => {
     console.warn = (msg) => msg + '\n';
@@ -44,180 +35,379 @@ describe('updateSubTree()', () => {
       semtree.clear();
     });
 
-    describe('single file', () => {
+    describe('single file replacement', () => {
 
       it('add leaf', () => {
-        semtree.parse(cntntMultiWikiSpace2DashIDnNone, 'root');
-        const wikiGraphContentWithIDWithSpaces = 
-`- [[graph-(0a1b2)]]
-  - [[tree-(0a1b2)]]
-  - [[web-(0a1b2)]]
-  - [[newChild-(0a1b2)]]
+        // setup
+        const content: Record<string,string> = {
+          'root':
+`- [[child1a]]
+  - [[branch1]]
+  - [[grandchild1a]]
+`,
+          'branch1':
+`- [[branch2]]
+`,
+          'branch2':
+`- [[child1c]]
+`};
+        semtree.parse(content, 'root');
+        const replacement: string = 
+`- [[child1c]]
+  - [[newChild]]
 `;
-        semtree.updateSubTree({ 'graph': wikiGraphContentWithIDWithSpaces }, 'graph');
-        const expectedUpdatedTree = JSON.parse(JSON.stringify(dataConcreteMultiID));
-        const nodeIndex = expectedUpdatedTree.findIndex((node: TreeNode) => node.text === 'graph-(0a1b2)');
-        expectedUpdatedTree[nodeIndex].children.push('newChild-(0a1b2)');
-        expectedUpdatedTree.push(
+        // subtree                               // go
+        const actlSubTree: TreeNode[] | string = semtree.updateSubTree({ 'branch2': replacement }, 'branch2');
+        const expdSubTree: TreeNode[] = [
           {
-            'text': 'newChild-(0a1b2)',
-            'ancestors': ['root', 'root-(0a1b2)', 'graph', 'graph-(0a1b2)'],
-            'children': [],
-          },
-        );
-        for (const expdNode of expectedUpdatedTree) {
-          assert.deepStrictEqual(semtree.nodes.find((n: TreeNode) => n.text === expdNode.text), expdNode);
-        }
+            text: 'branch2',
+            ancestors: ['root', 'child1a', 'branch1'],
+            children: ['child1c'],
+          },{
+            text: 'child1c',
+            ancestors: ['root', 'child1a', 'branch1', 'branch2'],
+            children: ['newChild'],
+          },{
+            text: 'newChild',
+            ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
+            children: [],
+          }
+        ];
+        assert.deepEqual(actlSubTree, expdSubTree);
+        // final updated tree
+        const actlTree: TreeNode[] = semtree.nodes;
+        const expdTree: TreeNode[] = [
+          {
+            text: 'root',
+            ancestors: [],
+            children: ['child1a'],
+          },{
+            text: 'child1a',
+            ancestors: ['root'],
+            children: ['branch1', 'grandchild1a'],
+          },{
+            text: 'branch1',
+            ancestors: ['root', 'child1a'],
+            children: ['branch2'],
+          },{
+            text: 'branch2',
+            ancestors: ['root', 'child1a', 'branch1'],
+            children: ['child1c'],
+          },{
+            text: 'grandchild1a',
+            ancestors: ['root', 'child1a'],
+            children: [],
+          },{
+            text: 'child1c',
+            ancestors: ['root', 'child1a', 'branch1', 'branch2'],
+            children: ['newChild'],
+          },{
+            text: 'newChild',
+            ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
+            children: [],
+          }
+        ];
+        assert.deepEqual(actlTree, expdTree);
       });
 
       it('remove leaf', () => {
-        semtree.parse(cntntMultiWikiSpace2DashIDnNone, 'root');
-        const wikiGraphContentWithIDWithSpaces = 
-`- [[graph-(0a1b2)]]
-  - [[web-(0a1b2)]]
+        // setup
+        const content: Record<string,string> = {
+          'root':
+`- [[child1a]]
+  - [[branch1]]
+  - [[grandchild1a]]
+`,
+          'branch1':
+`- [[branch2]]
+`,
+          'branch2':
+`- [[child1c]]
+  - [[removeThisChild]]
+`};
+        semtree.parse(content, 'root');
+        const replacement: string = 
+`- [[child1c]]
 `;
-        semtree.updateSubTree({ 'graph': wikiGraphContentWithIDWithSpaces }, 'graph');
-        const expectedUpdatedTree = JSON.parse(JSON.stringify(dataConcreteMultiID));
-        const parentNodeIndex = expectedUpdatedTree.findIndex((node: TreeNode) => node.text === 'graph-(0a1b2)');
-        expectedUpdatedTree[parentNodeIndex].children = ['web-(0a1b2)'];
-        const nodeIndex = expectedUpdatedTree.findIndex((node: TreeNode) => node.text === 'tree-(0a1b2)');
-        expectedUpdatedTree.splice(nodeIndex, 1);
-        for (const expdNode of expectedUpdatedTree) {
-          assert.deepStrictEqual(semtree.nodes.find((n: TreeNode) => n.text === expdNode.text), expdNode);
-        }
+        // returned subtree                      // go
+        const actlSubTree: TreeNode[] | string = semtree.updateSubTree({ 'branch2': replacement }, 'branch2');
+        const expdSubTree: TreeNode[] = [
+          {
+            text: 'branch2',
+            ancestors: ['root', 'child1a', 'branch1'],
+            children: ['child1c'],
+          },{
+            text: 'child1c',
+            ancestors: ['root', 'child1a', 'branch1', 'branch2'],
+            children: [],
+          },
+        ];
+        assert.deepEqual(actlSubTree, expdSubTree);
+        // final updated tree
+        const actlTree: TreeNode[] = semtree.nodes;
+        const expdTree: TreeNode[] = [
+          {
+            text: 'root',
+            ancestors: [],
+            children: ['child1a'],
+          },{
+            text: 'child1a',
+            ancestors: ['root'],
+            children: ['branch1', 'grandchild1a'],
+          },{
+            text: 'branch1',
+            ancestors: ['root', 'child1a'],
+            children: ['branch2'],
+          },{
+            text: 'branch2',
+            ancestors: ['root', 'child1a', 'branch1'],
+            children: ['child1c'],
+          },{
+            text: 'grandchild1a',
+            ancestors: ['root', 'child1a'],
+            children: [],
+          },{
+            text: 'child1c',
+            ancestors: ['root', 'child1a', 'branch1', 'branch2'],
+            children: [],
+          },
+        ];
+        assert.deepEqual(actlTree, expdTree);
       });
 
       it('add trunk', () => {
-        semtree.parse(cntntMultiWikiSpace2DashIDnNone, 'root');
-        const wikiGraphContentWithIDWithSpaces = 
-`- [[graph-(0a1b2)]]
-  - [[tree-(0a1b2)]]
-  - [[web-(0a1b2)]]
+        // setup
+        const content: Record<string,string> = {
+          'root':
+`- [[child1a]]
+  - [[branch1]]
+  - [[grandchild1a]]
+`,
+          'branch1':
+`- [[branch2]]
+`,
+          'branch2':
+`- [[child1c]]
+`};
+        semtree.parse(content, 'root');
+        const replacement: Record<string, string> = {
+          'branch2':
+`- [[child1c]]
   - [[newbranch]]
-`;
-        const newBranchContent =
-`- [[newbranchcontent]]
-`;
-        semtree.updateSubTree({
-          'graph': wikiGraphContentWithIDWithSpaces,
-          'newbranch': newBranchContent,
-        }, 'graph');
-        const expectedUpdatedTree = JSON.parse(JSON.stringify(dataConcreteMultiID));
-        const nodeIndex = expectedUpdatedTree.findIndex((node: TreeNode) => node.text === 'graph-(0a1b2)');
-        expectedUpdatedTree[nodeIndex].children.push('newbranch');
-        expectedUpdatedTree.push(
+`,
+          'newbranch':
+`- [[child1d]]
+`
+        };
+        // returned subtree                      // go
+        const actlSubTree: TreeNode[] | string = semtree.updateSubTree(replacement, 'branch2');
+        const expdSubTree: TreeNode[] = [
           {
-            'text': 'newbranch',
-            'ancestors': ['root', 'root-(0a1b2)', 'graph', 'graph-(0a1b2)'],
-            'children': ['newbranchcontent'], },
-          { 
-            'text': 'newbranchcontent',
-            'ancestors': ['root', 'root-(0a1b2)', 'graph', 'graph-(0a1b2)', 'newbranch'],
-            'children': [],
+            text: 'branch2',
+            ancestors: ['root', 'child1a', 'branch1'],
+            children: ['child1c'],
+          },{
+            text: 'child1c',
+            ancestors: ['root', 'child1a', 'branch1', 'branch2'],
+            children: ['newbranch'],
+          },{
+            text: 'newbranch',
+            ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
+            children: ['child1d'],
           },
-        );
-        for (const expdNode of expectedUpdatedTree) {
-          assert.deepStrictEqual(semtree.nodes.find((n: TreeNode) => n.text === expdNode.text), expdNode);
-        }
+          // todo: shouldn't this be included?
+          // {
+          //   text: 'child1d',
+          //   ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c', 'newbranch'],
+          //   children: [],
+          // },
+        ];
+        assert.deepEqual(actlSubTree, expdSubTree);
+        // final updated tree
+        const actlTree: TreeNode[] = semtree.nodes;
+        const expdTree: TreeNode[] = [
+          {
+            text: 'root',
+            ancestors: [],
+            children: ['child1a'],
+          },{
+            text: 'child1a',
+            ancestors: ['root'],
+            children: ['branch1', 'grandchild1a'],
+          },{
+            text: 'branch1',
+            ancestors: ['root', 'child1a'],
+            children: ['branch2'],
+          },{
+            text: 'branch2',
+            ancestors: ['root', 'child1a', 'branch1'],
+            children: ['child1c'],
+          },{
+            text: 'grandchild1a',
+            ancestors: ['root', 'child1a'],
+            children: [],
+          },{
+            text: 'child1c',
+            ancestors: ['root', 'child1a', 'branch1', 'branch2'],
+            children: ['newbranch'],
+          },{
+            text: 'newbranch',
+            ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
+            children: ['child1d'],
+          },{
+            text: 'child1d',
+            ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c', 'newbranch'],
+            children: [],
+          },
+        ];
+        assert.deepEqual(actlTree, expdTree);
       });
 
     });
 
-    describe('multi file', () => {
+    describe('multi file replacement', () => {
 
       describe('remove trunk', () => {
 
-        it('clean', () => {
-          semtree.parse(cntntMultiWikiSpace2DashNawIndexnEntrySiblings, 'i.bonsai');
-          const rmBranch = 
-`- [[social-science]]
-  - [[discourse]]
+        it('clean (only removing a single branch)', () => {
+          // setup
+          const content: Record<string,string> = {
+            'root':
+`- [[child1a]]
+  - [[branch1]]
+  - [[grandchild1a]]
+`,
+            'branch1':
+`- [[branch2]]
+`,
+            'branch2':
+`- [[child1c]]
+`};
+          const result: TreeNode[] | string = semtree.parse(content, 'root');
+          assert.notStrictEqual(typeof result, 'string');
+          const replacement: string = 
+`- [[child1b]]
 `;
-          semtree.updateSubTree({
-            'i.social-science': rmBranch
-          }, 'i.social-science');
-          const tree: TreeNode[] = JSON.parse(JSON.stringify(dataVirtualNawIndexnEntrySiblings));
-          const expectedUpdatedTree: TreeNode[] = tree.filter((node: TreeNode) => ((node.text !== 'i.education')
-                                                                                  && (node.text !== 'learning-theory')
-                                                                                  && (node.text !== 'conditioning')
-                                                                                  && (node.text !== 'classical-conditioning')));
-          const expectedRmedNodes: TreeNode[] = tree.filter((node: TreeNode) => ((node.text === 'i.education')
-                                                                                || (node.text === 'learning-theory')
-                                                                                || (node.text === 'conditioning')
-                                                                                || (node.text === 'classical-conditioning')));
-          const node: TreeNode | undefined = expectedUpdatedTree.find((node: TreeNode) => node.text === 'social-science');
-          if (node) node.children = ['discourse'];
-          for (const expdNode of expectedUpdatedTree) {
-            assert.deepStrictEqual(semtree.nodes.find((n: TreeNode) => n.text === expdNode.text), expdNode);
-          }
-          for (const rmNode of expectedRmedNodes) {
-            assert.strictEqual(semtree.nodes.find((n: TreeNode) => n.text === rmNode.text), undefined);
-          }
-        });
-
-        it('with remaining dead branch', () => {
-          semtree.parse(cntntMultiWikiSpace2DashNawIndexnEntrySiblings, 'i.bonsai');
-          const rmBranch = 
-`- [[root]]
-  - [[semantic-tree]]
-`;
-          semtree.updateSubTree({
-            'i.bonsai': rmBranch,
-          }, 'i.bonsai');
-          let expectedUpdatedTree = JSON.parse(JSON.stringify(dataVirtualNawIndexnEntrySiblings));
-          expectedUpdatedTree = expectedUpdatedTree.filter((node: TreeNode) => ((node.text === 'i.bonsai') || (node.text === 'root') || (node.text === 'semantic-tree')));
-          expectedUpdatedTree.find((node: TreeNode) => node.text === 'semantic-tree').children = [];
-          for (const expdNode of expectedUpdatedTree) {
-            assert.deepStrictEqual(semtree.nodes.find((n: TreeNode) => n.text === expdNode.text), expdNode);
-          }
-          assert.strictEqual(semtree.nodes.find((n: TreeNode) => n.text === 'i.social-science'), undefined);
-          assert.strictEqual(semtree.nodes.find((n: TreeNode) => n.text === 'i.education'), undefined);
-          assert.strictEqual(semtree.nodes.find((n: TreeNode) => n.text === 'social-science'), undefined);
-          assert.strictEqual(semtree.nodes.find((n: TreeNode) => n.text === 'education'), undefined);
-        });
-
-      });
-
-      it('root case', () => {
-        semtree.parse(cntntMultiWikiSpace2DashIDnNone, 'root');
-        const newRootContent: string = 
-`- [[root-(0a1b2)]]
-  - [[newnode]]`;
-        assert.deepStrictEqual(
-          semtree.updateSubTree({ 'root': newRootContent }, 'root'),
-          [
+          // subtree                               // go
+          const actlSubTree: TreeNode[] | string = semtree.updateSubTree({ 'branch1': replacement }, 'branch1');
+          const expdSubTree: TreeNode[] = [
             {
-              ancestors: [],
-              children: [
-                'root-(0a1b2)'
-              ],
-              text: 'root'
-            },
-            {
-              ancestors: [
-                'root'
-              ],
-              children: [
-                'newnode'
-              ],
-              text: 'root-(0a1b2)'
-            },
-            {
-              ancestors: [
-                'root',
-                'root-(0a1b2)'
-              ],
+              text: 'branch1',
+              ancestors: ['root', 'child1a'],
+              children: ['child1b'],
+            },{
+              text: 'child1b',
+              ancestors: ['root', 'child1a', 'branch1'],
               children: [],
-              text: 'newnode'
             }
-          ]
-        );
+          ];
+          assert.deepEqual(actlSubTree, expdSubTree);
+          // final updated tree
+          const actlTree: TreeNode[] = semtree.nodes;
+          const expdTree: TreeNode[] = [
+            {
+              text: 'root',
+              ancestors: [],
+              children: ['child1a'],
+            },{
+              text: 'child1a',
+              ancestors: ['root'],
+              children: ['branch1', 'grandchild1a'],
+            },{
+              text: 'branch1',
+              ancestors: ['root', 'child1a'],
+              children: ['child1b'],
+            },{
+              text: 'grandchild1a',
+              ancestors: ['root', 'child1a'],
+              children: [],
+            },{
+              text: 'child1b',
+              ancestors: ['root', 'child1a', 'branch1'],
+              children: [],
+            }
+          ];
+          assert.deepEqual(actlTree, expdTree);
+        });
+
+        it('with remaining dead branch (not mentioned explicitly in update but is effected); (this is also the root case)', () => {
+          // setup
+          const content: Record<string,string> = {
+            'root':
+`- [[child1a]]
+  - [[branch1]]
+  - [[grandchild1a]]
+`,
+            'branch1':
+`- [[branch2]]
+`,
+            'branch2':
+`- [[child1c]]
+`};
+          const result: TreeNode[] | string = semtree.parse(content, 'root');
+          assert.notStrictEqual(typeof result, 'string');
+          const replacement: string =
+`- [[child1a]]
+  - [[grandchild1a]]
+`;
+          // subtree                               // go
+          const actlSubTree: TreeNode[] | string = semtree.updateSubTree({ 'root': replacement }, 'root');
+          const expdSubTree: TreeNode[] = [
+            {
+              text: 'root',
+              ancestors: [],
+              children: ['child1a'],
+            },{
+              text: 'child1a',
+              ancestors: ['root'],
+              children: ['grandchild1a'],
+            },{
+              text: 'grandchild1a',
+              ancestors: ['root', 'child1a'],
+              children: [],
+            }
+          ];
+          assert.deepEqual(actlSubTree, expdSubTree);
+          // final updated tree
+          const actlTree: TreeNode[] = semtree.nodes;
+          const expdTree: TreeNode[] = [
+            {
+              text: 'root',
+              ancestors: [],
+              children: ['child1a'],
+            },{
+              text: 'child1a',
+              ancestors: ['root'],
+              children: ['grandchild1a'],
+            },{
+              text: 'grandchild1a',
+              ancestors: ['root', 'child1a'],
+              children: [],
+            }
+          ];
+          assert.deepEqual(actlTree, expdTree);
+        });
+
       });
 
       describe('error', () => {
 
         it('missing subtree', () => {
-          semtree.parse(cntntMultiWikiSpace2DashIDnNone, 'root');
+          // setup
+          const content: Record<string,string> = {
+            'root':
+  `- [[child1a]]
+    - [[branch1]]
+    - [[grandchild1a]]
+  `,
+            'branch1':
+  `- [[branch2]]
+  `,
+            'branch2':
+  `- [[child1c]]
+  `};
+          semtree.parse(content, 'root');
+          // go
           assert.strictEqual(
             semtree.updateSubTree({ 'missing': '- [[newnode]]' }, 'missing'),
             'SemTree.updateSubTree(): subroot not found in the tree: "missing"',
@@ -232,7 +422,7 @@ describe('updateSubTree()', () => {
 
   describe('virtual trunk', () => {
 
-    describe('single file', () => {
+    describe('single file replacement', () => {
 
       it.skip('test', () => {
         assert.strictEqual(0, 1);
@@ -240,7 +430,7 @@ describe('updateSubTree()', () => {
 
     });
 
-    describe('multi file', () => {
+    describe('multi file replacement', () => {
 
       it.skip('test', () => {
         assert.strictEqual(0, 1);

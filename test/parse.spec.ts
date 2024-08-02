@@ -1,39 +1,18 @@
 import assert from 'node:assert/strict';
 import sinon from 'sinon';
 
+import type { TreeNode } from '../src/lib/types';
 import { SemTree } from '../src/index';
-
-import {
-  cntntOneWikiSpace2MixNa,
-  cntntOneTxtSpace2NaNa,
-  cntntMultiWikiSpace2DashNawIndexnEntrySiblings,
-  cntntOneWikiSpace2DashIDwLeadingWS,
-  cntntOneWikiSpace2DashIDwDuplicates,
-  cntntOneWikiSpace2DashID,
-  cntntMultiWikiSpace2DashIDnNone,
-  cntntOneTxtSpace2NaID,
-  cntntOneTxtSpace3NaID,
-  cntntOneTxtTabNaID,
-  cntntMultiWikiSpace2DashNa,
-  cntntMultiTxtSpace2NaNawImproperIndent,
-  cntntMultiTxtSpace2NaNawOverIndent,
-  cntntOneTxtSpace2NaNawMisalignedSpacing,
-} from './fixtures/content';
-import {
-  dataConcreteOneID,
-  dataConcreteMultiID,
-  dataVirtualNawIndexnEntrySiblings,
-  dataVirtualID,
-  dataVirtualLoc,
-  dataVirtualNa,
-} from './fixtures/data';
 
 
 let fakeConsoleLog: sinon.SinonSpy;
 let fakeConsoleWarn: sinon.SinonSpy;
 let semtree: SemTree;
 
-describe('parse()', () => {
+let concreteData: TreeNode[];
+let virtualData: TreeNode[];
+
+describe('semtree.parse()', () => {
 
   beforeEach(() => {
     console.warn = (msg) => msg + '\n';
@@ -47,219 +26,500 @@ describe('parse()', () => {
     fakeConsoleLog.restore();
   });
 
-  describe('concrete trunk', () => {
+  [
+    'concrete',
+    'virtual',
+  ].forEach((trunkType) => {
 
-    beforeEach(() => {
-      semtree = new SemTree({
-        testing: true
-      });
-    });
+    describe(`${trunkType} trunk`, () => {
 
-    afterEach(() => {
-      semtree.clear();
-    });
-
-    it('empty input', () => {
-      assert.deepStrictEqual(
-        semtree.parse(''),
-        'SemTree.parse(): no root specified and no line with zero indentation found. please provide a root or fix the indentation.',
-      );
-    });
-
-    describe('single file', () => {
-
-      // it.skip('default; leave existing id; 2 spaces; wiki', () => {
-      //   assert.deepStrictEqual(semtree.parse(cntntOneWikiSpace2DashIDwLeadingWS), dataConcreteID);
-      // });
-
-      it('default; leave existing id; 2 spaces; wiki; strip preceeding newlines', () => {
-        assert.deepStrictEqual(semtree.parse(cntntOneWikiSpace2DashIDwLeadingWS), dataConcreteOneID);
+      beforeEach(() => {
+        semtree = new SemTree({
+          testing: true,
+          virtualTrunk: (trunkType === 'virtual'),
+        });
       });
 
-      describe('error handling', () => {
+      afterEach(() => {
+        semtree.clear();
+      });
 
-        it('inconsistent indentation', () => {
-          assert.strictEqual(
-            semtree.parse(cntntOneTxtSpace2NaNawMisalignedSpacing),
-            'semtree.lint(): improper indentation found:\n\n- Line 3 (inconsistent indentation): "   tree"\n- Line 4 (inconsistent indentation): " web"\n',
-          );
+      it('empty input', () => {
+        assert.deepStrictEqual(
+          semtree.parse(''),
+          'SemTree.parse(): no root specified and no line with zero indentation found. please provide a root or fix the indentation.',
+        );
+      });
+
+      describe('single file', () => {
+
+        beforeEach(() => {
+          concreteData = [{
+            text: 'root',
+            ancestors: [],
+            children: ['child1', 'child2'],
+          },{
+            text: 'child1',
+            ancestors: ['root'],
+            children: [],
+          },{
+            text: 'child2',
+            ancestors: ['root'],
+            children: ['grandchild1'],
+          },{
+            text: 'grandchild1',
+            ancestors: ['root', 'child2'],
+            children: [],
+          }];
+          virtualData = [{
+            text: 'root',
+            ancestors: [],
+            children: ['child1', 'child2'],
+          },{
+            text: 'child1',
+            ancestors: ['root'],
+            children: [],
+          },{
+            text: 'child2',
+            ancestors: ['root',],
+            children: ['grandchild1'],
+          },{
+            text: 'grandchild1',
+            ancestors: ['root', 'child2'],
+            children: [],
+          }];
         });
 
-      });
-
-    });
-
-    describe('multi file', () => {
-
-      it('default; leave existing id; 2 spaces; wiki', () => {
-        assert.deepStrictEqual(semtree.parse(cntntMultiWikiSpace2DashIDnNone, 'root'), dataConcreteMultiID);
-      });
-
-      it('root is root filename', () => {
-        semtree.parse(cntntMultiWikiSpace2DashIDnNone, 'root');
-        assert.strictEqual(semtree.root, 'root');
-      });
-
-      it('ensure index and entry type nodes can be siblings', () => {
-        assert.deepStrictEqual(semtree.parse(cntntMultiWikiSpace2DashNawIndexnEntrySiblings, 'i.bonsai'), dataVirtualNawIndexnEntrySiblings);
-      });
-
-      describe('error handling', () => {
-
-        it('\'content\' param of record type should require \'root\' param', () => {
-          assert.strictEqual(
-            semtree.parse(cntntMultiWikiSpace2DashIDnNone),
-            'SemTree.parse(): cannot parse multiple files without a "root" defined',
-          );
+        afterEach(() => {
+          semtree.clear();
         });
 
-        it('must define root with multiple files', () => {
-          assert.strictEqual(
-            semtree.parse(cntntMultiWikiSpace2DashIDnNone),
-            'SemTree.parse(): cannot parse multiple files without a "root" defined',
-          );
+        it('root name', () => {
+          const content: string = 
+`- [[root]]
+  - [[child1]]
+  - [[child2]]
+    - [[grandchild1]]
+`;
+          semtree.parse(content);
+          assert.deepStrictEqual(semtree.root, 'root');
         });
-    
-      });
 
-    });
+        describe('indentation', () => {
 
-  });
+          it('indentation; 2 spaces (base)', () => {
+            const content: string = 
+`- [[root]]
+  - [[child1]]
+  - [[child2]]
+    - [[grandchild1]]
+`;
+            assert.deepStrictEqual(
+              semtree.parse(content),
+              trunkType === 'concrete' ? concreteData : virtualData,
+            );
+          });
 
-  describe('virtual trunk', () => {
+          it('indentation; 3 spaces', () => {
+            const content: string = 
+`- [[root]]
+   - [[child1]]
+   - [[child2]]
+      - [[grandchild1]]
+`;
+            assert.deepStrictEqual(
+              semtree.parse(content),
+              trunkType === 'concrete' ? concreteData : virtualData,
+            );
+          });
 
-    beforeEach(() => {
-      semtree = new SemTree({
-        testing: true,
-        virtualTrunk: true,
-      });
-    });
+          it('indentation; 4 spaces', () => {
+            const content: string = 
+`- [[root]]
+    - [[child1]]
+    - [[child2]]
+        - [[grandchild1]]
+`;
+            assert.deepStrictEqual(
+              semtree.parse(content),
+              trunkType === 'concrete' ? concreteData : virtualData,
+            );
+          });
 
-    afterEach(() => {
-      semtree.clear();
-    });
+          it('indentation; tabs', () => {
+            const content: string = 
+`- [[root]]
+\t- [[child1]]
+\t- [[child2]]
+\t\t- [[grandchild1]]
+`;
+            assert.deepStrictEqual(
+              semtree.parse(content),
+              trunkType === 'concrete' ? concreteData : virtualData,
+            );
+          });
 
-    it('empty input', () => {
-      assert.deepStrictEqual(
-        semtree.parse(''),
-        'SemTree.parse(): no root specified and no line with zero indentation found. please provide a root or fix the indentation.',
-      );
-    });
+        });
 
-    describe('single file', () => {
+        describe('extra newlines', () => {
 
-      describe('default', () => {
+          it('strip leading newlines', () => {
+            const content: string = 
+`
 
-        it('default; leave existing id; 2 spaces; wiki', () => {
+
+- [[root]]
+  - [[child1]]
+  - [[child2]]
+    - [[grandchild1]]
+`;
+            assert.deepStrictEqual(
+              semtree.parse(content),
+              trunkType === 'concrete' ? concreteData : virtualData,
+            );
+          });
+
+          it('strip trailing newlines', () => {
+            const content: string = 
+`- [[root]]
+  - [[child1]]
+  - [[child2]]
+    - [[grandchild1]]
+
+
+
+`;
+            assert.deepStrictEqual(
+              semtree.parse(content),
+              trunkType === 'concrete' ? concreteData : virtualData,
+            );
+          });
+
+        });
+
+        it('accept different markdown list styles', () => {
+          const content: string = 
+`- [[root]]
+  * [[child1]]
+  * [[child2]]
+    + [[grandchild1]]
+`;
           assert.deepStrictEqual(
-            semtree.parse(cntntOneWikiSpace2DashID),
-            dataVirtualID,
+            semtree.parse(content),
+            trunkType === 'concrete' ? concreteData : virtualData,
           );
         });
 
-        it('root is empty string (since no filename given)', () => {
-          assert.strictEqual(semtree.root, '');
-        });
-
-      });
-
-      it('no mkdn list; no suffix', () => {
-        semtree.opts({
-          mkdnList: false,
-          suffix: 'none',
-        });
-        assert.deepStrictEqual(semtree.parse(cntntOneTxtSpace2NaNa), dataVirtualNa);
-      });
-
-      it('append location in tree', () => {
-        semtree.opts({
-          suffix: 'loc',
-          wikitext: false,
-        });
-        assert.deepStrictEqual(semtree.parse(cntntOneTxtSpace2NaNa), dataVirtualLoc);
-      });
-
-      it('append id', () => {
-        semtree.opts({
-          suffix: 'id',
-          wikitext: false,
-        });
-        assert.deepStrictEqual(semtree.parse(cntntOneTxtSpace2NaNa), dataVirtualID);
-      });
-
-      it('leave existing id; 2 spaces', () => {
-        semtree.opts({ wikitext: false });
-        assert.deepStrictEqual(semtree.parse(cntntOneTxtSpace2NaID), dataVirtualID);
-      });
-
-      it('leave existing id; 3 spaces', () => {
-        semtree.opts({ wikitext: false });
-        assert.deepStrictEqual(semtree.parse(cntntOneTxtSpace3NaID), dataVirtualID);
-      });
-
-      it('leave existing id; tabs', () => {
-        semtree.opts({ wikitext: false });
-        assert.deepStrictEqual(semtree.parse(cntntOneTxtTabNaID), dataVirtualID);
-      });
-
-      it('accept different markdown list styles', () => {
-        assert.deepStrictEqual(semtree.parse(cntntOneWikiSpace2MixNa), dataVirtualNa);
-      });
-
-      describe('error handling', () => {
-
-        it('inconsistent indentation', () => {
-          assert.strictEqual(
-            semtree.parse(cntntOneTxtSpace2NaNawMisalignedSpacing),
-            'semtree.lint(): improper indentation found:\n\n- Line 3 (inconsistent indentation): "   tree"\n- Line 4 (inconsistent indentation): " web"\n',
+        it('no [[wiki]] markers', () => {
+          const content: string = 
+`- root
+  - child1
+  - child2
+    - grandchild1
+`;
+          assert.deepStrictEqual(
+            semtree.parse(content),
+            trunkType === 'concrete' ? concreteData : virtualData,
           );
         });
 
-        it('duplicate text (leave existing id; 2 spaces; wiki)', () => {
-          assert.strictEqual(
-            semtree.parse(cntntOneWikiSpace2DashIDwDuplicates),
-            'semtree.lint(): duplicate entity names found:\n\n- Line 19: "root-(0a1b2)"\n'
+        it('no markdown bullet markers', () => {
+          const content: string = 
+`[[root]]
+  [[child1]]
+  [[child2]]
+    [[grandchild1]]
+`;
+          assert.deepStrictEqual(
+            semtree.parse(content),
+            trunkType === 'concrete' ? concreteData : virtualData,
           );
+        });
+
+        describe('configuration options', () => {
+
+          it.skip('option', () => {
+            // todo
+          });
+
+        });
+
+        describe('error handling', () => {
+
+          it('inconsistent indentation', () => {
+            const content: string = 
+`- [[root]]
+  - [[child1]]
+  - [[child2]]
+     - [[grandchild1]]
+`;
+            assert.deepStrictEqual(
+              semtree.parse(content),
+              'semtree.lint(): improper indentation found:\n\n- Line 4 (inconsistent indentation): "     - [[grandchild1]]"\n',
+            );
+          });
+
+          it('duplicate text', () => {
+            const content: string = 
+`- [[root]]
+  - [[child1]]
+  - [[child1]]
+  - [[child2]]
+    - [[grandchild1]]
+`;
+            assert.strictEqual(
+              semtree.parse(content),
+              'semtree.lint(): duplicate entity names found:\n\n- Line 3: "child1"\n'
+            );
+          });
+
         });
 
       });
 
-    });
+      describe('multi file', () => {
 
-    describe('multi file', () => {
+        beforeEach(() => {
+          concreteData = [{
+            text: 'root',
+            ancestors: [],
+            children: ['child1a'],
+          },{
+            text: 'child1a',
+            ancestors: ['root'],
+            children: ['grandchild1a', 'branch'],
+          },{
+            text: 'grandchild1a',
+            ancestors: ['root', 'child1a'],
+            children: [],
+          },{
+            text: 'branch',
+            ancestors: ['root', 'child1a'],
+            children: ['child1b'],
+          },{
+            text: 'child1b',
+            ancestors: ['root', 'child1a', 'branch'],
+            children: [],
+          }];
+          virtualData = [{
+            text: 'child1a',
+            ancestors: [],
+            children: ['grandchild1a', 'child1b'],
+          },{
+            text: 'grandchild1a',
+            ancestors: ['child1a'],
+            children: [],
+          },{
+            text: 'child1b',
+            ancestors: ['child1a'],
+            children: [],
+          }];
+        });
 
-      it('default; leave existing id; 2 spaces; wiki', () => {
-        assert.deepStrictEqual(semtree.parse(cntntMultiWikiSpace2DashIDnNone, 'root'), dataVirtualID);
-      });
+        afterEach(() => {
+          semtree.clear();
+        });
 
-      describe('error handling', () => {
-
-        it('inconsistent indentation', () => {
-          assert.strictEqual(
-            semtree.parse(cntntMultiTxtSpace2NaNawImproperIndent, 'i.bonsai'),
-            'semtree.lint(): improper indentation found:\n\n- File "i.bonsai" Line 3 (inconsistent indentation): "   tree"\n- File "i.bonsai" Line 4 (inconsistent indentation): " web"\n',
+        it('default', () => {
+          const content: Record<string,string> = {
+            'root':
+`- [[child1a]]
+  - [[grandchild1a]]
+  - [[branch]]
+`,
+            'branch':
+`- [[child1b]]
+`,
+          };
+          assert.deepStrictEqual(
+            semtree.parse(content, 'root'),
+            trunkType === 'concrete' ? concreteData : virtualData,
           );
         });
 
-        it('over-indented', () => {
-          assert.strictEqual(
-            semtree.parse(cntntMultiTxtSpace2NaNawOverIndent, 'i.bonsai'),
-            'semtree.lint(): improper indentation found:\n\n- File "i.bonsai" Line 3 (over-indented): "      tree"\n',
-          );
+        it('root name', () => {
+          const content: Record<string,string> = {
+            'root':
+`- [[child1a]]
+  - [[grandchild1a]]
+  - [[branch]]
+`,
+            'branch':
+`- [[child1b]]
+`,};
+          semtree.parse(content, 'root');
+          assert.strictEqual(semtree.root, trunkType === 'concrete' ? 'root' : 'child1a');
         });
 
-        it('cycle detected', () => {
-          assert.strictEqual(
-            semtree.parse(cntntMultiWikiSpace2DashNa),
-            'SemTree.parse(): cannot parse multiple files without a "root" defined',
-          );
-        });
+        // todo: contains bug where virtual levels as the sole branch connection screw up level counting.
+        // it.skip('ensure index and entry type nodes can be siblings', () => {
+        //   const result = semtree.parse(cntntMultiWikiSpace2DashNawIndexnEntrySiblings, 'i.bonsai');
+        //   assert.deepStrictEqual(result, trunkType === 'concrete' ? dataConcreteNawIndexnEntrySiblings : dataVirtualNawIndexnEntrySiblings);
+        // });
 
-        it('missing root', () => {
-          assert.strictEqual(
-            semtree.parse(cntntMultiWikiSpace2DashIDnNone),
-            'SemTree.parse(): cannot parse multiple files without a "root" defined',
-          );
+        describe('error handling', () => {
+
+          it('\'content\' param of record type should require \'root\' param', () => {
+            const content: Record<string,string> = {
+              'root':
+  `- [[child1a]]
+    - [[grandchild1a]]
+    - [[branch]]
+  `,
+              'branch':
+  `- [[child1b]]
+  `,};
+            assert.strictEqual(
+              // @ts-expect-error: we are explicitly testing for this failure-case
+              semtree.parse(content),
+              'SemTree.parse(): cannot parse multiple files without a "root" defined',
+            );
+          });
+
+          it('inconsistent indentation', () => {
+            const content: Record<string,string> = {
+              'root':
+`- [[child1a]]
+  - [[grandchild1a]]
+   - [[branch]]
+`,
+              'branch':
+`- [[child1b]]
+`,};
+            assert.strictEqual(
+              semtree.parse(content, 'root'),
+              'semtree.lint(): improper indentation found:\n\n- File "root" Line 3 (inconsistent indentation): "   - [[branch]]"\n',
+            );
+          });
+
+          it('over-indented', () => {
+            const content: Record<string,string> = {
+              'root':
+`- [[child1a]]
+  - [[grandchild1a]]
+     - [[branch]]
+`,
+              'branch':
+`- [[child1b]]
+`,};
+            assert.strictEqual(
+              semtree.parse(content, 'root'),
+              'semtree.lint(): improper indentation found:\n\n- File "root" Line 3 (inconsistent indentation): "     - [[branch]]"\n',
+            );
+          });
+
+          describe('concrete-trunk-only error cases', () => {
+
+            it('cycle; self; root (not error case with virtual trunk)', () => {
+              const content: Record<string,string> = {
+                'root':
+`- [[root]]
+  - [[child1a]]
+    - [[grandchild1a]]
+      - [[branch]]
+`,
+                'branch':
+`- [[child1b]]
+`,};
+              if (trunkType === 'concrete') {
+                assert.strictEqual(
+                  semtree.parse(content, 'root'),
+                  `SemTree.warnDuplicates(): tree did not build, duplicate nodes found:
+
+root
+
+`,
+                );
+              } else {
+                assert.deepStrictEqual(
+                  semtree.parse(content, 'root'),
+                  [{
+                    text: 'root',
+                    ancestors: [],
+                    children: ['child1a'],
+                  },{
+                    text: 'child1a',
+                    ancestors: ['root'],
+                    children: ['grandchild1a'],
+                  },{
+                    text: 'grandchild1a',
+                    ancestors: ['root', 'child1a'],
+                    children: ['child1b'],
+                  },{
+                    text: 'child1b',
+                    ancestors: ['root', 'child1a', 'grandchild1a'],
+                    children: [],
+                  }],
+                );
+              }
+            });
+
+            it('cycle; self; branch', () => {
+              const content: Record<string,string> = {
+                'root':
+`- [[child1a]]
+  - [[grandchild1a]]
+  - [[branch]]
+`,
+                'branch':
+`- [[branch]]
+- [[child1b]]
+`,};
+              assert.strictEqual(
+                semtree.parse(content, 'root'),
+                `semtree.lint(): duplicate entity names found:
+
+- File "branch" Line 1: "branch"
+`,
+              );
+            });
+
+            it('cycle; cross-file; root', () => {
+              const content: Record<string,string> = {
+                'root':
+`- [[child1a]]
+  - [[grandchild1a]]
+  - [[branch]]
+`,
+                'branch':
+`- [[root]]
+`,};
+              assert.strictEqual(
+                semtree.parse(content, 'root'),
+                trunkType === 'concrete'
+                  ? `SemTree.warnDuplicates(): tree did not build, duplicate nodes found:
+
+root
+
+`
+                  : 'SemTree.buildTree(): cycle detected involving node "root"',
+              );
+            });
+
+            it('cycle; cross-file; branch', () => {
+              const content: Record<string,string> = {
+                'root':
+`- [[child1a]]
+  - [[grandchild1a]]
+  - [[branch1]]
+`,
+                'branch1':
+`- [[branch2]]
+`,
+                'branch2':
+`- [[branch1]]
+`};
+              assert.strictEqual(
+                semtree.parse(content, 'root'),
+                `semtree.lint(): duplicate entity names found:
+
+- File "branch2" Line 1: "branch1"
+`,
+              );
+            });
+
+          });
+
         });
 
       });

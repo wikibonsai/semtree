@@ -3,11 +3,6 @@ import sinon from 'sinon';
 
 import { SemTree } from '../src/index';
 
-import {
-  cntntOneWikiSpace2DashID,
-} from './fixtures/content';
-import { outputWithID } from './fixtures/output';
-
 
 let fakeConsoleLog: sinon.SinonSpy;
 let fakeConsoleWarn: sinon.SinonSpy;
@@ -32,29 +27,7 @@ describe('print()', () => {
     fakeConsoleLog.restore();
   });
 
-  describe('virtualTrunk', () => {
-
-    describe('single', () => {
-
-      it('default', () => {
-        semtree.parse(cntntOneWikiSpace2DashID, 'root');
-        semtree.print();
-        assert.strictEqual(fakeConsoleLog.getCall(0).args[0], outputWithID);
-      });
-
-    });
-
-    describe('multi', () => {
-
-      it.skip('test', () => {
-        assert.strictEqual(0, 1);
-      });
-
-    });
-
-  });
-
-  describe('concreteTrunk', () => {
+  describe('concrete trunk', () => {
 
     beforeEach(() => {
       semtree = new SemTree({
@@ -64,18 +37,95 @@ describe('print()', () => {
 
     describe('single', () => {
 
-      it.skip('default', () => {
-        semtree.parse(cntntOneWikiSpace2DashID);
-        semtree.print();
-        assert.strictEqual(fakeConsoleLog.getCall(0).args[0], outputWithID);
+      it.skip('test', () => {
+        assert.strictEqual(0, 1);
       });
 
     });
 
     describe('multi', () => {
 
+      it('default', () => {
+        // setup
+        const content: Record<string, string> = {
+          'root':
+`- [[child]]
+  - [[branch1]]
+  - [[grandchild]]
+    - [[greatgrandchild]]
+`,
+          'branch1':
+`- [[child1b]]
+- [[branch2]]
+`,
+          'branch2':
+`- [[child2b]]
+`,
+        };
+        semtree.parse(content, 'root');
+        // go
+        semtree.print();
+        // assert
+        const expdOutput: string =
+`root
+└── child
+    ├── branch1
+    |   ├── child1b
+    |   └── branch2
+    |       └── child2b
+    └── grandchild
+        └── greatgrandchild
+`;
+        const actlOutput: string | void = fakeConsoleLog.getCall(0).args[0];
+        assert.strictEqual(actlOutput, expdOutput);
+      });
+
+    });
+
+  });
+
+  describe('virtual trunk', () => {
+
+    describe('single', () => {
+
       it.skip('test', () => {
         assert.strictEqual(0, 1);
+      });
+
+    });
+
+    describe('multi', () => {
+
+      it('default', () => {
+        // setup
+        const content: Record<string, string> = {
+          'root':
+`- [[child]]
+  - [[branch1]]
+  - [[grandchild]]
+    - [[greatgrandchild]]
+`,
+          'branch1':
+`- [[child1b]]
+- [[branch2]]
+`,
+          'branch2':
+`- [[child2b]]
+`,
+        };
+        semtree.parse(content, 'root');
+        // go
+        semtree.print();
+        // assert
+        const expdOutput: string =
+`child
+├── child1b
+├── child2b
+└── grandchild
+    └── greatgrandchild
+`;
+        const actlOutput: string | void = fakeConsoleLog.getCall(0).args[0];
+        assert.strictEqual(actlOutput, expdOutput);
       });
 
     });

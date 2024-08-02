@@ -3,13 +3,6 @@ import sinon from 'sinon';
 
 import { lint, SemTree } from '../src/index';
 
-import {
-  cntntOneWikiSpace2DashID,
-  cntntMultiTxtSpace2NaNawImproperIndent,
-  cntntMultiTxtSpace2NaNawOverIndent,
-  cntntOneWikiSpace2DashIDwDuplicates,
-} from './fixtures/content';
-
 
 let fakeConsoleLog: sinon.SinonSpy;
 let fakeConsoleWarn: sinon.SinonSpy;
@@ -35,42 +28,87 @@ describe('lint()', () => {
   });
 
   it('default', () => {
-    assert.strictEqual(lint(cntntOneWikiSpace2DashID), undefined);
+    // setup
+    const content: Record<string, string> = {
+      'root':
+`- [[child]]
+  - [[grandchild]]
+    - [[greatgrandchild]]
+`,
+    };
+    // no error
+    const expdError: undefined = undefined;
+    // go
+    const actlError: string | void = lint(content);
+    // assert
+    assert.strictEqual(actlError, expdError);
   });
 
   // indentation
 
   it('error; improperly indented', () => {
-    assert.strictEqual(
-      lint(cntntMultiTxtSpace2NaNawImproperIndent),
-      `semtree.lint(): improper indentation found:
-
-- File "i.bonsai" Line 3 (inconsistent indentation): "   tree"
-- File "i.bonsai" Line 4 (inconsistent indentation): " web"
+    // setup
+    const content: Record<string, string> = {
+      'root':
+`- [[child]]
+  - [[grandchild]]
+   - [[greatgrandchild]]
+ - [[badindentchild]]
 `,
-    );
+    };
+    const expdError: string =
+`semtree.lint(): improper indentation found:
+
+- File "root" Line 3 (inconsistent indentation): "   - [[greatgrandchild]]"
+- File "root" Line 4 (inconsistent indentation): " - [[badindentchild]]"
+`;
+    // go
+    const actlError: string | void = lint(content);
+    // assert
+    assert.strictEqual(actlError, expdError);
   });
 
   it('error; over-indented', () => {
-    assert.strictEqual(
-      lint(cntntMultiTxtSpace2NaNawOverIndent),
-      `semtree.lint(): improper indentation found:
-
-- File "i.bonsai" Line 3 (over-indented): "      tree"
+    // setup
+    const content: Record<string, string> = {
+      'root':
+`- [[child]]
+  - [[grandchild]]
+      - [[overindentgreatgrandchild]]
+    - [[badindentchild]]
 `,
-    );
+    };
+    const expdError: string =
+`semtree.lint(): improper indentation found:
+
+- File "root" Line 3 (over-indented): "      - [[overindentgreatgrandchild]]"
+`;
+    // go
+    const actlError: string | void = lint(content);
+    // assert
+    assert.strictEqual(actlError, expdError);
   });
 
   // duplicates
 
   it('error; duplicates found', () => {
-    assert.strictEqual(
-      lint(cntntOneWikiSpace2DashIDwDuplicates),
-      `semtree.lint(): duplicate entity names found:
-
-- Line 19: "root-(0a1b2)"
+    // setup
+    const content: Record<string, string> = {
+      'root':
+`- [[child]]
+  - [[duplicategrandchild]]
+  - [[duplicategrandchild]]
 `,
-    );
+    };
+    const expdError: string =
+`semtree.lint(): duplicate entity names found:
+
+- File "root" Line 3: "duplicategrandchild"
+`;
+    // go
+    const actlError: string | void = lint(content);
+    // assert
+    assert.strictEqual(actlError, expdError);
   });
 
 });

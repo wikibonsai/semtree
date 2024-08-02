@@ -34,8 +34,9 @@ export class SemTree {
   public petioleMap: Record<string, string>  = {}; // a record that tracks what index file a file/leaf-node was listed in; 'petiole': "the stalk that joins a leaf to a stem; leafstalk"; or in this case, leaf to trunk.
   public dangling: string[]                  = []; // nodes no longer connected via a path of 'children' property pointers
   public duplicates: string[]                = [];
+  private visited: Set<string>               = new Set();
   // nanoid
-  public nanoidOpts: any = {
+  public nanoidOpts: any                     = {
     alphabet: 'abcdefghijklmnopqrstuvwxyz0123456789',
     size: 5,
   };
@@ -175,6 +176,10 @@ export class SemTree {
       subrootNode.ancestors.length,
     );
     if (typeof updatedTree === 'string') {
+      // restore state
+      this.nodes = originalNodes;
+      this.trunk = originalTrunk;
+      this.petioleMap = originalPetioleMap;
       return updatedTree;
     }
     // post-update checks
@@ -189,6 +194,9 @@ export class SemTree {
     this.refreshAncestors();
     // return subtree nodes
     const subtreeNodes: TreeNode[] = this.nodes.filter(node => this.petioleMap[node.text] === subroot);
+    if (this.root !== subrootNode.text) {
+      subtreeNodes.unshift(subrootNode);
+    }
     return deepcopy(subtreeNodes);
   }
 
@@ -199,6 +207,11 @@ export class SemTree {
     ancestors: TreeNode[] = [],
     totalLevel: number = 0,
   ): TreeNode[] | string {
+    // cycle check
+    if (this.visited.has(curKey)) {
+      return `SemTree.buildTree(): cycle detected involving node "${curKey}"`;
+    }
+    this.visited.add(curKey);
     let nodeBuilder: TreeNode;
     const isSubTree: boolean = subroot.length > 0;
     // if the trunk isn't virtual, handle index/trunk file
@@ -266,13 +279,16 @@ export class SemTree {
         const trunkNames: string[] = Object.keys(content);
         if ((curKey !== curTxt) && trunkNames.includes(curTxt)) {
           ancestors = this.popGrandAncestor(cumulativeLevel, ancestors);
-          this.buildTree(
+          const result: TreeNode[] | string = this.buildTree(
             this.rawText(text),
             content,
             subroot,
             deepcopy(ancestors),
             thisLevel,
           );
+          if (typeof result === 'string') {
+            return result;
+          }
           continue;
         }
         // init
@@ -291,14 +307,16 @@ export class SemTree {
         this.addBranch(nodeBuilder.text, nodeBuilder.ancestors, curKey);
       }
     }
+    // rm node after processing
     delete content[curKey];
+    this.visited.delete(curKey);
     // if some files were not processed and we are at the root-file-level, error out
     if ((Object.entries(content).length !== 0) && (totalLevel == 0)) {
       // throw new Error(errorMsg);
       return `SemanticTree.buildTree(): some files were not processed --\n${Object.keys(content)}`;
     }
     if (Object.entries(content).length === 0) {
-      // if it's a subtree update, duplicate check happens later
+      // duplicates are checked later in updateSubTree()
       if (!isSubTree) {
         // if duplicate nodes were found, return warning string
         if (this.checkDuplicates()) {
@@ -318,9 +336,9 @@ export class SemTree {
           // todo: print warning for unused hash content (e.g. hanging index docs)
         }
       }
-      return deepcopy(this.nodes);
     }
-    return 'SemanticTree.buildTree(): problem building tree';
+    // return current state of nodes
+    return deepcopy(this.nodes);
   }
 
   public clear() {

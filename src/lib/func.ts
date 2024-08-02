@@ -116,8 +116,11 @@ export const lint = (content: string | Record<string, string>): void | string =>
   } else {
     for (const [filename, fileContent] of Object.entries(content)) {
       const lines: string[] = fileContent.split('\n');
-      chunkSize = getChunkSize(lines);
-      previousIndent = 0; // Reset for each file
+      // only calculate chunkSize if it's the first file
+      if (chunkSize < 0) {
+        chunkSize = getChunkSize(lines);
+      }
+      previousIndent = 0; // reset for each file
       for (let i = 0; i < lines.length; i++) {
         lintLine(lines[i], i + 1, filename);
       }
