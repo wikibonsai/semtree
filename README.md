@@ -146,6 +146,32 @@ Tree requirements are sparse because the idea is to allow the end-user to determ
 
 ### API
 
+### `lint(content: string | Record<string, string>): void | string`
+
+Lint a file's content or a full record of filenames to file content.
+
+Checks for:
+  - Duplicates
+  - Improper indenting
+  - Over-indentation
+
+### `print(nodes: TreeNode[]): string | undefined`
+
+Print the contents of a tree to console logs and return the string if there was a valid tree to print.
+
+Example output:
+
+```
+root
+└── child
+    ├── branch1
+    |   ├── child1b
+    |   └── branch2
+    |       └── child2b
+    └── grandchild
+        └── greatgrandchild
+```
+
 ### semtree.opts(Partial<SemTreeOpts>): void;
 
 If any of the semantic tree options need to be changed while an instance is in use, this method may be called up update options on the fly.

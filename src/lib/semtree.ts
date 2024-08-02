@@ -48,10 +48,6 @@ export class SemTree {
 
   // target api methods
 
-  public print(): void {
-    console.log(this.buildTreeStr());
-  }
-
   // single file
   public parse(content: string, root?: string): any;
   // multiple files
@@ -199,6 +195,7 @@ export class SemTree {
         text: curKey,
         ancestors: ancestors.map(n => n.text),
         children: [],
+        isRoot: false,
       };
       // don't create a new node if we're handling the subroot of a subtree update
       if (curKey !== subroot) {
@@ -243,7 +240,8 @@ export class SemTree {
           text: rawTxt,
           ancestors: [],
           children: [],
-        };
+          isRoot: false,
+        } as TreeNode;
         if (!isSubTree) {
           this.addRoot(rawTxt);
         }
@@ -275,6 +273,7 @@ export class SemTree {
           text: rawTxt,
           ancestors: [],
           children: [],
+          isRoot: false,
         } as TreeNode;
         ancestors = this.popGrandAncestor(cumulativeLevel, ancestors);
         nodeBuilder.ancestors = ancestors.map(p => p.text);
@@ -333,6 +332,7 @@ export class SemTree {
       text: text,
       ancestors: [],
       children: [],
+      isRoot: true,
     } as TreeNode);
     this.petioleMap[text] = text;
   }
@@ -365,6 +365,7 @@ export class SemTree {
       text: text,
       ancestors: ancestryTitles,
       children: [],
+      isRoot: false,
     } as TreeNode);
     this.petioleMap[text] = trnkFname;
   }
@@ -509,27 +510,5 @@ export class SemTree {
     fullText = (this.mkdnList && isMarkdownBullet(fullText.substring(0, 2))) ? fullText.slice(2, fullText.length) : fullText;
     // strip wikistring special chars and line breaks (see: https://stackoverflow.com/a/10805292)
     return fullText.replace(openBrackets, '').replace(closeBrackets, '').replace(/\r?\n|\r/g, '');
-  }
-
-  // print
-
-  public buildTreeStr(
-    curNodeName: string = this.root,
-    prefix: string = '',
-  ): string {
-    let output: string = curNodeName + '\n';
-    const node: TreeNode | undefined = this.nodes.find((node: TreeNode) => node.text === curNodeName);
-    if (node === undefined) {
-      console.log(`SemTree.print: error: no node with text "${curNodeName}"`);
-      return output;
-    }
-    node.children.forEach((child: string, index: number) => {
-      const isLastChild: boolean = (index === node.children.length - 1);
-      const childPrefix: string = prefix + (isLastChild ? '└── ' : '├── ');
-      const grandchildPrefix: string = prefix + (isLastChild ? '    ' : '|   ');
-      const subtree: string = this.buildTreeStr(child, grandchildPrefix);
-      output += childPrefix + subtree;
-    });
-    return output;
   }
 }

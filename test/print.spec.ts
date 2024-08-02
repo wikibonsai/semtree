@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import sinon from 'sinon';
 
-import { SemTree } from '../src/index';
+import { SemTree } from '../src/lib/semtree';
+import { print } from '../src/lib/print';
 
 
 let fakeConsoleLog: sinon.SinonSpy;
@@ -60,10 +61,7 @@ describe('print()', () => {
 `,
         };
         semtree.parse(content, 'root');
-        // go
-        semtree.print();
-        // assert
-        const expdOutput: string =
+        const expdTreeStr: string =
 `root
 └── child
     ├── branch1
@@ -73,8 +71,11 @@ describe('print()', () => {
     └── grandchild
         └── greatgrandchild
 `;
+        // assert                           // go
+        const actlRes: string | undefined = print(semtree.nodes);
+        assert.strictEqual(actlRes, expdTreeStr);
         const actlOutput: string | void = fakeConsoleLog.getCall(0).args[0];
-        assert.strictEqual(actlOutput, expdOutput);
+        assert.strictEqual(actlOutput, expdTreeStr);
       });
 
     });
@@ -111,18 +112,18 @@ describe('print()', () => {
 `,
         };
         semtree.parse(content, 'root');
-        // go
-        semtree.print();
-        // assert
-        const expdOutput: string =
+        const expdTreeStr: string =
 `child
 ├── child1b
 ├── child2b
 └── grandchild
     └── greatgrandchild
 `;
+        // assert                           // go
+        const actlRes: string | undefined = print(semtree.nodes);
+        assert.strictEqual(actlRes, expdTreeStr);
         const actlOutput: string | void = fakeConsoleLog.getCall(0).args[0];
-        assert.strictEqual(actlOutput, expdOutput);
+        assert.strictEqual(actlOutput, expdTreeStr);
       });
 
     });

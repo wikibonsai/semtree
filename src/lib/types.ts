@@ -17,9 +17,11 @@ export interface TreeNode {
   text: string;
   ancestors: string[];
   children: string[];
-  // make extendible for flexibly adding other node properties
+  // optional data -- for flexibly adding new node properties
   [key: string]: any;
   // for building
   line?: number;
   level?: number;
+  // tree metadata
+  isRoot: boolean;
 }

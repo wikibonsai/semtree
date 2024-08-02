@@ -57,35 +57,43 @@ describe('semtree.parse()', () => {
             text: 'root',
             ancestors: [],
             children: ['child1', 'child2'],
+            isRoot: true,
           },{
             text: 'child1',
             ancestors: ['root'],
             children: [],
+            isRoot: false,
           },{
             text: 'child2',
             ancestors: ['root'],
             children: ['grandchild1'],
+            isRoot: false,
           },{
             text: 'grandchild1',
             ancestors: ['root', 'child2'],
             children: [],
+            isRoot: false,
           }];
           virtualData = [{
             text: 'root',
             ancestors: [],
             children: ['child1', 'child2'],
+            isRoot: true,
           },{
             text: 'child1',
             ancestors: ['root'],
             children: [],
+            isRoot: false,
           },{
             text: 'child2',
-            ancestors: ['root',],
+            ancestors: ['root'],
             children: ['grandchild1'],
+            isRoot: false,
           },{
             text: 'grandchild1',
             ancestors: ['root', 'child2'],
             children: [],
+            isRoot: false,
           }];
         });
 
@@ -283,35 +291,43 @@ describe('semtree.parse()', () => {
             text: 'root',
             ancestors: [],
             children: ['child1a'],
+            isRoot: true,
           },{
             text: 'child1a',
             ancestors: ['root'],
             children: ['grandchild1a', 'branch'],
+            isRoot: false,
           },{
             text: 'grandchild1a',
             ancestors: ['root', 'child1a'],
             children: [],
+            isRoot: false,
           },{
             text: 'branch',
             ancestors: ['root', 'child1a'],
             children: ['child1b'],
+            isRoot: false,
           },{
             text: 'child1b',
             ancestors: ['root', 'child1a', 'branch'],
             children: [],
+            isRoot: false,
           }];
           virtualData = [{
             text: 'child1a',
             ancestors: [],
             children: ['grandchild1a', 'child1b'],
+            isRoot: true,
           },{
             text: 'grandchild1a',
             ancestors: ['child1a'],
             children: [],
+            isRoot: false,
           },{
             text: 'child1b',
             ancestors: ['child1a'],
             children: [],
+            isRoot: false,
           }];
         });
 
@@ -436,18 +452,22 @@ root
                     text: 'root',
                     ancestors: [],
                     children: ['child1a'],
+                    isRoot: true,
                   },{
                     text: 'child1a',
                     ancestors: ['root'],
                     children: ['grandchild1a'],
+                    isRoot: false,
                   },{
                     text: 'grandchild1a',
                     ancestors: ['root', 'child1a'],
                     children: ['child1b'],
+                    isRoot: false,
                   },{
                     text: 'child1b',
                     ancestors: ['root', 'child1a', 'grandchild1a'],
                     children: [],
+                    isRoot: false,
                   }],
                 );
               }

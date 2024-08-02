@@ -61,14 +61,17 @@ describe('semtree.updateSubTree()', () => {
             text: 'branch2',
             ancestors: ['root', 'child1a', 'branch1'],
             children: ['child1c'],
+            isRoot: false,
           },{
             text: 'child1c',
             ancestors: ['root', 'child1a', 'branch1', 'branch2'],
             children: ['newChild'],
+            isRoot: false,
           },{
             text: 'newChild',
             ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
             children: [],
+            isRoot: false,
           }
         ];
         assert.deepEqual(actlSubTree, expdSubTree);
@@ -79,30 +82,37 @@ describe('semtree.updateSubTree()', () => {
             text: 'root',
             ancestors: [],
             children: ['child1a'],
+            isRoot: true,
           },{
             text: 'child1a',
             ancestors: ['root'],
             children: ['branch1', 'grandchild1a'],
+            isRoot: false,
           },{
             text: 'branch1',
             ancestors: ['root', 'child1a'],
             children: ['branch2'],
+            isRoot: false,
           },{
             text: 'branch2',
             ancestors: ['root', 'child1a', 'branch1'],
             children: ['child1c'],
+            isRoot: false,
           },{
             text: 'grandchild1a',
             ancestors: ['root', 'child1a'],
             children: [],
+            isRoot: false,
           },{
             text: 'child1c',
             ancestors: ['root', 'child1a', 'branch1', 'branch2'],
             children: ['newChild'],
+            isRoot: false,
           },{
             text: 'newChild',
             ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
             children: [],
+            isRoot: false,
           }
         ];
         assert.deepEqual(actlTree, expdTree);
@@ -134,10 +144,12 @@ describe('semtree.updateSubTree()', () => {
             text: 'branch2',
             ancestors: ['root', 'child1a', 'branch1'],
             children: ['child1c'],
+            isRoot: false,
           },{
             text: 'child1c',
             ancestors: ['root', 'child1a', 'branch1', 'branch2'],
             children: [],
+            isRoot: false,
           },
         ];
         assert.deepEqual(actlSubTree, expdSubTree);
@@ -148,26 +160,32 @@ describe('semtree.updateSubTree()', () => {
             text: 'root',
             ancestors: [],
             children: ['child1a'],
+            isRoot: true,
           },{
             text: 'child1a',
             ancestors: ['root'],
             children: ['branch1', 'grandchild1a'],
+            isRoot: false,
           },{
             text: 'branch1',
             ancestors: ['root', 'child1a'],
             children: ['branch2'],
+            isRoot: false,
           },{
             text: 'branch2',
             ancestors: ['root', 'child1a', 'branch1'],
             children: ['child1c'],
+            isRoot: false,
           },{
             text: 'grandchild1a',
             ancestors: ['root', 'child1a'],
             children: [],
+            isRoot: false,
           },{
             text: 'child1c',
             ancestors: ['root', 'child1a', 'branch1', 'branch2'],
             children: [],
+            isRoot: false,
           },
         ];
         assert.deepEqual(actlTree, expdTree);
@@ -204,20 +222,24 @@ describe('semtree.updateSubTree()', () => {
             text: 'branch2',
             ancestors: ['root', 'child1a', 'branch1'],
             children: ['child1c'],
+            isRoot: false,
           },{
             text: 'child1c',
             ancestors: ['root', 'child1a', 'branch1', 'branch2'],
             children: ['newbranch'],
+            isRoot: false,
           },{
             text: 'newbranch',
             ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
             children: ['child1d'],
+            isRoot: false,
           },
           // todo: shouldn't this be included?
           // {
           //   text: 'child1d',
           //   ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c', 'newbranch'],
           //   children: [],
+          //   isRoot: false,
           // },
         ];
         assert.deepEqual(actlSubTree, expdSubTree);
@@ -228,34 +250,42 @@ describe('semtree.updateSubTree()', () => {
             text: 'root',
             ancestors: [],
             children: ['child1a'],
+            isRoot: true,
           },{
             text: 'child1a',
             ancestors: ['root'],
             children: ['branch1', 'grandchild1a'],
+            isRoot: false,
           },{
             text: 'branch1',
             ancestors: ['root', 'child1a'],
             children: ['branch2'],
+            isRoot: false,
           },{
             text: 'branch2',
             ancestors: ['root', 'child1a', 'branch1'],
             children: ['child1c'],
+            isRoot: false,
           },{
             text: 'grandchild1a',
             ancestors: ['root', 'child1a'],
             children: [],
+            isRoot: false,
           },{
             text: 'child1c',
             ancestors: ['root', 'child1a', 'branch1', 'branch2'],
             children: ['newbranch'],
+            isRoot: false,
           },{
             text: 'newbranch',
             ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
             children: ['child1d'],
+            isRoot: false,
           },{
             text: 'child1d',
             ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c', 'newbranch'],
             children: [],
+            isRoot: false,
           },
         ];
         assert.deepEqual(actlTree, expdTree);
@@ -293,10 +323,12 @@ describe('semtree.updateSubTree()', () => {
               text: 'branch1',
               ancestors: ['root', 'child1a'],
               children: ['child1b'],
+              isRoot: false,
             },{
               text: 'child1b',
               ancestors: ['root', 'child1a', 'branch1'],
               children: [],
+              isRoot: false,
             }
           ];
           assert.deepEqual(actlSubTree, expdSubTree);
@@ -307,22 +339,27 @@ describe('semtree.updateSubTree()', () => {
               text: 'root',
               ancestors: [],
               children: ['child1a'],
+              isRoot: true,
             },{
               text: 'child1a',
               ancestors: ['root'],
               children: ['branch1', 'grandchild1a'],
+              isRoot: false,
             },{
               text: 'branch1',
               ancestors: ['root', 'child1a'],
               children: ['child1b'],
+              isRoot: false,
             },{
               text: 'grandchild1a',
               ancestors: ['root', 'child1a'],
               children: [],
+              isRoot: false,
             },{
               text: 'child1b',
               ancestors: ['root', 'child1a', 'branch1'],
               children: [],
+              isRoot: false,
             }
           ];
           assert.deepEqual(actlTree, expdTree);
@@ -355,14 +392,17 @@ describe('semtree.updateSubTree()', () => {
               text: 'root',
               ancestors: [],
               children: ['child1a'],
+              isRoot: true,
             },{
               text: 'child1a',
               ancestors: ['root'],
               children: ['grandchild1a'],
+              isRoot: false,
             },{
               text: 'grandchild1a',
               ancestors: ['root', 'child1a'],
               children: [],
+              isRoot: false,
             }
           ];
           assert.deepEqual(actlSubTree, expdSubTree);
@@ -373,14 +413,17 @@ describe('semtree.updateSubTree()', () => {
               text: 'root',
               ancestors: [],
               children: ['child1a'],
+              isRoot: true,
             },{
               text: 'child1a',
               ancestors: ['root'],
               children: ['grandchild1a'],
+              isRoot: false,
             },{
               text: 'grandchild1a',
               ancestors: ['root', 'child1a'],
               children: [],
+              isRoot: false,
             }
           ];
           assert.deepEqual(actlTree, expdTree);
