@@ -1,4 +1,9 @@
-import { REGEX } from './const';
+import {
+  closeBrackets,
+  isMarkdownBullet,
+  openBrackets,
+  REGEX,
+} from './const';
 
 
 export const deepcopy = (item: any) => {
@@ -36,6 +41,13 @@ export const getWhitespaceSize = (whitespace: string): number => {
     return whitespace.length * tabSize;
   }
   return whitespace.length;
+};
+
+export const rawText = (fullText: string, hasBullets: boolean = false): string => {
+  // strip markdown list marker if it exists
+  fullText = (hasBullets && isMarkdownBullet(fullText.substring(0, 2))) ? fullText.slice(2, fullText.length) : fullText;
+  // strip wikistring special chars and line breaks (see: https://stackoverflow.com/a/10805292)
+  return fullText.replace(openBrackets, '').replace(closeBrackets, '').replace(/\r?\n|\r/g, '');
 };
 
 // todo: add linting options (tab/space, indent size)

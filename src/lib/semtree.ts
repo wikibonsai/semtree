@@ -1,16 +1,12 @@
 import type { SemTreeOpts, TreeNode } from './types';
 
-import {
-  closeBrackets,
-  isMarkdownBullet,
-  openBrackets,
-  REGEX,
-} from './const';
+import { REGEX } from './const';
 import {
   deepcopy,
   getChunkSize,
   getWhitespaceSize,
   lint,
+  rawText,
 } from './func';
 
 
@@ -65,7 +61,7 @@ export class SemTree {
         return 'SemTree.parse(): multiple lines with zero indentation found. A tree with multiple roots cannot be made. Please add a filename as a "root" parameter or fix the indentation.';
       // single root does exist
       } else if (zeroIndentLines.length === 1) {
-        root = this.rawText(zeroIndentLines[0]);
+        root = rawText(zeroIndentLines[0], this.mkdnList);
         // rm root line and adjust indentation for remaining lines
         if (!this.virtualTrunk) {
           const remainingLines: string[] = lines.slice(1).filter(line => line.trim().length > 0);
@@ -217,7 +213,7 @@ export class SemTree {
     const lines: string[] = content[curKey];
     for (const [i, line] of lines.entries()) {
       const text: string = line.replace(REGEX.LEVEL, '');
-      const rawTxt: string = this.rawText(text);
+      const rawTxt: string = rawText(text, this.mkdnList);
       if (!text || text.length == 0) { continue; }
       if (this.nodes.map((node) => node.text).includes(rawTxt)) {
         this.duplicates.push(rawTxt);
@@ -372,7 +368,7 @@ export class SemTree {
 
   private getTrunkKey(curKey: string, content: Record<string, string[]>): string | undefined {
     for (const key of Object.keys(content)) {
-      const items: string[] = content[key].map((txt) => this.rawText(txt).trim().replace(/^[-*+]\s*/, ''));
+      const items: string[] = content[key].map((txt) => rawText(txt, this.mkdnList).trim().replace(/^[-*+]\s*/, ''));
       if (items.includes(curKey)) {
         return key;
       }
@@ -501,14 +497,5 @@ export class SemTree {
     errorMsg += duplicates.join(', ') + '\n\n';
     // throw new Error(errorMsg);
     return errorMsg;
-  }
-
-  // utils
-
-  public rawText(fullText: string) {
-    // strip markdown list marker if it exists
-    fullText = (this.mkdnList && isMarkdownBullet(fullText.substring(0, 2))) ? fullText.slice(2, fullText.length) : fullText;
-    // strip wikistring special chars and line breaks (see: https://stackoverflow.com/a/10805292)
-    return fullText.replace(openBrackets, '').replace(closeBrackets, '').replace(/\r?\n|\r/g, '');
   }
 }
