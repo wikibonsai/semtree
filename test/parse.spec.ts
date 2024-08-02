@@ -439,7 +439,7 @@ describe('semtree.parse()', () => {
               if (trunkType === 'concrete') {
                 assert.strictEqual(
                   semtree.parse(content, 'root'),
-                  `SemTree.warnDuplicates(): tree did not build, duplicate nodes found:
+                  `semtree.checkDuplicates(): tree did not build, duplicate nodes found:
 
 root
 
@@ -505,13 +505,7 @@ root
 `,};
               assert.strictEqual(
                 semtree.parse(content, 'root'),
-                trunkType === 'concrete'
-                  ? `SemTree.warnDuplicates(): tree did not build, duplicate nodes found:
-
-root
-
-`
-                  : 'SemTree.buildTree(): cycle detected involving node "root"',
+                'SemTree.buildTree(): cycle detected involving node "root"',
               );
             });
 

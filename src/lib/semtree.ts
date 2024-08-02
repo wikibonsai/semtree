@@ -8,6 +8,7 @@ import {
   lint,
   rawText,
 } from './func';
+import { checkDuplicates } from './duplicates';
 
 
 export class SemTree {
@@ -22,7 +23,6 @@ export class SemTree {
   public trunk: string[]                     = []; // list of index filenames
   public petioleMap: Record<string, string>  = {}; // a record that tracks what index file a file/leaf-node was listed in; 'petiole': "the stalk that joins a leaf to a stem; leafstalk"; or in this case, leaf to trunk.
   public dangling: string[]                  = []; // nodes no longer connected via a path of 'children' property pointers
-  public duplicates: string[]                = [];
   private visited: Set<string>               = new Set();
   public action: any                         = {};
 
@@ -153,12 +153,13 @@ export class SemTree {
     }
     // post-update checks
     if (this.checkDangling()) { this.pruneDangling(); }
-    if (this.checkDuplicates()) {
+    const hasDups: string | undefined = checkDuplicates(this.nodes);
+    if (typeof hasDups === 'string') {
       // restore state
       this.nodes = originalNodes;
       this.trunk = originalTrunk;
       this.petioleMap = originalPetioleMap;
-      return this.warnDuplicates();
+      return hasDups;
     }
     this.refreshAncestors();
     // return subtree nodes
@@ -215,10 +216,11 @@ export class SemTree {
       const text: string = line.replace(REGEX.LEVEL, '');
       const rawTxt: string = rawText(text, this.mkdnList);
       if (!text || text.length == 0) { continue; }
-      if (this.nodes.map((node) => node.text).includes(rawTxt)) {
-        this.duplicates.push(rawTxt);
-        return this.warnDuplicates();
-      }
+      // todo: leave this for now in case something breaks -- relying on other duplicate checks instead.
+      // if (this.nodes.map((node) => node.text).includes(rawTxt)) {
+      //   this.duplicates.push(rawTxt);
+      //   return this.warnDuplicates();
+      // }
       // calculate numbers
       const lineNum: number = i + 1;
       const levelMatch: RegExpMatchArray | null = line.match(REGEX.LEVEL);
@@ -289,8 +291,9 @@ export class SemTree {
       // duplicates are checked later in updateSubTree()
       if (!isSubTree) {
         // if duplicate nodes were found, return warning string
-        if (this.checkDuplicates()) {
-          return this.warnDuplicates();
+        const hasDups: string | undefined = checkDuplicates(this.nodes);
+        if (typeof hasDups === 'string') {
+          return hasDups;
         }
       }
       // if given, call option methods
@@ -317,7 +320,6 @@ export class SemTree {
     this.nodes = [];
     this.trunk = [];
     this.petioleMap = {};
-    this.duplicates = [];
   }
 
   // internal tree-building methods
@@ -474,28 +476,5 @@ export class SemTree {
     traverseTree(this.root);
     this.dangling = this.nodes.filter((n: TreeNode) => !connectedNodes.has(n.text)).map((n: TreeNode) => n.text);
     return this.dangling.length > 0;
-  }
-
-  // note: this doubles as cycle detection
-  private checkDuplicates(reset: boolean = false): boolean {
-    const seenTexts: Set<string> = new Set<string>();
-    if (reset) { this.duplicates = []; }
-    for (const node of this.nodes) {
-      if (seenTexts.has(node.text)) {
-        this.duplicates.push(node.text);
-      } else {
-        seenTexts.add(node.text);
-      }
-    }
-    return (this.duplicates.length > 0);
-  }
-
-  private warnDuplicates(dup?: string[]): string {
-    // delete duplicate duplicates, convert to array
-    const duplicates: string[] = dup ? dup : Array.from(new Set(this.duplicates));
-    let errorMsg: string = 'SemTree.warnDuplicates(): tree did not build, duplicate nodes found:\n\n';
-    errorMsg += duplicates.join(', ') + '\n\n';
-    // throw new Error(errorMsg);
-    return errorMsg;
   }
 }
