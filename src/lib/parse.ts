@@ -1,6 +1,7 @@
 import type { SemTreeOpts, TreeNode } from './types';
 
-import { getChunkSize, lint, rawText } from './func';
+import { getChunkSize, rawText } from './func';
+import { lint } from './lint';
 import { buildTree } from './build-tree';
 
 
