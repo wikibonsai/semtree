@@ -1,25 +1,9 @@
 import assert from 'node:assert/strict';
-import sinon from 'sinon';
 
 import { lint } from '../src/index';
 
 
-let fakeConsoleLog: sinon.SinonSpy;
-let fakeConsoleWarn: sinon.SinonSpy;
-
 describe('lint()', () => {
-
-  beforeEach(() => {
-    console.warn = (msg) => msg + '\n';
-    fakeConsoleWarn = sinon.spy(console, 'warn');
-    console.log = (msg) => msg + '\n';
-    fakeConsoleLog = sinon.spy(console, 'log');
-  });
-
-  afterEach(() => {
-    fakeConsoleWarn.restore();
-    fakeConsoleLog.restore();
-  });
 
   it('default', () => {
     // setup

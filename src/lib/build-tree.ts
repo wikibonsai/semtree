@@ -60,7 +60,6 @@ export const buildTree = (
         } else {
           const trnkFname: string | undefined = getTrunkKey(curKey, deepcopy(content));
           if (trnkFname === undefined) {
-            console.log(`semtree.buildTree(): trunk file for '${curKey}' not found in content`);
             return `semtree.buildTree(): trunk file for '${curKey}' not found in content`;
           }
           addBranch(curKey, nodeBuilder.ancestors, trnkFname);

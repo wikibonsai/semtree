@@ -1,27 +1,12 @@
 import assert from 'node:assert/strict';
-import sinon from 'sinon';
 
 import type { SemTree, SemTreeOpts, TreeNode } from '../src/lib/types';
 import { updateSubTree } from '../src/lib/update-subtree';
 
 
-let fakeConsoleLog: sinon.SinonSpy;
-let fakeConsoleWarn: sinon.SinonSpy;
 let opts: SemTreeOpts;
 
 describe('updateSubTree()', () => {
-
-  beforeEach(() => {
-    console.warn = (msg) => msg + '\n';
-    fakeConsoleWarn = sinon.spy(console, 'warn');
-    console.log = (msg) => msg + '\n';
-    fakeConsoleLog = sinon.spy(console, 'log');
-  });
-
-  afterEach(() => {
-    fakeConsoleWarn.restore();
-    fakeConsoleLog.restore();
-  });
 
   describe('concrete trunk', () => {
 

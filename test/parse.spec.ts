@@ -5,26 +5,12 @@ import type { SemTreeOpts, TreeNode } from '../src/lib/types';
 import { parse } from '../src/lib/parse';
 
 
-let fakeConsoleLog: sinon.SinonSpy;
-let fakeConsoleWarn: sinon.SinonSpy;
 let opts: SemTreeOpts;
 
 let concreteData: TreeNode[];
 let virtualData: TreeNode[];
 
 describe('parse()', () => {
-
-  beforeEach(() => {
-    console.warn = (msg) => msg + '\n';
-    fakeConsoleWarn = sinon.spy(console, 'warn');
-    console.log = (msg) => msg + '\n';
-    fakeConsoleLog = sinon.spy(console, 'log');
-  });
-
-  afterEach(() => {
-    fakeConsoleWarn.restore();
-    fakeConsoleLog.restore();
-  });
 
   [
     'concrete',
