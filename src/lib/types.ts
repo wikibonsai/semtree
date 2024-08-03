@@ -24,8 +24,6 @@ export interface TreeNode {
   // for building
   line?: number;
   level?: number;
-  // tree metadata
-  isRoot: boolean;
 }
 
 export interface SemTree {

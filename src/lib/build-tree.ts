@@ -52,7 +52,6 @@ export const buildTree = (
         text: curKey,
         ancestors: ancestors.map(n => n.text),
         children: [],
-        isRoot: false,
       };
       // don't create a new node if we're handling the subroot of a subtree update
       if (curKey !== subroot) {
@@ -97,7 +96,6 @@ export const buildTree = (
           text: rawTxt,
           ancestors: [],
           children: [],
-          isRoot: false,
         } as TreeNode;
         if (!isSubTree) {
           addRoot(rawTxt);
@@ -129,7 +127,6 @@ export const buildTree = (
           text: rawTxt,
           ancestors: [],
           children: [],
-          isRoot: false,
         } as TreeNode;
         ancestors = popGrandAncestor(cumulativeLevel, ancestors);
         nodeBuilder.ancestors = ancestors.map(p => p.text);
@@ -178,7 +175,6 @@ export const buildTree = (
       text: text,
       ancestors: [],
       children: [],
-      isRoot: true,
     } as TreeNode);
     tree.petioleMap[text] = text;
   }
@@ -211,7 +207,6 @@ export const buildTree = (
       text: text,
       ancestors: ancestryTitles,
       children: [],
-      isRoot: false,
     } as TreeNode);
     tree.petioleMap[text] = trnkFname;
   }

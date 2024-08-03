@@ -1,9 +1,9 @@
-import type { TreeNode } from '../lib/types';
+import type { SemTree, TreeNode } from '../lib/types';
 
 
-export const print = (nodes: TreeNode[]): string | undefined => {
+export const print = (tree: SemTree, print: boolean = true): string | undefined => {
   const buildTreeStr = (
-    curNodeName: string | undefined = nodes.find(n => n.isRoot)?.text,
+    curNodeName: string | undefined = tree.nodes.find(n => n.text === tree.root)?.text,
     prefix: string = '',
   ): string => {
     if (curNodeName === undefined) {
@@ -11,7 +11,7 @@ export const print = (nodes: TreeNode[]): string | undefined => {
       return '';
     }
     let output: string = curNodeName + '\n';
-    const node: TreeNode | undefined = nodes.find((node: TreeNode) => node.text === curNodeName);
+    const node: TreeNode | undefined = tree.nodes.find((node: TreeNode) => node.text === curNodeName);
     if (node === undefined) {
       console.log(`semtree.print: error: no node with text "${curNodeName}"`);
       return output;
@@ -25,8 +25,7 @@ export const print = (nodes: TreeNode[]): string | undefined => {
     });
     return output;
   };
-
   const treeStr: string | undefined = buildTreeStr();
-  console.log(treeStr);
+  if (print) { console.log(treeStr); }
   return treeStr;
 };

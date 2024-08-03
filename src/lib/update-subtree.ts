@@ -137,7 +137,7 @@ export const updateSubTree = (
         }
       }
     };
-    const rootNode: TreeNode | undefined = nodes.find(n => n.isRoot);
+    const rootNode: TreeNode | undefined = nodes.find(n => n.text === tree.root);
     if (rootNode) {
       updateAncestors(rootNode, []);
     }
