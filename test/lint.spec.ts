@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict';
 import sinon from 'sinon';
 
-import { lint, SemTree } from '../src/index';
+import { lint } from '../src/index';
 
 
 let fakeConsoleLog: sinon.SinonSpy;
 let fakeConsoleWarn: sinon.SinonSpy;
-let semtree: SemTree;
 
 describe('lint()', () => {
 
@@ -15,13 +14,9 @@ describe('lint()', () => {
     fakeConsoleWarn = sinon.spy(console, 'warn');
     console.log = (msg) => msg + '\n';
     fakeConsoleLog = sinon.spy(console, 'log');
-    semtree = new SemTree({
-      virtualTrunk: true,
-    });
   });
 
   afterEach(() => {
-    semtree.clear();
     fakeConsoleWarn.restore();
     fakeConsoleLog.restore();
   });

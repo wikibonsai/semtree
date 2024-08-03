@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import sinon from 'sinon';
 
-import { SemTree } from '../src/lib/semtree';
+import type { TreeNode } from '../src/lib/types';
+import { parse } from '../src/lib/parse';
 import { print } from '../src/lib/print';
 
 
 let fakeConsoleLog: sinon.SinonSpy;
 let fakeConsoleWarn: sinon.SinonSpy;
-let semtree: SemTree;
 
 describe('print()', () => {
 
@@ -16,22 +16,14 @@ describe('print()', () => {
     fakeConsoleWarn = sinon.spy(console, 'warn');
     console.log = (msg) => msg + '\n';
     fakeConsoleLog = sinon.spy(console, 'log');
-    semtree = new SemTree({
-      virtualTrunk: true,
-    });
   });
 
   afterEach(() => {
-    semtree.clear();
     fakeConsoleWarn.restore();
     fakeConsoleLog.restore();
   });
 
   describe('concrete trunk', () => {
-
-    beforeEach(() => {
-      semtree = new SemTree();
-    });
 
     describe('single', () => {
 
@@ -60,7 +52,8 @@ describe('print()', () => {
 `- [[child2b]]
 `,
         };
-        semtree.parse(content, 'root');
+        const nodes: TreeNode[] | string = parse(content, 'root');
+        assert.strictEqual(typeof nodes, 'object');
         const expdTreeStr: string =
 `root
 └── child
@@ -72,7 +65,8 @@ describe('print()', () => {
         └── greatgrandchild
 `;
         // assert                           // go
-        const actlRes: string | undefined = print(semtree.nodes);
+        // @ts-expect-error: previous assert catches this
+        const actlRes: string | undefined = print(nodes);
         assert.strictEqual(actlRes, expdTreeStr);
         const actlOutput: string | void = fakeConsoleLog.getCall(0).args[0];
         assert.strictEqual(actlOutput, expdTreeStr);
@@ -111,7 +105,8 @@ describe('print()', () => {
 `- [[child2b]]
 `,
         };
-        semtree.parse(content, 'root');
+        const nodes: TreeNode[] | string = parse(content, 'root', { virtualTrunk: true });
+        assert.strictEqual(typeof nodes, 'object');
         const expdTreeStr: string =
 `child
 ├── child1b
@@ -120,7 +115,8 @@ describe('print()', () => {
     └── greatgrandchild
 `;
         // assert                           // go
-        const actlRes: string | undefined = print(semtree.nodes);
+        // @ts-expect-error: previous assert catches this
+        const actlRes: string | undefined = print(nodes);
         assert.strictEqual(actlRes, expdTreeStr);
         const actlOutput: string | void = fakeConsoleLog.getCall(0).args[0];
         assert.strictEqual(actlOutput, expdTreeStr);

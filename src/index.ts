@@ -1,4 +1,7 @@
-export { SemTree } from './lib/semtree';
-export { lint } from './lib/func';
+export { parse } from './lib/parse';
+export { updateSubTree } from './lib/update-subtree';
 
-export type { SemTreeOpts } from './lib/types';
+export { lint } from './lib/func';
+export { print } from './lib/print';
+
+export type { SemTree, SemTreeOpts } from './lib/types';

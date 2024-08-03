@@ -1,15 +1,15 @@
 import assert from 'node:assert/strict';
 import sinon from 'sinon';
 
-import type { TreeNode } from '../src/lib/types';
-import { SemTree } from '../src/index';
+import type { SemTree, SemTreeOpts, TreeNode } from '../src/lib/types';
+import { updateSubTree } from '../src/lib/update-subtree';
 
 
 let fakeConsoleLog: sinon.SinonSpy;
 let fakeConsoleWarn: sinon.SinonSpy;
-let semtree: SemTree;
+let opts: SemTreeOpts;
 
-describe('semtree.updateSubTree()', () => {
+describe('updateSubTree()', () => {
 
   beforeEach(() => {
     console.warn = (msg) => msg + '\n';
@@ -26,11 +26,9 @@ describe('semtree.updateSubTree()', () => {
   describe('concrete trunk', () => {
 
     beforeEach(() => {
-      semtree = new SemTree();
-    });
-
-    afterEach(() => {
-      semtree.clear();
+      opts = {
+        virtualTrunk: false,
+      };
     });
 
     describe('single file replacement', () => {
@@ -49,13 +47,57 @@ describe('semtree.updateSubTree()', () => {
           'branch2':
 `- [[child1c]]
 `};
-        semtree.parse(content, 'root');
+        const tree: SemTree = {
+          root: 'root',
+          trunk: ['root', 'branch1', 'branch2'],
+          petioleMap: {
+            'root': 'root',
+            'branch1': 'root',
+            'branch2': 'branch2',
+            'grandchild1a': 'root',
+            'child1a': 'root',
+            'child1c': 'branch2',
+          },
+          nodes: [
+            {
+              text: 'root',
+              ancestors: [],
+              children: ['child1a'],
+              isRoot: true,
+            },{
+              text: 'child1a',
+              ancestors: ['root'],
+              children: ['branch1', 'grandchild1a'],
+              isRoot: false,
+            },{
+              text: 'branch1',
+              ancestors: ['root', 'child1a'],
+              children: ['branch2'],
+              isRoot: false,
+            },{
+              text: 'branch2',
+              ancestors: ['root', 'child1a', 'branch1'],
+              children: ['child1c'],
+              isRoot: false,
+            },{
+              text: 'grandchild1a',
+              ancestors: ['root', 'child1a'],
+              children: [],
+              isRoot: false,
+            },{
+              text: 'child1c',
+              ancestors: ['root', 'child1a', 'branch1', 'branch2'],
+              children: [],
+              isRoot: false,
+            }
+          ]
+        };
         const replacement: string = 
 `- [[child1c]]
   - [[newChild]]
 `;
         // subtree                               // go
-        const actlSubTree: TreeNode[] | string = semtree.updateSubTree({ 'branch2': replacement }, 'branch2');
+        const actlSubTree: TreeNode[] | string = updateSubTree(tree, { 'branch2': replacement }, 'branch2');
         const expdSubTree: TreeNode[] = [
           {
             text: 'branch2',
@@ -76,7 +118,7 @@ describe('semtree.updateSubTree()', () => {
         ];
         assert.deepEqual(actlSubTree, expdSubTree);
         // final updated tree
-        const actlTree: TreeNode[] = semtree.nodes;
+        const actlTree: TreeNode[] = tree.nodes;
         const expdTree: TreeNode[] = [
           {
             text: 'root',
@@ -133,12 +175,61 @@ describe('semtree.updateSubTree()', () => {
 `- [[child1c]]
   - [[removeThisChild]]
 `};
-        semtree.parse(content, 'root');
+        const tree: SemTree = {
+          root: 'root',
+          trunk: ['root', 'branch1', 'branch2'],
+          petioleMap: {
+            'root': 'root',
+            'branch1': 'root',
+            'branch2': 'branch2',
+            'grandchild1a': 'root',
+            'child1a': 'root',
+            'child1c': 'branch2',
+          },
+          nodes: [
+            {
+              text: 'root',
+              ancestors: [],
+              children: ['child1a'],
+              isRoot: true,
+            },{
+              text: 'child1a',
+              ancestors: ['root'],
+              children: ['branch1', 'grandchild1a'],
+              isRoot: false,
+            },{
+              text: 'branch1',
+              ancestors: ['root', 'child1a'],
+              children: ['branch2'],
+              isRoot: false,
+            },{
+              text: 'branch2',
+              ancestors: ['root', 'child1a', 'branch1'],
+              children: ['child1c'],
+              isRoot: false,
+            },{
+              text: 'grandchild1a',
+              ancestors: ['root', 'child1a'],
+              children: [],
+              isRoot: false,
+            },{
+              text: 'child1c',
+              ancestors: ['root', 'child1a', 'branch1', 'branch2'],
+              children: [],
+              isRoot: false,
+            },{
+              text: 'removeThisChild',
+              ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
+              children: [],
+              isRoot: false,
+            }
+          ]
+        };
         const replacement: string = 
 `- [[child1c]]
 `;
         // returned subtree                      // go
-        const actlSubTree: TreeNode[] | string = semtree.updateSubTree({ 'branch2': replacement }, 'branch2');
+        const actlSubTree: TreeNode[] | string = updateSubTree(tree, { 'branch2': replacement }, 'branch2');
         const expdSubTree: TreeNode[] = [
           {
             text: 'branch2',
@@ -154,7 +245,7 @@ describe('semtree.updateSubTree()', () => {
         ];
         assert.deepEqual(actlSubTree, expdSubTree);
         // final updated tree
-        const actlTree: TreeNode[] = semtree.nodes;
+        const actlTree: TreeNode[] = tree.nodes;
         const expdTree: TreeNode[] = [
           {
             text: 'root',
@@ -205,7 +296,56 @@ describe('semtree.updateSubTree()', () => {
           'branch2':
 `- [[child1c]]
 `};
-        semtree.parse(content, 'root');
+        const tree: SemTree = {
+          root: 'root',
+          trunk: ['root', 'branch1', 'branch2'],
+          petioleMap: {
+            'root': 'root',
+            'branch1': 'root',
+            'branch2': 'branch2',
+            'grandchild1a': 'root',
+            'child1a': 'root',
+            'child1c': 'branch2',
+          },
+          nodes: [
+            {
+              text: 'root',
+              ancestors: [],
+              children: ['child1a'],
+              isRoot: true,
+            },{
+              text: 'child1a',
+              ancestors: ['root'],
+              children: ['branch1', 'grandchild1a'],
+              isRoot: false,
+            },{
+              text: 'branch1',
+              ancestors: ['root', 'child1a'],
+              children: ['branch2'],
+              isRoot: false,
+            },{
+              text: 'branch2',
+              ancestors: ['root', 'child1a', 'branch1'],
+              children: ['child1c'],
+              isRoot: false,
+            },{
+              text: 'grandchild1a',
+              ancestors: ['root', 'child1a'],
+              children: [],
+              isRoot: false,
+            },{
+              text: 'child1c',
+              ancestors: ['root', 'child1a', 'branch1', 'branch2'],
+              children: [],
+              isRoot: false,
+            },{
+              text: 'removeThisChild',
+              ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
+              children: [],
+              isRoot: false,
+            }
+          ]
+        };
         const replacement: Record<string, string> = {
           'branch2':
 `- [[child1c]]
@@ -216,7 +356,7 @@ describe('semtree.updateSubTree()', () => {
 `
         };
         // returned subtree                      // go
-        const actlSubTree: TreeNode[] | string = semtree.updateSubTree(replacement, 'branch2');
+        const actlSubTree: TreeNode[] | string = updateSubTree(tree, replacement, 'branch2');
         const expdSubTree: TreeNode[] = [
           {
             text: 'branch2',
@@ -244,7 +384,7 @@ describe('semtree.updateSubTree()', () => {
         ];
         assert.deepEqual(actlSubTree, expdSubTree);
         // final updated tree
-        const actlTree: TreeNode[] = semtree.nodes;
+        const actlTree: TreeNode[] = tree.nodes;
         const expdTree: TreeNode[] = [
           {
             text: 'root',
@@ -311,13 +451,61 @@ describe('semtree.updateSubTree()', () => {
             'branch2':
 `- [[child1c]]
 `};
-          const result: TreeNode[] | string = semtree.parse(content, 'root');
-          assert.notStrictEqual(typeof result, 'string');
+          const tree: SemTree = {
+            root: 'root',
+            trunk: ['root', 'branch1', 'branch2'],
+            petioleMap: {
+              'root': 'root',
+              'branch1': 'root',
+              'branch2': 'branch1',
+              'grandchild1a': 'root',
+              'child1a': 'root',
+              'child1c': 'branch2',
+            },
+            nodes: [
+              {
+                text: 'root',
+                ancestors: [],
+                children: ['child1a'],
+                isRoot: true,
+              },{
+                text: 'child1a',
+                ancestors: ['root'],
+                children: ['branch1', 'grandchild1a'],
+                isRoot: false,
+              },{
+                text: 'branch1',
+                ancestors: ['root', 'child1a'],
+                children: ['branch2'],
+                isRoot: false,
+              },{
+                text: 'branch2',
+                ancestors: ['root', 'child1a', 'branch1'],
+                children: ['child1c'],
+                isRoot: false,
+              },{
+                text: 'grandchild1a',
+                ancestors: ['root', 'child1a'],
+                children: [],
+                isRoot: false,
+              },{
+                text: 'child1c',
+                ancestors: ['root', 'child1a', 'branch1', 'branch2'],
+                children: [],
+                isRoot: false,
+              },{
+                text: 'removeThisChild',
+                ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
+                children: [],
+                isRoot: false,
+              }
+            ]
+          };
           const replacement: string = 
 `- [[child1b]]
 `;
           // subtree                               // go
-          const actlSubTree: TreeNode[] | string = semtree.updateSubTree({ 'branch1': replacement }, 'branch1');
+          const actlSubTree: TreeNode[] | string = updateSubTree(tree, { 'branch1': replacement }, 'branch1');
           const expdSubTree: TreeNode[] = [
             {
               text: 'branch1',
@@ -333,7 +521,7 @@ describe('semtree.updateSubTree()', () => {
           ];
           assert.deepEqual(actlSubTree, expdSubTree);
           // final updated tree
-          const actlTree: TreeNode[] = semtree.nodes;
+          const actlTree: TreeNode[] = tree.nodes;
           const expdTree: TreeNode[] = [
             {
               text: 'root',
@@ -379,14 +567,62 @@ describe('semtree.updateSubTree()', () => {
             'branch2':
 `- [[child1c]]
 `};
-          const result: TreeNode[] | string = semtree.parse(content, 'root');
-          assert.notStrictEqual(typeof result, 'string');
+          const tree: SemTree = {
+            root: 'root',
+            trunk: ['root', 'branch1', 'branch2'],
+            petioleMap: {
+              'root': 'root',
+              'branch1': 'root',
+              'branch2': 'branch2',
+              'grandchild1a': 'root',
+              'child1a': 'root',
+              'child1c': 'branch2',
+            },
+            nodes: [
+              {
+                text: 'root',
+                ancestors: [],
+                children: ['child1a'],
+                isRoot: true,
+              },{
+                text: 'child1a',
+                ancestors: ['root'],
+                children: ['branch1', 'grandchild1a'],
+                isRoot: false,
+              },{
+                text: 'branch1',
+                ancestors: ['root', 'child1a'],
+                children: ['branch2'],
+                isRoot: false,
+              },{
+                text: 'branch2',
+                ancestors: ['root', 'child1a', 'branch1'],
+                children: ['child1c'],
+                isRoot: false,
+              },{
+                text: 'grandchild1a',
+                ancestors: ['root', 'child1a'],
+                children: [],
+                isRoot: false,
+              },{
+                text: 'child1c',
+                ancestors: ['root', 'child1a', 'branch1', 'branch2'],
+                children: [],
+                isRoot: false,
+              },{
+                text: 'removeThisChild',
+                ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
+                children: [],
+                isRoot: false,
+              }
+            ]
+          };
           const replacement: string =
 `- [[child1a]]
   - [[grandchild1a]]
 `;
           // subtree                               // go
-          const actlSubTree: TreeNode[] | string = semtree.updateSubTree({ 'root': replacement }, 'root');
+          const actlSubTree: TreeNode[] | string = updateSubTree(tree, { 'root': replacement }, 'root');
           const expdSubTree: TreeNode[] = [
             {
               text: 'root',
@@ -407,7 +643,7 @@ describe('semtree.updateSubTree()', () => {
           ];
           assert.deepEqual(actlSubTree, expdSubTree);
           // final updated tree
-          const actlTree: TreeNode[] = semtree.nodes;
+          const actlTree: TreeNode[] = tree.nodes;
           const expdTree: TreeNode[] = [
             {
               text: 'root',
@@ -447,11 +683,59 @@ describe('semtree.updateSubTree()', () => {
             'branch2':
   `- [[child1c]]
   `};
-          semtree.parse(content, 'root');
+          const tree: SemTree = {
+            root: 'root',
+            trunk: ['root', 'branch1', 'branch2'],
+            petioleMap: {
+              'root': 'root',
+              'branch1': 'root',
+              'branch2': 'branch2',
+              'grandchild1a': 'root',
+              'child1c': 'branch2',
+            },
+            nodes: [
+              {
+                text: 'root',
+                ancestors: [],
+                children: ['child1a'],
+                isRoot: true,
+              },{
+                text: 'child1a',
+                ancestors: ['root'],
+                children: ['branch1', 'grandchild1a'],
+                isRoot: false,
+              },{
+                text: 'branch1',
+                ancestors: ['root', 'child1a'],
+                children: ['branch2'],
+                isRoot: false,
+              },{
+                text: 'branch2',
+                ancestors: ['root', 'child1a', 'branch1'],
+                children: ['child1c'],
+                isRoot: false,
+              },{
+                text: 'grandchild1a',
+                ancestors: ['root', 'child1a'],
+                children: [],
+                isRoot: false,
+              },{
+                text: 'child1c',
+                ancestors: ['root', 'child1a', 'branch1', 'branch2'],
+                children: [],
+                isRoot: false,
+              },{
+                text: 'removeThisChild',
+                ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
+                children: [],
+                isRoot: false,
+              }
+            ]
+          };
           // go
           assert.strictEqual(
-            semtree.updateSubTree({ 'missing': '- [[newnode]]' }, 'missing'),
-            'SemTree.updateSubTree(): subroot not found in the tree: "missing"',
+            updateSubTree(tree, { 'missing': '- [[newnode]]' }, 'missing'),
+            'semtree.updateSubTree(): subroot not found in the tree: "missing"',
           );
         });
 

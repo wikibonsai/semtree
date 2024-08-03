@@ -1,3 +1,5 @@
+import type { SemTreeOpts } from './types';
+
 export const openBrackets = '[[';
 export const closeBrackets = ']]';
 
@@ -18,3 +20,10 @@ export const REGEX = {
   WIKITEXT_WITH_ID:  /([+*-]) \[\[([^\\:\\^|[\]]+)-\(([A-Za-z0-9]{5})\)\]\]/i, // wikirefs.RGX.VALID_CHARS.FILENAME-(id/disambiguation)
   WHITESPACE      : /^\s*$/,
 } as const;
+
+export const defaultOpts: SemTreeOpts = {
+  virtualTrunk: false,
+  chunkSize: 2,
+  mkdnList: true,
+  wikitext: true,
+};
