@@ -123,12 +123,25 @@ describe('parse()', () => {
             );
           });
 
-          it('indentation; tabs', () => {
+          it('indentation; 1 tab', () => {
             const content: string = 
 `- [[root]]
 \t- [[child1]]
 \t- [[child2]]
 \t\t- [[grandchild1]]
+`;
+            assert.deepStrictEqual(
+              parse(content, '', opts),
+              trunkType === 'concrete' ? concreteData : virtualData,
+            );
+          });
+
+          it('indentation; 2 tabs', () => {
+            const content: string = 
+`- [[root]]
+\t\t- [[child1]]
+\t\t- [[child2]]
+\t\t\t\t- [[grandchild1]]
 `;
             assert.deepStrictEqual(
               parse(content, '', opts),

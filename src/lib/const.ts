@@ -1,17 +1,5 @@
 import type { SemTreeOpts } from './types';
 
-export const openBrackets = '[[';
-export const closeBrackets = ']]';
-
-const markdownBulletAsterisk = '* ';
-const markdownBulletDash = '- ';
-const markdownBulletPlus = '+ ';
-
-export function isMarkdownBullet(text: string): boolean {
-  return ((text === markdownBulletAsterisk)
-        || (text === markdownBulletDash)
-        || (text === markdownBulletPlus));
-}
 
 export const REGEX = {
   LEVEL           : /^[ \t]*/,                                                 // todo: link

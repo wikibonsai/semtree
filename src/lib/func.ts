@@ -1,9 +1,4 @@
-import {
-  closeBrackets,
-  isMarkdownBullet,
-  openBrackets,
-  REGEX,
-} from './const';
+import { REGEX } from './const';
 
 
 export const deepcopy = (item: any) => {
@@ -19,13 +14,13 @@ export const getChunkSize = (lines: string[]): number => {
     const levelMatch: RegExpMatchArray | null = line.match(REGEX.LEVEL);
     // calculates number of spaces
     if (levelMatch && chunkSize < 0) {
-      const whitespace = levelMatch[0];
+      const whitespace: string = levelMatch[0];
       if (whitespace[0] == ' ') {
         chunkSize = whitespace.length;
       }
       if (whitespace[0] == '\t') {
-        const tabSize: number = 1;
-        chunkSize = tabSize;
+        const tabs: string = levelMatch[0];
+        chunkSize = tabs.length;
       }
     }
   });
@@ -44,6 +39,19 @@ export const getWhitespaceSize = (whitespace: string): number => {
 };
 
 export const rawText = (fullText: string, hasBullets: boolean = false): string => {
+  // wiki markers
+  const openBrackets: string = '[[';
+  const closeBrackets: string = ']]';
+  // mkdn list bullet markers
+  const markdownBulletAsterisk: string = '* ';
+  const markdownBulletDash: string = '- ';
+  const markdownBulletPlus: string = '+ ';
+
+  function isMarkdownBullet(text: string): boolean {
+    return ((text === markdownBulletAsterisk)
+          || (text === markdownBulletDash)
+          || (text === markdownBulletPlus));
+  }
   // strip markdown list marker if it exists
   fullText = (hasBullets && isMarkdownBullet(fullText.substring(0, 2))) ? fullText.slice(2, fullText.length) : fullText;
   // strip wikistring special chars and line breaks (see: https://stackoverflow.com/a/10805292)
