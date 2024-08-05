@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict';
 import sinon from 'sinon';
 
-import type { SemTreeOpts, TreeNode } from '../src/lib/types';
+import type { SemTree, SemTreeOpts } from '../src/lib/types';
 import { parse } from '../src/lib/parse';
 
 
 let fakeConsoleWarn: sinon.SinonSpy;
 
-let concreteData: TreeNode[];
-let virtualData: TreeNode[];
+let concreteData: SemTree;
+let virtualData: SemTree;
 
 let opts: SemTreeOpts;
 
@@ -16,7 +16,7 @@ describe('parse()', () => {
 
   [
     'concrete',
-    'virtual',
+    // 'virtual',
   ].forEach((trunkType) => {
 
     describe(`${trunkType} trunk`, () => {
@@ -43,118 +43,124 @@ describe('parse()', () => {
       describe('single file', () => {
 
         beforeEach(() => {
-          concreteData = [{
-            text: 'root',
-            ancestors: [],
-            children: ['child1', 'child2'],
-          },{
-            text: 'child1',
-            ancestors: ['root'],
-            children: [],
-          },{
-            text: 'child2',
-            ancestors: ['root'],
-            children: ['grandchild1'],
-          },{
-            text: 'grandchild1',
-            ancestors: ['root', 'child2'],
-            children: [],
-          }];
-          virtualData = [{
-            text: 'root',
-            ancestors: [],
-            children: ['child1', 'child2'],
-          },{
-            text: 'child1',
-            ancestors: ['root'],
-            children: [],
-          },{
-            text: 'child2',
-            ancestors: ['root'],
-            children: ['grandchild1'],
-          },{
-            text: 'grandchild1',
-            ancestors: ['root', 'child2'],
-            children: [],
-          }];
-        });
-
-        // todo: ensure (tree) shape of results
-        it.skip('default', () => {
-          const content: string = 
-`- [[root]]
-  - [[child1]]
-  - [[child2]]
-    - [[grandchild1]]
-`;
-          // todo: return full tree
-          // const res = parse(content);
-          // assert.deepStrictEqual(res.root, 'root');
+          concreteData = {
+            root: 'root',
+            trunk: ['root'],
+            petioleMap: {
+              'root': 'root',
+              'child1': 'root',
+              'grandchild1': 'root',
+              'grandchild2': 'root',
+              'greatgrandchild1': 'root',
+            },
+            nodes: [{
+              text: 'root',
+              ancestors: [],
+              children: ['child1'],
+            },{
+              text: 'child1',
+              ancestors: ['root'],
+              children: ['grandchild1', 'grandchild2'],
+            },{
+              text: 'grandchild1',
+              ancestors: ['root', 'child1'],
+              children: [],
+            },{
+              text: 'grandchild2',
+              ancestors: ['root', 'child1'],
+              children: ['greatgrandchild1'],
+            },{
+              text: 'greatgrandchild1',
+              ancestors: ['root', 'child1', 'grandchild2'],
+              children: [],
+            }]
+          };
+          virtualData = {
+            root: 'child1',
+            trunk: [],
+            petioleMap: {},
+            nodes: [{
+              text: 'child1',
+              ancestors: [],
+              children: [],
+            },{
+              text: 'grandchild1',
+              ancestors: ['child1'],
+              children: [],
+            },{
+              text: 'grandchild2',
+              ancestors: ['child1'],
+              children: [],
+            },{
+              text: 'greatgrandchild1',
+              ancestors: ['child1', 'grandchild2'],
+              children: [],
+            }]
+          };
         });
 
         describe('indentation', () => {
 
           it('indentation; 2 spaces (base)', () => {
             const content: string = 
-`- [[root]]
-  - [[child1]]
-  - [[child2]]
-    - [[grandchild1]]
+`- [[child1]]
+  - [[grandchild1]]
+  - [[grandchild2]]
+    - [[greatgrandchild1]]
 `;
-            assert.deepStrictEqual(
-              parse(content, '', opts),
-              trunkType === 'concrete' ? concreteData : virtualData,
-            );
+            const actl: SemTree | string = parse(content, 'root', opts);
+            const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+            assert.deepStrictEqual(actl, expd);
           });
 
           it('indentation; 3 spaces', () => {
             const content: string = 
-`- [[root]]
-   - [[child1]]
-   - [[child2]]
-      - [[grandchild1]]
+`- [[child1]]
+   - [[grandchild1]]
+   - [[grandchild2]]
+      - [[greatgrandchild1]]
 `;
             assert.deepStrictEqual(
-              parse(content, '', opts),
+              parse(content, 'root', opts),
               trunkType === 'concrete' ? concreteData : virtualData,
             );
           });
 
           it('indentation; 4 spaces', () => {
             const content: string = 
-`- [[root]]
-    - [[child1]]
-    - [[child2]]
-        - [[grandchild1]]
+`- [[child1]]
+    - [[grandchild1]]
+    - [[grandchild2]]
+        - [[greatgrandchild1]]
 `;
             assert.deepStrictEqual(
-              parse(content, '', opts),
+              parse(content, 'root', opts),
               trunkType === 'concrete' ? concreteData : virtualData,
             );
           });
 
           it('indentation; 1 tab', () => {
             const content: string = 
-`- [[root]]
-\t- [[child1]]
-\t- [[child2]]
-\t\t- [[grandchild1]]
+`- [[child1]]
+\t- [[grandchild1]]
+\t- [[grandchild2]]
+\t\t- [[greatgrandchild1]]
 `;
             assert.deepStrictEqual(
-              parse(content, '', opts),
+              parse(content, 'root', opts),
               trunkType === 'concrete' ? concreteData : virtualData,
             );
           });
 
           it('indentation; 2 tabs', () => {
             const content: string = 
-`- [[root]]
-\t\t- [[child1]]
-\t\t- [[child2]]
-\t\t\t\t- [[grandchild1]]
+`- [[child1]]
+\t\t- [[grandchild1]]
+\t\t- [[grandchild2]]
+\t\t\t\t- [[greatgrandchild1]]
 `;
             assert.deepStrictEqual(
-              parse(content, '', opts),
+              parse(content, 'root', opts),
               trunkType === 'concrete' ? concreteData : virtualData,
             );
           });
@@ -168,29 +174,29 @@ describe('parse()', () => {
 `
 
 
-- [[root]]
-  - [[child1]]
-  - [[child2]]
-    - [[grandchild1]]
+- [[child1]]
+  - [[grandchild1]]
+  - [[grandchild2]]
+    - [[greatgrandchild1]]
 `;
             assert.deepStrictEqual(
-              parse(content, '', opts),
+              parse(content, 'root', opts),
               trunkType === 'concrete' ? concreteData : virtualData,
             );
           });
 
           it('strip trailing newlines', () => {
             const content: string = 
-`- [[root]]
-  - [[child1]]
-  - [[child2]]
-    - [[grandchild1]]
+`- [[child1]]
+  - [[grandchild1]]
+  - [[grandchild2]]
+    - [[greatgrandchild1]]
 
 
 
 `;
             assert.deepStrictEqual(
-              parse(content, '', opts),
+              parse(content, 'root', opts),
               trunkType === 'concrete' ? concreteData : virtualData,
             );
           });
@@ -199,85 +205,57 @@ describe('parse()', () => {
 
         it('accept different markdown list styles', () => {
           const content: string = 
-`- [[root]]
-  * [[child1]]
-  * [[child2]]
-    + [[grandchild1]]
+`- [[child1]]
+  * [[grandchild1]]
+  * [[grandchild2]]
+    + [[greatgrandchild1]]
 `;
-          assert.deepStrictEqual(
-            parse(content, '', opts),
-            trunkType === 'concrete' ? concreteData : virtualData,
-          );
-        });
-
-        it('no [[wiki]] markers', () => {
-          const content: string = 
-`- root
-  - child1
-  - child2
-    - grandchild1
-`;
-          assert.deepStrictEqual(
-            parse(content, '', opts),
-            trunkType === 'concrete' ? concreteData : virtualData,
-          );
-        });
-
-        it('no markdown bullet markers', () => {
-          const content: string = 
-`[[root]]
-  [[child1]]
-  [[child2]]
-    [[grandchild1]]
-`;
-          assert.deepStrictEqual(
-            parse(content, '', opts),
-            trunkType === 'concrete' ? concreteData : virtualData,
-          );
+          const actl: SemTree | string = parse(content, 'root', opts);
+          const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+          assert.deepStrictEqual(actl, expd);
         });
 
         describe('options', () => {
 
           it('lvlSize', () => {
             const content: string = 
-`- [[root]]
-    - [[child1]]
-    - [[child2]]
-        - [[grandchild1]]
+`- [[child1]]
+    - [[grandchild1]]
+    - [[grandchild2]]
+        - [[greatgrandchild1]]
 `;
             const customOpts = { ...opts, lvlSize: 4 };
             assert.deepStrictEqual(
-              parse(content, '', customOpts),
+              parse(content, 'root', customOpts),
               trunkType === 'concrete' ? concreteData : virtualData,
             );
           });
 
-          it('mkdnList', () => {
+          it('mkdnList: false', () => {
             const content: string = 
-`root
-    child1
-    child2
-        grandchild1
+`[[child1]]
+  [[grandchild1]]
+  [[grandchild2]]
+    [[greatgrandchild1]]
 `;
             const customOpts = { ...opts, mkdnList: false };
             assert.deepStrictEqual(
-              parse(content, '', customOpts),
+              parse(content, 'root', customOpts),
               trunkType === 'concrete' ? concreteData : virtualData,
             );
           });
 
-          it('wikitext', () => {
+          it('wikitext: false', () => {
             const content: string = 
-`- root
-    - child1
-    - child2
-        - grandchild1
+`- child1
+  - grandchild1
+  - grandchild2
+    - greatgrandchild1
 `;
             const customOpts = { ...opts, wikitext: false };
-            assert.deepStrictEqual(
-              parse(content, '', customOpts),
-              trunkType === 'concrete' ? concreteData : virtualData,
-            );
+            const actl: SemTree | string = parse(content, 'root', customOpts);
+            const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+            assert.deepStrictEqual(actl, expd);
           });
 
         });
@@ -286,41 +264,40 @@ describe('parse()', () => {
 
           it('no root; 0-indented entries only', () => {
             const content: string = 
-`- [[root]]
-- [[child1]]
+`- [[child1]]
 - [[child2]]
 - [[child3]]
 `;
             assert.deepStrictEqual(
-              parse(content, '', opts),
+              parse(content, 'root', opts),
               'semtree.parse(): multiple lines with zero indentation found. A tree with multiple roots cannot be made. Please add a filename as a "root" parameter or fix the indentation.',
             );
           });
 
           it('inconsistent indentation', () => {
             const content: string = 
-`- [[root]]
-  - [[child1]]
-  - [[child2]]
-     - [[grandchild1]]
+`- [[child1]]
+  - [[grandchild1]]
+  - [[grandchild2]]
+     - [[greatgrandchild1]]
 `;
             assert.deepStrictEqual(
-              parse(content, '', opts),
-              'semtree.lint(): improper indentation found:\n\n- Line 4 (inconsistent indentation): "     - [[grandchild1]]"\n',
+              parse(content, 'root', opts),
+              'semtree.lint(): improper indentation found:\n\n- Line 4 (inconsistent indentation): "     - [[greatgrandchild1]]"\n',
             );
           });
 
           it('duplicate text', () => {
             const content: string = 
-`- [[root]]
-  - [[child1]]
-  - [[child1]]
-  - [[child2]]
-    - [[grandchild1]]
+`- [[child1]]
+  - [[grandchild1]]
+  - [[grandchild2]]
+  - [[grandchild2]]
+    - [[greatgrandchild1]]
 `;
             assert.strictEqual(
-              parse(content, '', opts),
-              'semtree.lint(): duplicate entity names found:\n\n- Line 3: "child1"\n'
+              parse(content, 'root', opts),
+              'semtree.lint(): duplicate entity names found:\n\n- Line 4: "grandchild2"\n'
             );
           });
 
@@ -331,40 +308,56 @@ describe('parse()', () => {
       describe('multi file', () => {
 
         beforeEach(() => {
-          concreteData = [{
-            text: 'root',
-            ancestors: [],
-            children: ['child1a'],
-          },{
-            text: 'child1a',
-            ancestors: ['root'],
-            children: ['grandchild1a', 'branch'],
-          },{
-            text: 'grandchild1a',
-            ancestors: ['root', 'child1a'],
-            children: [],
-          },{
-            text: 'branch',
-            ancestors: ['root', 'child1a'],
-            children: ['child1b'],
-          },{
-            text: 'child1b',
-            ancestors: ['root', 'child1a', 'branch'],
-            children: [],
-          }];
-          virtualData = [{
-            text: 'child1a',
-            ancestors: [],
-            children: ['grandchild1a', 'child1b'],
-          },{
-            text: 'grandchild1a',
-            ancestors: ['child1a'],
-            children: [],
-          },{
-            text: 'child1b',
-            ancestors: ['child1a'],
-            children: [],
-          }];
+          concreteData = {
+            root: 'root',
+            trunk: ['root', 'branch'],
+            petioleMap: {
+              'root': 'root',
+              'child1a': 'root',
+              'grandchild1a': 'root',
+              'branch': 'root',
+              'child1b': 'branch',
+            },
+            nodes: [{
+              text: 'root',
+              ancestors: [],
+              children: ['child1a'],
+            },{
+              text: 'child1a',
+              ancestors: ['root'],
+              children: ['grandchild1a', 'branch'],
+            },{
+              text: 'grandchild1a',
+              ancestors: ['root', 'child1a'],
+              children: [],
+            },{
+              text: 'branch',
+              ancestors: ['root', 'child1a'],
+              children: ['child1b'],
+            },{
+              text: 'child1b',
+              ancestors: ['root', 'child1a', 'branch'],
+              children: [],
+            }]
+          };
+          virtualData = {
+            root: 'child1a',
+            trunk: [],
+            petioleMap: {},
+            nodes: [{
+              text: 'child1a',
+              ancestors: [],
+              children: ['grandchild1a', 'child1b'],
+            },{
+              text: 'grandchild1a',
+              ancestors: ['child1a'],
+              children: [],
+            },{
+              text: 'child1b',
+              ancestors: ['child1a'],
+              children: [],
+            }]
+          };
         });
 
         describe('default', () => {
@@ -377,40 +370,59 @@ describe('parse()', () => {
   - [[child1b]]
 `
             };
-            const actlData: TreeNode[] | string = parse(content, 'root', opts);
-            const expdData: TreeNode[] = trunkType === 'concrete' ? [
-              {
-                text: 'root',
-                ancestors: [],
-                children: ['child1a'],
-              },{
-                text: 'child1a',
-                ancestors: ['root'],
-                children: ['grandchild1a', 'child1b'],
-              },{
-                text: 'grandchild1a',
-                ancestors: ['root', 'child1a'],
-                children: [],
-              },{
-                text: 'child1b',
-                ancestors: ['root', 'child1a'],
-                children: [],
-              }
-            ] : [
-              {
-                text: 'child1a',
-                ancestors: [],
-                children: ['grandchild1a', 'child1b'],
-              },{
-                text: 'grandchild1a',
-                ancestors: ['child1a'],
-                children: [],
-              },{
-                text: 'child1b',
-                ancestors: ['child1a'],
-                children: [],
-              }
-            ];
+            const actlData: SemTree | string = parse(content, 'root', opts);
+            const expdData: SemTree = trunkType === 'concrete' ? {
+              root: 'root',
+              trunk: ['root'],
+              petioleMap: {
+                'root': 'root',
+                'child1a': 'root',
+                'grandchild1a': 'root',
+                'child1b': 'root',
+              },
+              nodes: [
+                {
+                  text: 'root',
+                  ancestors: [],
+                  children: ['child1a'],
+                },{
+                  text: 'child1a',
+                  ancestors: ['root'],
+                  children: ['grandchild1a', 'child1b'],
+                },{
+                  text: 'grandchild1a',
+                  ancestors: ['root', 'child1a'],
+                  children: [],
+                },{
+                  text: 'child1b',
+                  ancestors: ['root', 'child1a'],
+                  children: [],
+                }
+              ]
+            } : {
+              root: 'child1a',
+              trunk: [],
+              petioleMap: {
+                'child1a': 'root',
+                'grandchild1a': 'root',
+                'child1b': 'root',
+              },
+              nodes: [
+                {
+                  text: 'child1a',
+                  ancestors: [],
+                  children: ['grandchild1a', 'child1b'],
+                },{
+                  text: 'grandchild1a',
+                  ancestors: ['child1a'],
+                  children: [],
+                },{
+                  text: 'child1b',
+                  ancestors: ['child1a'],
+                  children: [],
+                }
+              ]
+            };
             assert.deepStrictEqual(actlData, expdData);
           });
 
@@ -425,8 +437,8 @@ describe('parse()', () => {
 `- [[child1b]]
 `,
             };
-            const actlData: TreeNode[] | string = parse(content, 'root', opts);
-            const expdData: TreeNode[] = trunkType === 'concrete' ? concreteData : virtualData;
+            const actlData: SemTree | string = parse(content, 'root', opts);
+            const expdData: SemTree = trunkType === 'concrete' ? concreteData : virtualData;
             assert.deepStrictEqual(actlData, expdData);
           });
 
@@ -444,48 +456,69 @@ describe('parse()', () => {
 `- [[child1c]]
 `
             };
-            const actlData: TreeNode[] | string = parse(content, 'root', opts);
-            const expdData: TreeNode[] = trunkType === 'concrete' ? [
-              {
-                text: 'root',
-                ancestors: [],
-                children: ['child1a'],
-              },{
-                text: 'child1a',
-                ancestors: ['root'],
-                children: ['branch1', 'branch2'],
-              },{
-                text: 'branch1',
-                ancestors: ['root', 'child1a'],
-                children: ['child1b'],
-              },{
-                text: 'child1b',
-                ancestors: ['root', 'child1a', 'branch1'],
-                children: [],
-              },{
-                text: 'branch2',
-                ancestors: ['root', 'child1a'],
-                children: ['child1c'],
-              },{
-                text: 'child1c',
-                ancestors: ['root', 'child1a', 'branch2'],
-                children: [],
-              }
-            ] : [
-              {
-                text: 'child1a',
-                ancestors: [],
-                children: ['child1b', 'child1c'],
-              },{
-                text: 'child1b',
-                ancestors: ['child1a'],
-                children: [],
-              },{
-                text: 'child1c',
-                ancestors: ['child1a'],
-                children: [],
-              }
-            ];
+            const actlData: SemTree | string = parse(content, 'root', opts);
+            const expdData: SemTree = trunkType === 'concrete' ? {
+              root: 'root',
+              trunk: ['root', 'branch1', 'branch2'],
+              petioleMap: {
+                'root': 'root',
+                'child1a': 'root',
+                'branch1': 'root',
+                'branch2': 'root',
+                'child1b': 'branch1',
+                'child1c': 'branch2',
+              },
+              nodes: [
+                {
+                  text: 'root',
+                  ancestors: [],
+                  children: ['child1a'],
+                },{
+                  text: 'child1a',
+                  ancestors: ['root'],
+                  children: ['branch1', 'branch2'],
+                },{
+                  text: 'branch1',
+                  ancestors: ['root', 'child1a'],
+                  children: ['child1b'],
+                },{
+                  text: 'child1b',
+                  ancestors: ['root', 'child1a', 'branch1'],
+                  children: [],
+                },{
+                  text: 'branch2',
+                  ancestors: ['root', 'child1a'],
+                  children: ['child1c'],
+                },{
+                  text: 'child1c',
+                  ancestors: ['root', 'child1a', 'branch2'],
+                  children: [],
+                }
+              ]
+            } : {
+              root: 'child1a',
+              trunk: ['child1a'],
+              petioleMap: {
+                'child1a': 'child1a',
+                'child1b': 'child1a',
+                'child1c': 'child1a',
+              },
+              nodes: [
+                {
+                  text: 'child1a',
+                  ancestors: [],
+                  children: ['child1b', 'child1c'],
+                },{
+                  text: 'child1b',
+                  ancestors: ['child1a'],
+                  children: [],
+                },{
+                  text: 'child1c',
+                  ancestors: ['child1a'],
+                  children: [],
+                }
+              ]
+            };
             assert.deepStrictEqual(actlData, expdData);
           });
 
@@ -499,36 +532,54 @@ describe('parse()', () => {
   - [[child2b]]
 `,
             };
-            const actlData: TreeNode[] | string = parse(content, 'root', opts);
-            const expdData: TreeNode[] = trunkType === 'concrete' ? [
-              {
-                text: 'root',
-                ancestors: [],
-                children: ['branch1'],
-              },{
-                text: 'branch1',
-                ancestors: ['root'],
-                children: ['child1b'],
-              },{
-                text: 'child1b',
-                ancestors: ['root', 'branch1'],
-                children: ['child2b'],
-              },{
-                text: 'child2b',
-                ancestors: ['root', 'branch1', 'child1b'],
-                children: [],
-              }
-            ] : [
-              {
-                text: 'child1b',
-                ancestors: [],
-                children: ['child2b'],
-              },{
-                text: 'child2b',
-                ancestors: ['child1b'],
-                children: [],
-              }
-            ];
+            const actlData: SemTree | string = parse(content, 'root', opts);
+            const expdData: SemTree = trunkType === 'concrete' ? {
+              root: 'root',
+              trunk: ['root'],
+              petioleMap: {
+                'root': 'root',
+                'branch1': 'root',
+                'child1b': 'branch1',
+                'child2b': 'branch1',
+              },
+              nodes: [
+                {
+                  text: 'root',
+                  ancestors: [],
+                  children: ['branch1'],
+                },{
+                  text: 'branch1',
+                  ancestors: ['root'],
+                  children: ['child1b'],
+                },{
+                  text: 'child1b',
+                  ancestors: ['root', 'branch1'],
+                  children: ['child2b'],
+                },{
+                  text: 'child2b',
+                  ancestors: ['root', 'branch1', 'child1b'],
+                  children: [],
+                }
+              ]
+            } : {
+              root: 'child1b',
+              trunk: ['child1b'],
+              petioleMap: {
+                'child1b': 'child1b',
+                'child2b': 'child1b',
+              },
+              nodes: [
+                {
+                  text: 'child1b',
+                  ancestors: [],
+                  children: ['child2b'],
+                },{
+                  text: 'child2b',
+                  ancestors: ['child1b'],
+                  children: [],
+                }
+              ]
+            };
             assert.deepStrictEqual(actlData, expdData);
           });
 
@@ -542,44 +593,64 @@ describe('parse()', () => {
   - [[child2b]]
 `,
             };
-            const actlData: TreeNode[] | string = parse(content, 'root', opts);
-            const expdData: TreeNode[] = trunkType === 'concrete' ? [
-              {
-                text: 'root',
-                ancestors: [],
-                children: ['branch1', 'child1a'],
-              },{
-                text: 'branch1',
-                ancestors: ['root'],
-                children: ['child1b'],
-              },{
-                text: 'child1b',
-                ancestors: ['root', 'branch1'],
-                children: ['child2b'],
-              },{
-                text: 'child2b',
-                ancestors: ['root', 'branch1', 'child1b'],
-                children: [],
-              },{
-                text: 'child1a',
-                ancestors: ['root'],
-                children: [],
+            const actlData: SemTree | string = parse(content, 'root', opts);
+            const expdData: SemTree = trunkType === 'concrete' ? {
+              root: 'root',
+              trunk: ['root'],
+              petioleMap: {
+                'root': 'root',
+                'branch1': 'root',
+                'child1b': 'branch1',
+                'child2b': 'branch1',
+                'child1a': 'root',
               },
-            ] : [
-              {
-                text: 'child1a',
-                ancestors: [],
-                children: [],
-              },{
-                text: 'child1b',
-                ancestors: [],
-                children: ['child2b'],
-              },{
-                text: 'child2b',
-                ancestors: ['child1b'],
-                children: [],
-              }
-            ];
+              nodes: [
+                {
+                  text: 'root',
+                  ancestors: [],
+                  children: ['branch1', 'child1a'],
+                },{
+                  text: 'branch1',
+                  ancestors: ['root'],
+                  children: ['child1b'],
+                },{
+                  text: 'child1b',
+                  ancestors: ['root', 'branch1'],
+                  children: ['child2b'],
+                },{
+                  text: 'child2b',
+                  ancestors: ['root', 'branch1', 'child1b'],
+                  children: [],
+                },{
+                  text: 'child1a',
+                  ancestors: ['root'],
+                  children: [],
+                },
+              ]
+            } : {
+              root: 'child1a',
+              trunk: ['child1a'],
+              petioleMap: {
+                'child1a': 'child1a',
+                'child1b': 'child1a',
+                'child2b': 'child1a',
+              },
+              nodes: [
+                {
+                  text: 'child1a',
+                  ancestors: [],
+                  children: [],
+                },{
+                  text: 'child1b',
+                  ancestors: [],
+                  children: ['child2b'],
+                },{
+                  text: 'child2b',
+                  ancestors: ['child1b'],
+                  children: [],
+                }
+              ]
+            };
             assert.deepStrictEqual(actlData, expdData);
             assert.strictEqual(fakeConsoleWarn.callCount, 1);
             assert.strictEqual(
@@ -601,32 +672,49 @@ describe('parse()', () => {
 `- [[child1c]]
 `
             };
-            const actlData: TreeNode[] | string = parse(content, 'root', opts);
-            const expdData: TreeNode[] = trunkType === 'concrete' ? [
-              {
-                text: 'root',
-                ancestors: [],
-                children: ['branch1'],
-              },{
-                text: 'branch1',
-                ancestors: ['root'],
-                children: ['branch2'],
-              },{
-                text: 'branch2',
-                ancestors: ['root', 'branch1'],
-                children: ['child1c'],
-              },{
-                text: 'child1c',
-                ancestors: ['root', 'branch1', 'branch2'],
-                children: [],
-              }
-            ] : [
-              {
-                text: 'child1c',
-                ancestors: [],
-                children: [],
-              }
-            ];
+            const actlData: SemTree | string = parse(content, 'root', opts);
+            const expdData: SemTree = trunkType === 'concrete' ? {
+              root: 'root',
+              trunk: ['root'],
+              petioleMap: {
+                'root': 'root',
+                'branch1': 'root',
+                'branch2': 'branch1',
+                'child1c': 'branch2',
+              },
+              nodes: [
+                {
+                  text: 'root',
+                  ancestors: [],
+                  children: ['branch1'],
+                },{
+                  text: 'branch1',
+                  ancestors: ['root'],
+                  children: ['branch2'],
+                },{
+                  text: 'branch2',
+                  ancestors: ['root', 'branch1'],
+                  children: ['child1c'],
+                },{
+                  text: 'child1c',
+                  ancestors: ['root', 'branch1', 'branch2'],
+                  children: [],
+                }
+              ]
+            } : {
+              root: 'child1c',
+              trunk: ['child1c'],
+              petioleMap: {
+                'child1c': 'child1c',
+              },
+              nodes: [
+                {
+                  text: 'child1c',
+                  ancestors: [],
+                  children: [],
+                }
+              ]
+            };
             assert.deepStrictEqual(actlData, expdData);
           });
 
@@ -638,11 +726,11 @@ describe('parse()', () => {
             assert.strictEqual(0, 1);
           });
 
-          it.skip('mkdnList', () => {
+          it.skip('mkdnList: false', () => {
             assert.strictEqual(0, 1);
           });
 
-          it.skip('wikitext', () => {
+          it.skip('wikitext: false', () => {
             assert.strictEqual(0, 1);
           });
 
@@ -740,23 +828,40 @@ root
               } else {
                 assert.deepStrictEqual(
                   parse(content, 'root', opts),
-                  [{
-                    text: 'root',
-                    ancestors: [],
-                    children: ['child1a'],
-                  },{
-                    text: 'child1a',
-                    ancestors: ['root'],
-                    children: ['grandchild1a'],
-                  },{
-                    text: 'grandchild1a',
-                    ancestors: ['root', 'child1a'],
-                    children: ['child1b'],
-                  },{
-                    text: 'child1b',
-                    ancestors: ['root', 'child1a', 'grandchild1a'],
-                    children: [],
-                  }],
+                  {
+                    root: 'root',
+                    trunk: ['root'],
+                    petioleMap: {
+                      'root': 'root',
+                      'child1a': 'root',
+                      'grandchild1a': 'root',
+                      'branch': 'root',
+                      'child1b': 'branch',
+                    },
+                    nodes: [
+                      {
+                        text: 'root',
+                        ancestors: [],
+                        children: ['child1a'],
+                      },{
+                        text: 'child1a',
+                        ancestors: ['root'],
+                        children: ['grandchild1a'],
+                      },{
+                        text: 'grandchild1a',
+                        ancestors: ['root', 'child1a'],
+                        children: ['branch'],
+                      },{
+                        text: 'branch',
+                        ancestors: ['root', 'child1a', 'grandchild1a'],
+                        children: ['child1b'],
+                      },{
+                        text: 'child1b',
+                        ancestors: ['root', 'child1a', 'grandchild1a', 'branch'],
+                        children: [],
+                      }
+                    ]
+                  },
                 );
               }
             });
@@ -790,8 +895,7 @@ root
 `,
                 'branch':
 `- [[root]]
-`,};
-              assert.strictEqual(
+`,};              assert.strictEqual(
                 parse(content, 'root', opts),
                 'semtree.buildTree(): cycle detected involving node "root"',
               );

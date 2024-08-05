@@ -8,7 +8,7 @@ export const buildTree = (
   root: string,
   content: Record<string, string[]>,
   opts: BuildTreeOpts = defaultOpts,
-): TreeNode[] | string  => {
+): SemTree | string  => {
   // tree
   const tree: SemTree = opts.tree || {
     nodes: [],
@@ -16,12 +16,13 @@ export const buildTree = (
     petioleMap: {},
     root: '',
   } as SemTree;
+  if (tree.trunk.length === 0) {
+    tree.trunk = Object.keys(content);
+  }
   const visited: Set<string> = new Set();
   // opts
-  // func
-  const subroot: string       = opts.subroot || '';
   // syntax
-  let lvlSize: number       = opts.lvlSize || -1;
+  let lvlSize: number         = opts.lvlSize || -1;
   if (lvlSize === -1) {
     lvlSize = getLevelSize(content[root]);
     // if lvlSize is still -1, try to find it in the other files
@@ -39,10 +40,16 @@ export const buildTree = (
   const mkdnList: boolean     = opts.mkdnList || true;
   const wikitext: boolean     = opts.wikitext || true;
   // subtree building
+  const subroot: string       = opts.subroot || '';
   const ancestors: TreeNode[] = opts.ancestors || [];
   const level: number         = opts.level || 0;
 
-  return build(root, content, ancestors, level);
+  const buildRes: TreeNode[] | string = build(root, content, ancestors, level);
+  if (typeof buildRes === 'string') {
+    return buildRes;
+  }
+  tree.nodes = buildRes;
+  return tree;
 
   // helper functions
 
@@ -59,8 +66,10 @@ export const buildTree = (
     visited.add(curKey);
     let nodeBuilder: TreeNode;
     const isSubTree: boolean = subroot.length > 0;
+    const trunkNames: string[] = Array.from(new Set(Object.keys(content).concat(Object.keys(tree.petioleMap))));
     // if the trunk isn't virtual, handle index/trunk file
-    if (!virtualTrunk && Object.keys(content).includes(curKey)) {
+    const isTrunk: boolean = trunkNames.includes(curKey);
+    if (!virtualTrunk && isTrunk) {
       nodeBuilder = {
         line: -1,
         level: totalLevel,
@@ -91,8 +100,7 @@ export const buildTree = (
       const rawTxt: string = rawText(text, { hasBullets: mkdnList, hasWiki: wikitext });
       const isFirst: boolean = (totalLevel === 0) && (i === 0);
       const selfRef: boolean = (curKey === rawTxt);
-      const trunkNames: string[] = Object.keys(content);
-      const isTrunk: boolean = trunkNames.includes(rawTxt);
+      const thisLineIsTrunk: boolean = trunkNames.includes(rawTxt);
       // connect subtree via 'virtual' semantic-tree node
       // if (nodes.map((node) => node.text).includes(rawTxt)) {
       //   this.duplicates.push(rawTxt);
@@ -121,7 +129,7 @@ export const buildTree = (
         }
         ancestors.push(nodeBuilder);
         // ?
-        if (!selfRef && isTrunk) {
+        if (!selfRef && thisLineIsTrunk) {
           const result: TreeNode[] | string = build(
             rawTxt,
             content,
@@ -135,7 +143,7 @@ export const buildTree = (
       // node
       } else {
         // trunk
-        if (!selfRef && isTrunk) {
+        if (!selfRef && thisLineIsTrunk) {
           ancestors = popGrandAncestor(cumulativeLevel, ancestors);
           const result: TreeNode[] | string = build(
             rawTxt,

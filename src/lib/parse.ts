@@ -1,4 +1,4 @@
-import type { SemTreeOpts, TreeNode } from './types';
+import type { SemTree, SemTreeOpts, TreeNode } from './types';
 
 import { getLevelSize, rawText } from './func';
 import { lint } from './lint';
@@ -14,7 +14,7 @@ export const parse = (
   content: string | Record<string, string>,
   root?: string,
   opts?: SemTreeOpts,
-): TreeNode[] | string => {
+): SemTree | string => {
   // opts
   // syntax
   let lvlSize: number         = opts?.lvlSize || -1;
@@ -34,9 +34,11 @@ export const parse = (
       return 'semtree.parse(): multiple lines with zero indentation found. A tree with multiple roots cannot be made. Please add a filename as a "root" parameter or fix the indentation.';
     // single root does exist
     } else if (zeroIndentLines.length === 1) {
-      root = rawText(zeroIndentLines[0], { hasBullets: mkdnList, hasWiki: wikitext });
+      if (typeof root !== 'string') {
+        root = rawText(zeroIndentLines[0], { hasBullets: mkdnList, hasWiki: wikitext });
+      }
       // rm root line and adjust indentation for remaining lines
-      if (!virtualTrunk) {
+      if (!virtualTrunk && (root === undefined)) {
         const remainingLines: string[] = lines.slice(1).filter(line => line.trim().length > 0);
         contentHash[root] = remainingLines.map((line: string) =>  line.slice(lvlSize));
       } else {
@@ -75,6 +77,6 @@ export const parse = (
   if (lintError) {
     return lintError;
   }
-  const tree: TreeNode[] | string = buildTree(root, contentHash, { ...opts, lvlSize });
+  const tree: SemTree | string = buildTree(root, contentHash, { ...opts, lvlSize: lvlSize });
   return tree;
 };

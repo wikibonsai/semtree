@@ -624,8 +624,8 @@ describe('updateSubTree()', () => {
           ];
           assert.deepEqual(actlSubTree, expdSubTree);
         });
-  
-        it('mkdnList', () => {
+
+        it('mkdnList: false', () => {
           const tree: SemTree = {
             root: 'root',
             trunk: ['root'],
@@ -668,7 +668,7 @@ describe('updateSubTree()', () => {
           assert.deepEqual(actlSubTree, expdSubTree);
         });
   
-        it('wikitext', () => {
+        it('wikitext: false', () => {
           const tree: SemTree = {
             root: 'root',
             trunk: ['root'],

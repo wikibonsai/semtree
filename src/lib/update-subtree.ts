@@ -52,7 +52,7 @@ export const updateSubTree = (
   }
   // rebuild subtree
   const subrootNodeAncestors: TreeNode[] = tree.nodes.filter((node: TreeNode) => subrootNode.ancestors.includes(node.text));
-  const updatedTree: any = buildTree(
+  const updatedTree: SemTree | string = buildTree(
     subroot,
     deepcopy(contentHash),
     {
@@ -83,10 +83,7 @@ export const updateSubTree = (
   }
   refreshAncestors(tree.nodes);
   // return subtree nodes
-  const subtreeNodes: TreeNode[] = tree.nodes.filter(node => tree.petioleMap[node.text] === subroot);
-  if (tree.trunk.includes(subrootNode.text) && !subtreeNodes.includes(subrootNode)) {
-    subtreeNodes.unshift(subrootNode);
-  }
+  const subtreeNodes: TreeNode[] = tree.nodes.filter(n => (n.text=== subroot) || (tree.petioleMap[n.text] === subroot));
   return deepcopy(subtreeNodes);
 
   // helper functions
