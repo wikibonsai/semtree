@@ -44,12 +44,11 @@ Say we have the following two markdown files:
 If we wanted to create a single tree from both of these files, we can use `semtree` like so:
 
 ```js
-import { SemTree } from 'semtree';
+import * as semtree from 'semtree';
 
 let opts = {
   wikitext: true, // defaults to 'true'
 };
-const semtree = new SemTree(opts);
 const rootName: string | undefined = 'fname-a';
 // read in files and create a record where
 // keys are filenames and values are the file's content
@@ -68,7 +67,7 @@ const semTreeText: Record<string, string> = {
 - [[node-4]]
 `,
 };
-const tree = semtree.parse(semTreeText, rootName);
+const tree = semtree.parse(semTreeText, rootName, opts);
 ```
 
 Which will create a tree that looks like:
@@ -146,18 +145,46 @@ Tree requirements are sparse because the idea is to allow the end-user to determ
 
 ### API
 
-### `lint(content: string | Record<string, string>): void | string`
+### `lint(content: string | Record<string, string>, lvlSize: number = -1): void | string`
 
-Lint a file's content or a full record of filenames to file content.
+Lint a file's content or a record of multiple files' file content.
 
 Checks for:
   - Duplicates
   - Improper indenting
   - Over-indentation
 
-### `print(nodes: TreeNode[]): string | undefined`
+#### Parameters
 
-Print the contents of a tree to console logs and return the string if there was a valid tree to print.
+##### `content: string | Record<string, string>`
+
+A content string or a `Record` whose keys are entities (such as files) and values are content strings of those entities.
+
+##### `lvlSize: number = -1`
+
+Number of spaces or tabs which represent each level in the tree.
+
+### `parse(content: string | Record<string, string>, root?: string, opts?: SemTreeOpts): TreeNode[] | string;`
+
+Parse a given file or files and build a tree from the filenames and their content. Will return a tree instance upon successful parse. Will return an error string otherwise, for example if there are duplicates found in the tree.
+
+#### Parameters
+
+##### `content: string | Record<string, string>`
+
+A content string or a `Record` whose keys are entities (such as files) and values are content strings of those entities.
+
+##### `root: string`
+
+Name of the root node of the tree.
+
+##### `opts: SemTreeOpts`
+
+Options object -- see [options](#Options) below.
+
+### `print(tree: SemTree, print: boolean = true): string | undefined`
+
+Print the contents of a tree to console logs and return the string if there was a valid tree to print. Returns `undefined` if the tree is invalid.
 
 Example output:
 
@@ -172,27 +199,19 @@ root
         └── greatgrandchild
 ```
 
-### semtree.opts(Partial<SemTreeOpts>): void;
-
-If any of the semantic tree options need to be changed while an instance is in use, this method may be called up update options on the fly.
-
-### semtree.parse(content: string | Record<string, string>, root: string): TreeNode[] | string;
-
-Parse a given file or files and build a tree from the filenames and their content. Calling this method will override the local copy of the tree. Will return the tree node upon successful parse. Will return an error string otherwise, for example if there are duplicates found in the tree.
-
 #### Parameters
 
-##### `content: string | Record<string, string>`
+##### `tree: SemTree`
 
-A content string or a `Record` whose keys are entities (such as files) and values are content strings of those entities.
+A tree object.
 
-##### `root: string`
+##### `print: boolean = true`
 
-Name of the root node of the tree.
+Seeing this to `false` will suppress printing the tree to the console log and just return the string representation.
 
-### semtree.updateSubTree(content: string | Record<string, string>, subroot?: string): any;
+### updateSubTree(tree: SemTree, content: string | Record<string, string>, subroot?: string, opts: SemTreeOpts = defaultOpts): TreeNode[] | string;`
 
-A method to update a subtree within the semantic tree. (Best used to update individual `index` documents.) Returns the updated tree.
+A method to update a subtree within the semantic tree. (Best used to update individual `index` documents.) Returns the updated subtree nodes.
 
 #### Parameters
 
@@ -213,6 +232,14 @@ Delete the local copy of the tree.
 ### `graft: (text: string, ancestors: string[]) => void`
 
 A function to execute when each node is added to the tree.
+
+### `lvlSize: number`
+
+The size of each level in the tree -- corresponds to number of spaces or tabs.
+
+### `mkdnList: boolean`
+
+Whether `semtree` should expect file content to use markdown bullets `- `, `* `, or `+ `.
 
 ### `setRoot: (name: string) => void`
 
