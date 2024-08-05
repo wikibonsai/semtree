@@ -20,12 +20,12 @@ export const updateSubTree = (
   subroot?: string,
   opts: SemTreeOpts = defaultOpts,
 ): TreeNode[] | string => {
-  // let nodes: TreeNode[] = tree.nodes;
-  // save state in case subtree is invalid
-  const originalNodes: TreeNode[] = deepcopy(tree.nodes);
-  const originalTrunk: string[] = [ ...tree.trunk ];
-  const originalPetioleMap: Record<string, string> = { ...tree.petioleMap };
-  // input validation and processing
+  // state management (in case tree is invalid)
+  let originalNodes: TreeNode[] = [];
+  let originalTrunk: string[] = [];
+  let originalPetioleMap: Record<string, string> = {};
+  storeState(tree);
+  // go
   const contentHash: Record<string, string[]> = {};
   if ((typeof content === 'string') && (subroot !== undefined)) {
     contentHash[subroot] = content.split('\n');
@@ -57,6 +57,7 @@ export const updateSubTree = (
     deepcopy(contentHash),
     {
       ...opts,
+      // BuildTreeOpts
       tree: tree,
       subroot: subroot,
       ancestors: subrootNodeAncestors,
@@ -64,29 +65,20 @@ export const updateSubTree = (
     },
   );
   if (typeof updatedTree === 'string') {
-    // restore state
-    tree.nodes = originalNodes;
-    tree.trunk = originalTrunk;
-    tree.petioleMap = originalPetioleMap;
+    restoreState(tree);
     return updatedTree;
   }
   // post-update checks
   const pruned: SemTree | string = pruneDangling(tree);
   if (typeof pruned === 'string') {
-    // restore state
-    tree.nodes = originalNodes;
-    tree.trunk = originalTrunk;
-    tree.petioleMap = originalPetioleMap;
+    restoreState(tree);
     return pruned;
   } else {
     tree = pruned;
   }
   const hasDups: string | undefined = checkDuplicates(tree.nodes);
   if (typeof hasDups === 'string') {
-    // restore state
-    tree.nodes = originalNodes;
-    tree.trunk = originalTrunk;
-    tree.petioleMap = originalPetioleMap;
+    restoreState(tree);
     return hasDups;
   }
   refreshAncestors(tree.nodes);
@@ -96,6 +88,8 @@ export const updateSubTree = (
     subtreeNodes.unshift(subrootNode);
   }
   return deepcopy(subtreeNodes);
+
+  // helper functions
 
   // this function is written with single-page index doc updates in mind
   function pruneSubTree(nodeText: string, subroot?: string): void | string {
@@ -141,5 +135,19 @@ export const updateSubTree = (
     if (rootNode) {
       updateAncestors(rootNode, []);
     }
+  }
+
+  // store state
+
+  function storeState(tree: SemTree): void {
+    originalNodes = deepcopy(tree.nodes);
+    originalTrunk = [ ...tree.trunk ];
+    originalPetioleMap = { ...tree.petioleMap };
+  }
+
+  function restoreState(tree: SemTree): void {
+    tree.nodes = originalNodes;
+    tree.trunk = originalTrunk;
+    tree.petioleMap = originalPetioleMap;
   }
 };

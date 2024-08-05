@@ -65,6 +65,6 @@ export const parse = (
   if (lintError) {
     return lintError;
   }
-  const tree: TreeNode[] | string = buildTree(root, contentHash, opts);
+  const tree: TreeNode[] | string = buildTree(root, contentHash, { ...opts, chunkSize });
   return tree;
 };

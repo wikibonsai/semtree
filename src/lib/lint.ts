@@ -1,4 +1,4 @@
-import { REGEX } from './const';
+import { RGX_LVL } from './const';
 import { getChunkSize } from './func';
 
 
@@ -13,7 +13,7 @@ export const lint = (content: string | Record<string, string>): void | string =>
   const lintLine = (line: string, lineNumber: number, fname?: string) => {
     if (line.length > 0) {
       // indentation check
-      const match: RegExpMatchArray | null = line.match(REGEX.LEVEL);
+      const match: RegExpMatchArray | null = line.match(RGX_LVL);
       const currentIndent: number = match ? match[0].length : 0;
       // improper indentation
       if (currentIndent % chunkSize !== 0) {
@@ -36,7 +36,7 @@ export const lint = (content: string | Record<string, string>): void | string =>
       /* eslint-disable indent */
       const entityName: string = line.trim()
                                      // strip indentation
-                                     .replace(REGEX.LEVEL, '')
+                                     .replace(RGX_LVL, '')
                                      // strip markdown bullets
                                      .replace(/[-*+] /, '')
                                      // strip wikiref markers

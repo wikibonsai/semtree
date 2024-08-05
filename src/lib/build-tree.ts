@@ -1,13 +1,13 @@
-import { SemTree, SemTreeOpts, TreeNode } from './types';
-import { defaultOpts, REGEX } from './const';
+import { SemTree, BuildTreeOpts, TreeNode } from './types';
+import { defaultOpts, RGX_LVL } from './const';
 import { checkDuplicates } from './duplicates';
-import { deepcopy, getWhitespaceSize, rawText } from './func';
+import { deepcopy, rawText, getChunkSize } from './func';
 
 
 export const buildTree = (
   root: string,
   content: Record<string, string[]>,
-  opts: SemTreeOpts = defaultOpts,
+  opts: BuildTreeOpts = defaultOpts,
 ): TreeNode[] | string  => {
   // tree
   const tree: SemTree = opts.tree || {
@@ -21,7 +21,10 @@ export const buildTree = (
   // func
   const subroot: string       = opts.subroot || '';
   // syntax
-  const chunkSize: number     = opts.chunkSize || 2;
+  let chunkSize: number     = opts.chunkSize || -1;
+  if (chunkSize === -1) {
+    chunkSize = getChunkSize(content[root]);
+  }
   const virtualTrunk: boolean = opts.virtualTrunk || false;
   const mkdnList: boolean     = opts.mkdnList || true;
   const wikitext: boolean     = opts.wikitext || true;
@@ -30,6 +33,8 @@ export const buildTree = (
   const level: number = opts.level || 0;
 
   return build(root, content, ancestors, level);
+
+  // helper functions
 
   function build(
     curKey: string,
@@ -52,7 +57,7 @@ export const buildTree = (
         text: curKey,
         ancestors: ancestors.map(n => n.text),
         children: [],
-      };
+      } as TreeNode;
       // don't create a new node if we're handling the subroot of a subtree update
       if (curKey !== subroot) {
         if (totalLevel === 0) {
@@ -71,20 +76,19 @@ export const buildTree = (
     // handle file...
     const lines: string[] = content[curKey];
     for (const [i, line] of lines.entries()) {
-      const text: string = line.replace(REGEX.LEVEL, '');
+      const text: string = line.replace(RGX_LVL, '');
       const rawTxt: string = rawText(text, mkdnList);
       if (!text || text.length == 0) { continue; }
       // if (nodes.map((node) => node.text).includes(rawTxt)) {
       //   this.duplicates.push(rawTxt);
       //   return this.warnDuplicates();
       // }
-      // calculate numbers
+      // calculate level
       const lineNum: number = i + 1;
-      const levelMatch: RegExpMatchArray | null = line.match(REGEX.LEVEL);
-      //  number of spaces
+      const levelMatch: RegExpMatchArray | null = line.match(RGX_LVL);
       if (levelMatch === null) { continue; }
-      const size: number | undefined = getWhitespaceSize(levelMatch[0]);
-      const thisLevel: number = (size / chunkSize) + 1;
+      const size: number | undefined = levelMatch[0].length;
+      const thisLevel: number = size / chunkSize;
       const cumulativeLevel: number = thisLevel + totalLevel;
       // root
       if ((totalLevel === 0) && (i === 0)) {
@@ -106,6 +110,7 @@ export const buildTree = (
         // todo: if (curKey === rawTxt, print a warning: don't do that.
         const curTxt: string = rawTxt;
         const trunkNames: string[] = Object.keys(content);
+        // trunk
         if ((curKey !== curTxt) && trunkNames.includes(curTxt)) {
           ancestors = popGrandAncestor(cumulativeLevel, ancestors);
           const result: TreeNode[] | string = build(

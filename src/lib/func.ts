@@ -1,4 +1,4 @@
-import { REGEX } from './const';
+import { RGX_LVL } from './const';
 
 
 export const deepcopy = (item: any) => {
@@ -11,31 +11,13 @@ export const getChunkSize = (lines: string[]): number => {
   // calculate chunk size (number of spaces per level) and size of deepest level
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   lines.forEach((line, i) => {
-    const levelMatch: RegExpMatchArray | null = line.match(REGEX.LEVEL);
+    const levelMatch: RegExpMatchArray | null = line.match(RGX_LVL);
     // calculates number of spaces
-    if (levelMatch && chunkSize < 0) {
-      const whitespace: string = levelMatch[0];
-      if (whitespace[0] == ' ') {
-        chunkSize = whitespace.length;
-      }
-      if (whitespace[0] == '\t') {
-        const tabs: string = levelMatch[0];
-        chunkSize = tabs.length;
-      }
+    if (levelMatch && levelMatch[0] && chunkSize < 0) {
+      chunkSize = levelMatch[0].length;
     }
   });
   return chunkSize;
-};
-
-export const getWhitespaceSize = (whitespace: string): number => {
-  if (whitespace.includes(' ')) {
-    return whitespace.length;
-  }
-  if (whitespace.includes('\t')) {
-    const tabSize: number = 1;
-    return whitespace.length * tabSize;
-  }
-  return whitespace.length;
 };
 
 export const rawText = (fullText: string, hasBullets: boolean = false): string => {
