@@ -1,11 +1,11 @@
 import { RGX_LVL } from './const';
-import { getChunkSize } from './func';
+import { getLevelSize } from './func';
 
 
 // todo: add tab/space linting option?
 export const lint = (
   content: string | Record<string, string>,
-  chunkSize: number = -1,
+  lvlSize: number = -1,
 ): void | string => {
   let previousIndent: number = 0;
   const badIndentations: { fname?: string, line: number; content: string; reason: string }[] = [];
@@ -18,14 +18,14 @@ export const lint = (
       const match: RegExpMatchArray | null = line.match(RGX_LVL);
       const currentIndent: number = match ? match[0].length : 0;
       // improper indentation
-      if (currentIndent % chunkSize !== 0) {
+      if (currentIndent % lvlSize !== 0) {
         badIndentations.push({
           fname: fname ? fname : '',
           line: lineNumber,
           content: line,
           reason: 'inconsistent indentation',
         });
-      } else if (currentIndent > previousIndent + chunkSize) {
+      } else if (currentIndent > previousIndent + lvlSize) {
         badIndentations.push({
           fname: fname ? fname : '',
           line: lineNumber,
@@ -59,7 +59,7 @@ export const lint = (
   // single file
   if (typeof content === 'string') {
     const lines: string[] = content.split('\n');
-    chunkSize = getChunkSize(lines);
+    lvlSize = getLevelSize(lines);
     for (let i = 0; i < lines.length; i++) {
       lintLine(lines[i], i + 1);
     }
@@ -67,9 +67,9 @@ export const lint = (
   } else {
     for (const [filename, fileContent] of Object.entries(content)) {
       const lines: string[] = fileContent.split('\n');
-      // only calculate chunkSize if it's the first file
-      if (chunkSize < 0) {
-        chunkSize = getChunkSize(lines);
+      // only calculate lvlSize if it's the first file
+      if (lvlSize < 0) {
+        lvlSize = getLevelSize(lines);
       }
       previousIndent = 0; // reset for each file
       for (let i = 0; i < lines.length; i++) {

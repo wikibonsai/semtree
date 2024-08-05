@@ -238,14 +238,14 @@ describe('parse()', () => {
 
         describe('options', () => {
 
-          it('chunkSize', () => {
+          it('lvlSize', () => {
             const content: string = 
 `- [[root]]
     - [[child1]]
     - [[child2]]
         - [[grandchild1]]
 `;
-            const customOpts = { ...opts, chunkSize: 4 };
+            const customOpts = { ...opts, lvlSize: 4 };
             assert.deepStrictEqual(
               parse(content, '', customOpts),
               trunkType === 'concrete' ? concreteData : virtualData,
@@ -634,7 +634,7 @@ describe('parse()', () => {
 
         describe('options', () => {
 
-          it.skip('chunkSize', () => {
+          it.skip('lvlSize', () => {
             assert.strictEqual(0, 1);
           });
 
@@ -711,7 +711,7 @@ describe('parse()', () => {
             };
             assert.deepStrictEqual(
               parse(content, 'root', opts),
-              'semtree.parse(): chunkSize could not be determined -- is it possible no root exists?',
+              'semtree.parse(): lvlSize could not be determined -- is it possible no root exists?',
             );
           });
 

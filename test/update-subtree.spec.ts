@@ -577,7 +577,7 @@ describe('updateSubTree()', () => {
 
       describe('options', () => {
 
-        it('chunkSize', () => {
+        it('lvlSize', () => {
           const tree: SemTree = {
             root: 'root',
             trunk: ['root'],
@@ -602,7 +602,7 @@ describe('updateSubTree()', () => {
   - [[newChild1]]
   - [[newChild2]]
 `;
-          const actlSubTree: TreeNode[] | string = updateSubTree(tree, { 'root': replacement }, 'root', { chunkSize: 2 });
+          const actlSubTree: TreeNode[] | string = updateSubTree(tree, { 'root': replacement }, 'root', { lvlSize: 2 });
           const expdSubTree: TreeNode[] = [
             {
               text: 'root',

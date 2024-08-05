@@ -24,7 +24,7 @@ describe('lint()', () => {
 
   // options
 
-  describe('manually set chunkSize', () => {
+  describe('manually set lvlSize', () => {
 
     let content: Record<string, string>;
 

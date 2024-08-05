@@ -1,6 +1,6 @@
 import type { SemTreeOpts, TreeNode } from './types';
 
-import { getChunkSize, rawText } from './func';
+import { getLevelSize, rawText } from './func';
 import { lint } from './lint';
 import { buildTree } from './build-tree';
 
@@ -17,7 +17,7 @@ export const parse = (
 ): TreeNode[] | string => {
   // opts
   // syntax
-  let chunkSize: number     = opts?.chunkSize || -1;
+  let lvlSize: number         = opts?.lvlSize || -1;
   const virtualTrunk: boolean = opts?.virtualTrunk || false;
   const mkdnList: boolean     = opts?.mkdnList || true;
   const wikitext: boolean     = opts?.wikitext || true;
@@ -25,8 +25,8 @@ export const parse = (
   // single file
   if (typeof content === 'string') {
     const lines: string[] = content.split('\n').filter(line => line.trim().length > 0);
-    if (chunkSize === -1) {
-      chunkSize = getChunkSize(lines);
+    if (lvlSize === -1) {
+      lvlSize = getLevelSize(lines);
     }
     const zeroIndentLines: string[] = lines.filter(line => !line.match(/^\s/));
     // single root does not exist
@@ -38,7 +38,7 @@ export const parse = (
       // rm root line and adjust indentation for remaining lines
       if (!virtualTrunk) {
         const remainingLines: string[] = lines.slice(1).filter(line => line.trim().length > 0);
-        contentHash[root] = remainingLines.map((line: string) =>  line.slice(chunkSize));
+        contentHash[root] = remainingLines.map((line: string) =>  line.slice(lvlSize));
       } else {
         contentHash[root] = lines;
       }
@@ -59,22 +59,22 @@ export const parse = (
     contentHash = Object.fromEntries(
       Object.entries(content).map(([key, value]) => [key, value.split('\n')])
     );
-    chunkSize = getChunkSize(contentHash[root]);
-    // if chunkSize is still -1, try to find it in the other files
-    if (chunkSize == -1) {
+    lvlSize = getLevelSize(contentHash[root]);
+    // if lvlSize is still -1, try to find it in the other files
+    if (lvlSize == -1) {
       for (const key of Object.keys(contentHash)) {
-        chunkSize = getChunkSize(contentHash[key]);
-        if (chunkSize > 0) { break; }
+        lvlSize = getLevelSize(contentHash[key]);
+        if (lvlSize > 0) { break; }
       }
-      if (chunkSize < 0) {
-        return 'semtree.parse(): chunkSize could not be determined -- is it possible no root exists?';
+      if (lvlSize < 0) {
+        return 'semtree.parse(): lvlSize could not be determined -- is it possible no root exists?';
       }
     }
   }
-  const lintError: string | void = lint(content, chunkSize);
+  const lintError: string | void = lint(content, lvlSize);
   if (lintError) {
     return lintError;
   }
-  const tree: TreeNode[] | string = buildTree(root, contentHash, { ...opts, chunkSize });
+  const tree: TreeNode[] | string = buildTree(root, contentHash, { ...opts, lvlSize });
   return tree;
 };

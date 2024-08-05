@@ -1,7 +1,7 @@
 import { SemTree, BuildTreeOpts, TreeNode } from './types';
 import { defaultOpts, RGX_LVL } from './const';
 import { checkDuplicates } from './duplicates';
-import { deepcopy, rawText, getChunkSize } from './func';
+import { deepcopy, rawText, getLevelSize } from './func';
 
 
 export const buildTree = (
@@ -21,17 +21,17 @@ export const buildTree = (
   // func
   const subroot: string       = opts.subroot || '';
   // syntax
-  let chunkSize: number       = opts.chunkSize || -1;
-  if (chunkSize === -1) {
-    chunkSize = getChunkSize(content[root]);
-    // if chunkSize is still -1, try to find it in the other files
-    if (chunkSize == -1) {
+  let lvlSize: number       = opts.lvlSize || -1;
+  if (lvlSize === -1) {
+    lvlSize = getLevelSize(content[root]);
+    // if lvlSize is still -1, try to find it in the other files
+    if (lvlSize == -1) {
       for (const key of Object.keys(content)) {
-        chunkSize = getChunkSize(content[key]);
-        if (chunkSize > 0) { break; }
+        lvlSize = getLevelSize(content[key]);
+        if (lvlSize > 0) { break; }
       }
-      if (chunkSize < 0) {
-        return 'semtree.buildTree(): chunkSize could not be determined -- is it possible no root exists?';
+      if (lvlSize < 0) {
+        return 'semtree.buildTree(): lvlSize could not be determined -- is it possible no root exists?';
       }
     }
   }
@@ -103,7 +103,7 @@ export const buildTree = (
       const levelMatch: RegExpMatchArray | null = line.match(RGX_LVL);
       if (levelMatch === null) { continue; }
       const size: number | undefined = levelMatch[0].length;
-      const thisLevel: number = size / chunkSize;
+      const thisLevel: number = size / lvlSize;
       const cumulativeLevel: number = thisLevel + totalLevel;
       // root
       // if (isFirst && (virtualTrunk && !isTrunk) && (tree.root === '')) {

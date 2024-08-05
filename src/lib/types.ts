@@ -1,8 +1,8 @@
 export interface SemTreeOpts {
   // params
   virtualTrunk?: boolean;                              // whether or not to include the semtree/index files themselves as nodes in the tree
-  chunkSize?: number;                                  // the number of indentations per tree level
-  subroot?: string;                                     // the root of the subtree to be updated
+  lvlSize?: number;                                    // the number of indentations per tree level
+  subroot?: string;                                    // the root of the subtree to be updated
   mkdnList?: boolean;                                  // whether or not to expect markdown bullets ('- ', '* ', '+ ') for each node
   wikitext?: boolean;                                  // whether or not to expect [[wikilink square brackets]] so they may be ignored when processing tree text
   // functions

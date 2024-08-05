@@ -5,7 +5,7 @@ export const RGX_LVL = /^[ \t]*/;
 
 export const defaultOpts: SemTreeOpts = {
   virtualTrunk: false,
-  chunkSize: 2,
+  lvlSize: 2,
   mkdnList: true,
   wikitext: true,
 };
