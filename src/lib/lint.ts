@@ -2,9 +2,11 @@ import { RGX_LVL } from './const';
 import { getChunkSize } from './func';
 
 
-// todo: add linting options (tab/space, indent size)
-export const lint = (content: string | Record<string, string>): void | string => {
-  let chunkSize: number = -1;
+// todo: add tab/space linting option?
+export const lint = (
+  content: string | Record<string, string>,
+  chunkSize: number = -1,
+): void | string => {
   let previousIndent: number = 0;
   const badIndentations: { fname?: string, line: number; content: string; reason: string }[] = [];
   const entities: Set<string> = new Set();

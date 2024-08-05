@@ -21,16 +21,26 @@ export const buildTree = (
   // func
   const subroot: string       = opts.subroot || '';
   // syntax
-  let chunkSize: number     = opts.chunkSize || -1;
+  let chunkSize: number       = opts.chunkSize || -1;
   if (chunkSize === -1) {
     chunkSize = getChunkSize(content[root]);
+    // if chunkSize is still -1, try to find it in the other files
+    if (chunkSize == -1) {
+      for (const key of Object.keys(content)) {
+        chunkSize = getChunkSize(content[key]);
+        if (chunkSize > 0) { break; }
+      }
+      if (chunkSize < 0) {
+        return 'semtree.buildTree(): chunkSize could not be determined -- is it possible no root exists?';
+      }
+    }
   }
   const virtualTrunk: boolean = opts.virtualTrunk || false;
   const mkdnList: boolean     = opts.mkdnList || true;
   const wikitext: boolean     = opts.wikitext || true;
   // subtree building
   const ancestors: TreeNode[] = opts.ancestors || [];
-  const level: number = opts.level || 0;
+  const level: number         = opts.level || 0;
 
   return build(root, content, ancestors, level);
 
@@ -60,7 +70,7 @@ export const buildTree = (
       } as TreeNode;
       // don't create a new node if we're handling the subroot of a subtree update
       if (curKey !== subroot) {
-        if (totalLevel === 0) {
+        if (tree.root === '' && totalLevel === 0) {
           addRoot(curKey);
         } else {
           const trnkFname: string | undefined = getTrunkKey(curKey, deepcopy(content));
@@ -77,8 +87,13 @@ export const buildTree = (
     const lines: string[] = content[curKey];
     for (const [i, line] of lines.entries()) {
       const text: string = line.replace(RGX_LVL, '');
-      const rawTxt: string = rawText(text, mkdnList);
       if (!text || text.length == 0) { continue; }
+      const rawTxt: string = rawText(text, { hasBullets: mkdnList, hasWiki: wikitext });
+      const isFirst: boolean = (totalLevel === 0) && (i === 0);
+      const selfRef: boolean = (curKey === rawTxt);
+      const trunkNames: string[] = Object.keys(content);
+      const isTrunk: boolean = trunkNames.includes(rawTxt);
+      // connect subtree via 'virtual' semantic-tree node
       // if (nodes.map((node) => node.text).includes(rawTxt)) {
       //   this.duplicates.push(rawTxt);
       //   return this.warnDuplicates();
@@ -91,7 +106,8 @@ export const buildTree = (
       const thisLevel: number = size / chunkSize;
       const cumulativeLevel: number = thisLevel + totalLevel;
       // root
-      if ((totalLevel === 0) && (i === 0)) {
+      // if (isFirst && (virtualTrunk && !isTrunk) && (tree.root === '')) {
+      if (isFirst) {
         // init
         nodeBuilder = {
           line: lineNum,
@@ -104,14 +120,22 @@ export const buildTree = (
           addRoot(rawTxt);
         }
         ancestors.push(nodeBuilder);
+        // ?
+        if (!selfRef && isTrunk) {
+          const result: TreeNode[] | string = build(
+            rawTxt,
+            content,
+            deepcopy(ancestors),
+            thisLevel,
+          );
+          if (typeof result === 'string') {
+            return result;
+          }
+        }
       // node
       } else {
-        // connect subtree via 'virtual' semantic-tree node
-        // todo: if (curKey === rawTxt, print a warning: don't do that.
-        const curTxt: string = rawTxt;
-        const trunkNames: string[] = Object.keys(content);
         // trunk
-        if ((curKey !== curTxt) && trunkNames.includes(curTxt)) {
+        if (!selfRef && isTrunk) {
           ancestors = popGrandAncestor(cumulativeLevel, ancestors);
           const result: TreeNode[] | string = build(
             rawTxt,
@@ -122,20 +146,20 @@ export const buildTree = (
           if (typeof result === 'string') {
             return result;
           }
-          continue;
+        // leaf
+        } else {
+          ancestors = popGrandAncestor(cumulativeLevel, ancestors);
+          // init
+          nodeBuilder = {
+            line: lineNum,
+            level: cumulativeLevel,
+            text: rawTxt,
+            ancestors: ancestors.map(p => p.text),
+            children: [],
+          } as TreeNode;
+          ancestors.push(nodeBuilder);
+          addBranch(nodeBuilder.text, nodeBuilder.ancestors, curKey);
         }
-        // init
-        nodeBuilder = {
-          line: lineNum,
-          level: cumulativeLevel,
-          text: rawTxt,
-          ancestors: [],
-          children: [],
-        } as TreeNode;
-        ancestors = popGrandAncestor(cumulativeLevel, ancestors);
-        nodeBuilder.ancestors = ancestors.map(p => p.text);
-        ancestors.push(nodeBuilder);
-        addBranch(nodeBuilder.text, nodeBuilder.ancestors, curKey);
       }
     }
     // rm node after processing
@@ -143,8 +167,7 @@ export const buildTree = (
     visited.delete(curKey);
     // if some files were not processed and we are at the root-file-level, error out
     if ((Object.entries(content).length !== 0) && (totalLevel == 0)) {
-      // throw new Error(errorMsg);
-      return `SemanticTree.buildTree(): some files were not processed --\n${Object.keys(content)}`;
+      return `semtree.buildTree(): some files were not processed --\n${Object.keys(content)}`;
     }
     if (Object.entries(content).length === 0) {
       // duplicates are checked later in updateSubTree()
@@ -217,7 +240,7 @@ export const buildTree = (
 
   function getTrunkKey(curKey: string, content: Record<string, string[]>): string | undefined {
     for (const key of Object.keys(content)) {
-      const items: string[] = content[key].map((txt) => rawText(txt, mkdnList).trim().replace(/^[-*+]\s*/, ''));
+      const items: string[] = content[key].map((txt) => rawText(txt, { hasBullets: mkdnList, hasWiki: wikitext }).trim().replace(/^[-*+]\s*/, ''));
       if (items.includes(curKey)) {
         return key;
       }
@@ -228,9 +251,13 @@ export const buildTree = (
     const parent: TreeNode = ancestors[ancestors.length - 1];
     const isChild: boolean = (parent.level === (level - 1));
     const isSibling: boolean = (parent.level === level);
+    // root case
+    // if ((ancestors.length === 0) && (parent.level === 0)) {
+    //   return ancestors;
     // child:
     // - [[parent]]
     //   - [[child]]
+    // } else
     if (isChild) {
       // continue...
     // sibling:
@@ -249,6 +276,8 @@ export const buildTree = (
         ancestors.pop();
       }
     } else {
+      // first node on page
+      // ...
       console.warn(`semtree.popGrandAncestor(): unknown ancestor level: ${parent.level}`);
     }
     return ancestors;

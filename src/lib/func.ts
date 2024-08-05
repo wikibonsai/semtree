@@ -20,7 +20,13 @@ export const getChunkSize = (lines: string[]): number => {
   return chunkSize;
 };
 
-export const rawText = (fullText: string, hasBullets: boolean = false): string => {
+export const rawText = (
+  fullText: string,
+  {
+    hasBullets = false,
+    hasWiki = false,
+  }: { hasBullets?: boolean, hasWiki?: boolean },
+): string => {
   // wiki markers
   const openBrackets: string = '[[';
   const closeBrackets: string = ']]';
@@ -35,7 +41,13 @@ export const rawText = (fullText: string, hasBullets: boolean = false): string =
           || (text === markdownBulletPlus));
   }
   // strip markdown list marker if it exists
-  fullText = (hasBullets && isMarkdownBullet(fullText.substring(0, 2))) ? fullText.slice(2, fullText.length) : fullText;
-  // strip wikistring special chars and line breaks (see: https://stackoverflow.com/a/10805292)
-  return fullText.replace(openBrackets, '').replace(closeBrackets, '').replace(/\r?\n|\r/g, '');
+  fullText = (hasBullets && isMarkdownBullet(fullText.substring(0, 2)))
+    ? fullText.slice(2, fullText.length)
+    : fullText;
+  // strip wikistring special chars
+  fullText = hasWiki
+    ? fullText.replace(openBrackets, '').replace(closeBrackets, '')
+    : fullText;
+  // strip linebreaks (see: https://stackoverflow.com/a/10805292)
+  return fullText.replace(/\r?\n|\r/g, '');
 };

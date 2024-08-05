@@ -575,6 +575,144 @@ describe('updateSubTree()', () => {
 
       });
 
+      describe('options', () => {
+
+        it('chunkSize', () => {
+          const tree: SemTree = {
+            root: 'root',
+            trunk: ['root'],
+            petioleMap: {
+              'root': 'root',
+              'child1': 'root',
+            },
+            nodes: [
+              {
+                text: 'root',
+                ancestors: [],
+                children: ['child1'],
+              },{
+                text: 'child1',
+                ancestors: ['root'],
+                children: [],
+              }
+            ]
+          };
+          const replacement: string = 
+`- [[child1]]
+  - [[newChild1]]
+  - [[newChild2]]
+`;
+          const actlSubTree: TreeNode[] | string = updateSubTree(tree, { 'root': replacement }, 'root', { chunkSize: 2 });
+          const expdSubTree: TreeNode[] = [
+            {
+              text: 'root',
+              ancestors: [],
+              children: ['child1'],
+            },{
+              text: 'child1',
+              ancestors: ['root'],
+              children: ['newChild1', 'newChild2'],
+            },{
+              text: 'newChild1',
+              ancestors: ['root', 'child1'],
+              children: [],
+            },{
+              text: 'newChild2',
+              ancestors: ['root', 'child1'],
+              children: [],
+            }
+          ];
+          assert.deepEqual(actlSubTree, expdSubTree);
+        });
+  
+        it('mkdnList', () => {
+          const tree: SemTree = {
+            root: 'root',
+            trunk: ['root'],
+            petioleMap: {
+              'root': 'root',
+              'child1': 'root',
+            },
+            nodes: [
+              {
+                text: 'root',
+                ancestors: [],
+                children: ['child1'],
+              },{
+                text: 'child1',
+                ancestors: ['root'],
+                children: [],
+              }
+            ]
+          };
+          const replacement: string = 
+`* [[child1]]
+  + [[newChild]]
+`;
+          const actlSubTree: TreeNode[] | string = updateSubTree(tree, { 'root': replacement }, 'root', { mkdnList: true });
+          const expdSubTree: TreeNode[] = [
+            {
+              text: 'root',
+              ancestors: [],
+              children: ['child1'],
+            },{
+              text: 'child1',
+              ancestors: ['root'],
+              children: ['newChild'],
+            },{
+              text: 'newChild',
+              ancestors: ['root', 'child1'],
+              children: [],
+            }
+          ];
+          assert.deepEqual(actlSubTree, expdSubTree);
+        });
+  
+        it('wikitext', () => {
+          const tree: SemTree = {
+            root: 'root',
+            trunk: ['root'],
+            petioleMap: {
+              'root': 'root',
+              'child1': 'root',
+            },
+            nodes: [
+              {
+                text: 'root',
+                ancestors: [],
+                children: ['child1'],
+              },{
+                text: 'child1',
+                ancestors: ['root'],
+                children: [],
+              }
+            ]
+          };
+          const replacement: string = 
+`- child1
+  - newChild
+`;
+          const actlSubTree: TreeNode[] | string = updateSubTree(tree, { 'root': replacement }, 'root', { wikitext: false });
+          const expdSubTree: TreeNode[] = [
+            {
+              text: 'root',
+              ancestors: [],
+              children: ['child1'],
+            },{
+              text: 'child1',
+              ancestors: ['root'],
+              children: ['newChild'],
+            },{
+              text: 'newChild',
+              ancestors: ['root', 'child1'],
+              children: [],
+            }
+          ];
+          assert.deepEqual(actlSubTree, expdSubTree);
+        });
+
+      });
+
       describe('error', () => {
 
         it('missing subtree', () => {

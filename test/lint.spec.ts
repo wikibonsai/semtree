@@ -22,6 +22,47 @@ describe('lint()', () => {
     assert.strictEqual(actlError, expdError);
   });
 
+  // options
+
+  describe('manually set chunkSize', () => {
+
+    let content: Record<string, string>;
+
+    beforeEach(() => {
+      content = {
+        'root':
+`- [[child]]
+  - [[grandchild]]
+    - [[greatgrandchild]]
+`,
+      };
+    });
+
+    it('success', () => {
+      // setup
+      const expdError: undefined = undefined;
+      // go
+      const actlError: string | void = lint(content, 2);
+      // assert
+      assert.strictEqual(actlError, expdError);
+    });
+  
+    it('error', () => {
+      // setup
+      const expdError: string =
+`semtree.lint(): improper indentation found:
+
+- File "root" Line 2 (inconsistent indentation): "  - [[grandchild]]"
+- File "root" Line 3 (inconsistent indentation): "    - [[greatgrandchild]]"
+`;
+      // go
+      const actlError: string | void = lint(content, 3);
+      // assert
+      assert.strictEqual(actlError, expdError);
+    });
+
+  });
+
   // indentation
 
   it('error; improperly indented', () => {

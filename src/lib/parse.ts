@@ -34,7 +34,7 @@ export const parse = (
       return 'semtree.parse(): multiple lines with zero indentation found. A tree with multiple roots cannot be made. Please add a filename as a "root" parameter or fix the indentation.';
     // single root does exist
     } else if (zeroIndentLines.length === 1) {
-      root = rawText(zeroIndentLines[0], mkdnList);
+      root = rawText(zeroIndentLines[0], { hasBullets: mkdnList, hasWiki: wikitext });
       // rm root line and adjust indentation for remaining lines
       if (!virtualTrunk) {
         const remainingLines: string[] = lines.slice(1).filter(line => line.trim().length > 0);
@@ -60,8 +60,18 @@ export const parse = (
       Object.entries(content).map(([key, value]) => [key, value.split('\n')])
     );
     chunkSize = getChunkSize(contentHash[root]);
+    // if chunkSize is still -1, try to find it in the other files
+    if (chunkSize == -1) {
+      for (const key of Object.keys(contentHash)) {
+        chunkSize = getChunkSize(contentHash[key]);
+        if (chunkSize > 0) { break; }
+      }
+      if (chunkSize < 0) {
+        return 'semtree.parse(): chunkSize could not be determined -- is it possible no root exists?';
+      }
+    }
   }
-  const lintError: string | void = lint(content);
+  const lintError: string | void = lint(content, chunkSize);
   if (lintError) {
     return lintError;
   }
