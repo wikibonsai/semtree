@@ -5,4 +5,4 @@ export { updateSubTree } from './lib/update-subtree';
 export { lint } from './lib/lint';
 export { print } from './lib/print';
 // types
-export type { SemTree, SemTreeOpts } from './lib/types';
+export type { SemTree, SemTreeOpts, TreeNode } from './lib/types';

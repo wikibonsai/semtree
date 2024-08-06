@@ -1,3 +1,10 @@
+export interface SemTree {
+  nodes: TreeNode[];
+  trunk: string[];
+  petioleMap: Record<string, string>;
+  root: string;
+}
+
 export interface SemTreeOpts {
   // params
   virtualTrunk?: boolean;                              // whether or not to include the semtree/index files themselves as nodes in the tree
@@ -26,11 +33,4 @@ export interface TreeNode {
   // for building
   line?: number;
   level?: number;
-}
-
-export interface SemTree {
-  nodes: TreeNode[];
-  trunk: string[];
-  petioleMap: Record<string, string>;
-  root: string;
 }
