@@ -17,10 +17,10 @@ export const parse = (
 ): SemTree | string => {
   // opts
   // syntax
-  let lvlSize: number         = opts?.lvlSize || -1;
+  let lvlSize: number         = opts?.lvlSize      || -1;
   const virtualTrunk: boolean = opts?.virtualTrunk || false;
-  const mkdnList: boolean     = opts?.mkdnList || true;
-  const wikitext: boolean     = opts?.wikitext || true;
+  const mkdnList: boolean     = opts?.mkdnList     || true;
+  const wikitext: boolean     = opts?.wikitext     || true;
   let contentHash: Record<string, string[]> = {};
   // single file
   if (typeof content === 'string') {
