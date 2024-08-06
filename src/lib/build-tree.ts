@@ -41,7 +41,7 @@ export const buildTree = (
     petioleMap: {},
     root: '',
   } as SemTree;
-  if (!virtualTrunk && tree.trunk.length === 0) {
+  if (!virtualTrunk && (tree.trunk.length === 0)) {
     tree.trunk = Object.keys(content);
   }
   const visited: Set<string> = new Set();
@@ -176,10 +176,10 @@ export const buildTree = (
     delete content[curKey];
     visited.delete(curKey);
     // if some files were not processed and we are at the root-file-level, error out
-    if ((Object.entries(content).length !== 0) && (totalLevel == 0)) {
+    if (strict && (Object.entries(content).length !== 0) && (totalLevel == 0)) {
       return `semtree.buildTree(): some files were not processed --\n${Object.keys(content)}`;
     }
-    if (Object.entries(content).length === 0) {
+    if (!strict || (Object.entries(content).length === 0)) {
       // duplicates are checked later in updateSubTree()
       if (!isSubTree) {
         // if duplicate nodes were found, return warning string

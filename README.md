@@ -133,7 +133,7 @@ const semTreeText: Record<string, string> = {
 
 Parsing:
 - The number of spaces that make up each level will be determined by the first indentation size -- this can be a number of spaces or a single tab. (Consider using a linter to help keep spacing sizes uniform).
-- Bullets (`-*+`) are optional (see options).
+- Bullets (`-*+`) are optional (see [options](#Options)).
 - `[[wikitext]]` is optional (see `wikitext` option).
 
 Valid Trees:
@@ -244,6 +244,12 @@ Whether `semtree` should expect file content to use markdown bullets `- `, `* `,
 ### `setRoot: (name: string) => void`
 
 A function that can return/operate on the root name of the tree when it is being set.
+
+### `strict: boolean`
+
+Whether or not to strictly enforce a valid tree structure. Defaults to `true`.
+
+For now, this means if not all branches or index files were processed in `parse()`, the tree will still build.
 
 ### `virtualTrunk: boolean`
 
