@@ -249,7 +249,7 @@ A function that can return/operate on the root name of the tree when it is being
 
 Whether or not to include the semtree/index files themselves as nodes in the tree. This option is a useful toggle between 'tree-building' (non-virtual to allow for index/trunk file traversal) and 'tree-viewing' (virtual to eliminate unnecessary index/trunk files) states. Default is `false`. Best used for things like static site generation where updates are not a usual occurrence.
 
-Note: If `virtualTrunk` is set to `true`, it is wise to ensure there is a root-level node.
+Note: If `virtualTrunk` is set to `true`, the resulting tree will not be updatable via the [`updateSubTree()` function](#updatesubtreetree-semtree-content-string--recordstring-string-subroot-string-opts-semtreeopts--defaultopts-treenode--string).
 
 ### `wikitext: boolean`
 

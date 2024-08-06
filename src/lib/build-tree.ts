@@ -9,18 +9,14 @@ export const buildTree = (
   content: Record<string, string[]>,
   opts: BuildTreeOpts = defaultOpts,
 ): SemTree | string  => {
-  // tree
-  const tree: SemTree = opts.tree || {
-    nodes: [],
-    trunk: [],
-    petioleMap: {},
-    root: '',
-  } as SemTree;
-  if (tree.trunk.length === 0) {
-    tree.trunk = Object.keys(content);
-  }
-  const visited: Set<string> = new Set();
   // opts
+  const mkdnList: boolean     = opts.mkdnList || true;
+  const wikitext: boolean     = opts.wikitext || true;
+  const virtualTrunk: boolean = opts.virtualTrunk || false;
+  // subtree building
+  const subroot: string       = opts.subroot || '';
+  const ancestors: TreeNode[] = opts.ancestors || [];
+  const level: number         = opts.level || 0;
   // syntax
   let lvlSize: number         = opts.lvlSize || -1;
   if (lvlSize === -1) {
@@ -36,14 +32,18 @@ export const buildTree = (
       }
     }
   }
-  const virtualTrunk: boolean = opts.virtualTrunk || false;
-  const mkdnList: boolean     = opts.mkdnList || true;
-  const wikitext: boolean     = opts.wikitext || true;
-  // subtree building
-  const subroot: string       = opts.subroot || '';
-  const ancestors: TreeNode[] = opts.ancestors || [];
-  const level: number         = opts.level || 0;
-
+  // tree
+  const tree: SemTree = opts.tree || {
+    nodes: [],
+    trunk: [],
+    petioleMap: {},
+    root: '',
+  } as SemTree;
+  if (!virtualTrunk && tree.trunk.length === 0) {
+    tree.trunk = Object.keys(content);
+  }
+  const visited: Set<string> = new Set();
+  // go
   const buildRes: TreeNode[] | string = build(root, content, ancestors, level);
   if (typeof buildRes === 'string') {
     return buildRes;
@@ -211,7 +211,9 @@ export const buildTree = (
       ancestors: [],
       children: [],
     } as TreeNode);
-    tree.petioleMap[text] = text;
+    if (!virtualTrunk) {
+      tree.petioleMap[text] = text;
+    }
   }
 
   function addBranch(
@@ -243,7 +245,9 @@ export const buildTree = (
       ancestors: ancestryTitles,
       children: [],
     } as TreeNode);
-    tree.petioleMap[text] = trnkFname;
+    if (!virtualTrunk) {
+      tree.petioleMap[text] = trnkFname;
+    }
   }
 
   function getTrunkKey(curKey: string, content: Record<string, string[]>): string | undefined {

@@ -16,7 +16,7 @@ describe('parse()', () => {
 
   [
     'concrete',
-    // 'virtual',
+    'virtual',
   ].forEach((trunkType) => {
 
     describe(`${trunkType} trunk`, () => {
@@ -82,7 +82,7 @@ describe('parse()', () => {
             nodes: [{
               text: 'child1',
               ancestors: [],
-              children: [],
+              children: ['grandchild1', 'grandchild2'],
             },{
               text: 'grandchild1',
               ancestors: ['child1'],
@@ -90,7 +90,7 @@ describe('parse()', () => {
             },{
               text: 'grandchild2',
               ancestors: ['child1'],
-              children: [],
+              children: ['greatgrandchild1'],
             },{
               text: 'greatgrandchild1',
               ancestors: ['child1', 'grandchild2'],
@@ -402,11 +402,7 @@ describe('parse()', () => {
             } : {
               root: 'child1a',
               trunk: [],
-              petioleMap: {
-                'child1a': 'root',
-                'grandchild1a': 'root',
-                'child1b': 'root',
-              },
+              petioleMap: {},
               nodes: [
                 {
                   text: 'child1a',
@@ -497,12 +493,8 @@ describe('parse()', () => {
               ]
             } : {
               root: 'child1a',
-              trunk: ['child1a'],
-              petioleMap: {
-                'child1a': 'child1a',
-                'child1b': 'child1a',
-                'child1c': 'child1a',
-              },
+              trunk: [],
+              petioleMap: {},
               nodes: [
                 {
                   text: 'child1a',
@@ -563,11 +555,8 @@ describe('parse()', () => {
               ]
             } : {
               root: 'child1b',
-              trunk: ['child1b'],
-              petioleMap: {
-                'child1b': 'child1b',
-                'child2b': 'child1b',
-              },
+              trunk: [],
+              petioleMap: {},
               nodes: [
                 {
                   text: 'child1b',
@@ -629,12 +618,8 @@ describe('parse()', () => {
               ]
             } : {
               root: 'child1a',
-              trunk: ['child1a'],
-              petioleMap: {
-                'child1a': 'child1a',
-                'child1b': 'child1a',
-                'child2b': 'child1a',
-              },
+              trunk: [],
+              petioleMap: {},
               nodes: [
                 {
                   text: 'child1a',
@@ -703,10 +688,8 @@ describe('parse()', () => {
               ]
             } : {
               root: 'child1c',
-              trunk: ['child1c'],
-              petioleMap: {
-                'child1c': 'child1c',
-              },
+              trunk: [],
+              petioleMap: {},
               nodes: [
                 {
                   text: 'child1c',
@@ -830,14 +813,8 @@ root
                   parse(content, 'root', opts),
                   {
                     root: 'root',
-                    trunk: ['root'],
-                    petioleMap: {
-                      'root': 'root',
-                      'child1a': 'root',
-                      'grandchild1a': 'root',
-                      'branch': 'root',
-                      'child1b': 'branch',
-                    },
+                    trunk: [],
+                    petioleMap: {},
                     nodes: [
                       {
                         text: 'root',
@@ -850,14 +827,10 @@ root
                       },{
                         text: 'grandchild1a',
                         ancestors: ['root', 'child1a'],
-                        children: ['branch'],
-                      },{
-                        text: 'branch',
-                        ancestors: ['root', 'child1a', 'grandchild1a'],
                         children: ['child1b'],
                       },{
                         text: 'child1b',
-                        ancestors: ['root', 'child1a', 'grandchild1a', 'branch'],
+                        ancestors: ['root', 'child1a', 'grandchild1a'],
                         children: [],
                       }
                     ]
