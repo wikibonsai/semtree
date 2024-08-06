@@ -317,13 +317,11 @@ describe('updateSubTree()', () => {
             text: 'newbranch',
             ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
             children: ['child1d'],
+          },{
+            text: 'child1d',
+            ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c', 'newbranch'],
+            children: [],
           },
-          // todo: shouldn't this be included?
-          // {
-          //   text: 'child1d',
-          //   ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c', 'newbranch'],
-          //   children: [],
-          // },
         ];
         assert.deepEqual(actlSubTree, expdSubTree);
         // final updated tree

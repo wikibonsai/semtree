@@ -68,7 +68,7 @@ export const buildTree = (
     visited.add(curKey);
     let nodeBuilder: TreeNode;
     const isSubTree: boolean = subroot.length > 0;
-    const trunkNames: string[] = Array.from(new Set(Object.keys(content).concat(Object.keys(tree.petioleMap))));
+    const trunkNames: string[] = Array.from(new Set(Object.keys(content)));
     // if the trunk isn't virtual, handle index/trunk file
     const isTrunk: boolean = trunkNames.includes(curKey);
     if (!virtualTrunk && isTrunk) {

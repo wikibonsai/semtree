@@ -82,9 +82,12 @@ export const updateSubTree = (
     return hasDups;
   }
   refreshAncestors(tree.nodes);
-  // return subtree nodes
-  const subtreeNodes: TreeNode[] = tree.nodes.filter(n => (n.text=== subroot) || (tree.petioleMap[n.text] === subroot));
-  return deepcopy(subtreeNodes);
+  // return subtree nodes which appeared in `content`
+  const updatedNodes: TreeNode[] = tree.nodes.filter(n => {
+    return Object.keys(contentHash).includes(n.text) ||
+      Object.keys(contentHash).some(key => n.ancestors.includes(key));
+  });
+  return deepcopy(updatedNodes);
 
   // helper functions
 
