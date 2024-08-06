@@ -10,15 +10,17 @@ export const buildTree = (
   opts: BuildTreeOpts = defaultOpts,
 ): SemTree | string  => {
   // opts
-  const mkdnList: boolean     = opts.mkdnList     || true;
-  const wikitext: boolean     = opts.wikitext     || true;
-  const virtualTrunk: boolean = opts.virtualTrunk || false;
+  // tree
+  const strict: boolean       = opts.strict       ?? true;
+  const virtualTrunk: boolean = opts.virtualTrunk ?? false;
   // subtree building
-  const subroot: string       = opts.subroot      || '';
-  const ancestors: TreeNode[] = opts.ancestors    || [];
-  const level: number         = opts.level        || 0;
+  const subroot: string       = opts.subroot      ?? '';
+  const ancestors: TreeNode[] = opts.ancestors    ?? [];
+  const level: number         = opts.level        ?? 0;
   // syntax
-  let lvlSize: number         = opts.lvlSize      || -1;
+  const mkdnList: boolean     = opts.mkdnList     ?? true;
+  const wikitext: boolean     = opts.wikitext     ?? true;
+  let lvlSize: number         = opts.lvlSize      ?? -1;
   if (lvlSize === -1) {
     lvlSize = getLevelSize(content[root]);
     // if lvlSize is still -1, try to find it in the other files
@@ -33,7 +35,7 @@ export const buildTree = (
     }
   }
   // tree
-  const tree: SemTree = opts.tree || {
+  const tree: SemTree = opts.tree ?? {
     nodes: [],
     trunk: [],
     petioleMap: {},

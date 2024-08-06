@@ -1,5 +1,6 @@
 import type { SemTree, SemTreeOpts, TreeNode } from './types';
 
+import { defaultOpts } from './const';
 import { getLevelSize, rawText } from './func';
 import { lint } from './lint';
 import { buildTree } from './build-tree';
@@ -13,14 +14,17 @@ import { buildTree } from './build-tree';
 export const parse = (
   content: string | Record<string, string>,
   root?: string,
-  opts?: SemTreeOpts,
+  opts: SemTreeOpts = defaultOpts,
 ): SemTree | string => {
   // opts
+  // tree
+  const strict: boolean       = opts.strict       ?? true;
+  const virtualTrunk: boolean = opts.virtualTrunk ?? false;
   // syntax
-  let lvlSize: number         = opts?.lvlSize      || -1;
-  const virtualTrunk: boolean = opts?.virtualTrunk || false;
-  const mkdnList: boolean     = opts?.mkdnList     || true;
-  const wikitext: boolean     = opts?.wikitext     || true;
+  const mkdnList: boolean     = opts.mkdnList     ?? true;
+  const wikitext: boolean     = opts.wikitext     ?? true;
+  let lvlSize: number         = opts.lvlSize      ?? -1;
+  // go
   let contentHash: Record<string, string[]> = {};
   // single file
   if (typeof content === 'string') {
