@@ -97,80 +97,59 @@ describe('parse()', () => {
               children: [],
             }]
           };
+          // data = (trunkType === 'concrete') ? concreteData : virtualData;
         });
 
-        describe('indentation', () => {
-
-          it('indentation; 2 spaces (base)', () => {
-            const content: string = 
-`- [[child1]]
-  - [[grandchild1]]
-  - [[grandchild2]]
-    - [[greatgrandchild1]]
-`;
+        const testSingleFile = (description: string, content: string) => {
+          it(description, () => {
             const actl: SemTree | string = parse(content, 'root', opts);
             const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
             assert.deepStrictEqual(actl, expd);
           });
+        };
 
-          it('indentation; 3 spaces', () => {
-            const content: string = 
+        describe('indentation', () => {
+
+          testSingleFile('2 spaces (base)',
+`- [[child1]]
+  - [[grandchild1]]
+  - [[grandchild2]]
+    - [[greatgrandchild1]]
+`);
+
+          testSingleFile('3 spaces',
 `- [[child1]]
    - [[grandchild1]]
    - [[grandchild2]]
       - [[greatgrandchild1]]
-`;
-            assert.deepStrictEqual(
-              parse(content, 'root', opts),
-              trunkType === 'concrete' ? concreteData : virtualData,
-            );
-          });
+`);
 
-          it('indentation; 4 spaces', () => {
-            const content: string = 
+          testSingleFile('4 spaces',
 `- [[child1]]
     - [[grandchild1]]
     - [[grandchild2]]
         - [[greatgrandchild1]]
-`;
-            assert.deepStrictEqual(
-              parse(content, 'root', opts),
-              trunkType === 'concrete' ? concreteData : virtualData,
-            );
-          });
+`);
 
-          it('indentation; 1 tab', () => {
-            const content: string = 
+          testSingleFile('1 tab',
 `- [[child1]]
 \t- [[grandchild1]]
 \t- [[grandchild2]]
 \t\t- [[greatgrandchild1]]
-`;
-            assert.deepStrictEqual(
-              parse(content, 'root', opts),
-              trunkType === 'concrete' ? concreteData : virtualData,
-            );
-          });
+`);
 
-          it('indentation; 2 tabs', () => {
-            const content: string = 
+          testSingleFile('2 tabs',
 `- [[child1]]
 \t\t- [[grandchild1]]
 \t\t- [[grandchild2]]
 \t\t\t\t- [[greatgrandchild1]]
-`;
-            assert.deepStrictEqual(
-              parse(content, 'root', opts),
-              trunkType === 'concrete' ? concreteData : virtualData,
-            );
-          });
+`);
 
         });
 
         describe('extra newlines', () => {
 
-          it('strip leading newlines', () => {
-            const content: string = 
+          testSingleFile('strip leading newlines',
 `
 
 
@@ -178,15 +157,9 @@ describe('parse()', () => {
   - [[grandchild1]]
   - [[grandchild2]]
     - [[greatgrandchild1]]
-`;
-            assert.deepStrictEqual(
-              parse(content, 'root', opts),
-              trunkType === 'concrete' ? concreteData : virtualData,
-            );
-          });
+`);
 
-          it('strip trailing newlines', () => {
-            const content: string = 
+          testSingleFile('strip trailing newlines',
 `- [[child1]]
   - [[grandchild1]]
   - [[grandchild2]]
@@ -194,112 +167,80 @@ describe('parse()', () => {
 
 
 
-`;
-            assert.deepStrictEqual(
-              parse(content, 'root', opts),
-              trunkType === 'concrete' ? concreteData : virtualData,
-            );
-          });
+`);
 
-        });
-
-        it('accept different markdown list styles', () => {
-          const content: string = 
+          testSingleFile('accept different markdown list styles',
 `- [[child1]]
   * [[grandchild1]]
   * [[grandchild2]]
     + [[greatgrandchild1]]
-`;
-          const actl: SemTree | string = parse(content, 'root', opts);
-          const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
-          assert.deepStrictEqual(actl, expd);
+`);
+
         });
 
         describe('options', () => {
 
-          it('lvlSize', () => {
-            const content: string = 
+          testSingleFile('lvlSize',
 `- [[child1]]
     - [[grandchild1]]
     - [[grandchild2]]
         - [[greatgrandchild1]]
-`;
-            const customOpts = { ...opts, lvlSize: 4 };
-            assert.deepStrictEqual(
-              parse(content, 'root', customOpts),
-              trunkType === 'concrete' ? concreteData : virtualData,
-            );
-          });
+`);
 
-          it('mkdnList: false', () => {
-            const content: string = 
+          testSingleFile('mkdnList: false',
 `[[child1]]
   [[grandchild1]]
   [[grandchild2]]
     [[greatgrandchild1]]
-`;
-            const customOpts = { ...opts, mkdnList: false };
-            assert.deepStrictEqual(
-              parse(content, 'root', customOpts),
-              trunkType === 'concrete' ? concreteData : virtualData,
-            );
-          });
+`);
 
-          it('wikitext: false', () => {
-            const content: string = 
-`- child1
+          testSingleFile('wikitext: false', `
+- child1
   - grandchild1
   - grandchild2
     - greatgrandchild1
-`;
-            const customOpts = { ...opts, wikitext: false };
-            const actl: SemTree | string = parse(content, 'root', customOpts);
-            const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
-            assert.deepStrictEqual(actl, expd);
-          });
+`);
+
+          // todo: test mkdnList,wikitext false and show how parse will handle it if they exist
 
         });
 
         describe('error handling', () => {
 
-          it('no root; 0-indented entries only', () => {
-            const content: string = 
+          const testError = (description: string, content: string, error: string) => {
+            it(description, () => {
+              const actl: SemTree | string = parse(content, 'root', opts);
+              const expd: string = error;
+              assert.strictEqual(actl, expd);
+            });
+          };
+
+          testError('no root; 0-indented entries only',
 `- [[child1]]
 - [[child2]]
 - [[child3]]
-`;
-            assert.deepStrictEqual(
-              parse(content, 'root', opts),
-              'semtree.parse(): multiple lines with zero indentation found. A tree with multiple roots cannot be made. Please add a filename as a "root" parameter or fix the indentation.',
-            );
-          });
+`,
+            'semtree.parse(): multiple lines with zero indentation found. A tree with multiple roots cannot be made. Please add a filename as a "root" parameter or fix the indentation.'
+          );
 
-          it('inconsistent indentation', () => {
-            const content: string = 
+          testError('inconsistent indentation',
 `- [[child1]]
   - [[grandchild1]]
   - [[grandchild2]]
      - [[greatgrandchild1]]
-`;
-            assert.deepStrictEqual(
-              parse(content, 'root', opts),
-              'semtree.lint(): improper indentation found:\n\n- Line 4 (inconsistent indentation): "     - [[greatgrandchild1]]"\n',
-            );
-          });
+`,
+            'semtree.lint(): improper indentation found:\n\n- Line 4 (inconsistent indentation): "     - [[greatgrandchild1]]"\n',
+          );
 
-          it('duplicate text', () => {
-            const content: string = 
+          testError('duplicate text',
 `- [[child1]]
   - [[grandchild1]]
   - [[grandchild2]]
   - [[grandchild2]]
     - [[greatgrandchild1]]
-`;
-            assert.strictEqual(
-              parse(content, 'root', opts),
-              'semtree.lint(): duplicate entity names found:\n\n- Line 4: "grandchild2"\n'
-            );
-          });
+`,
+            'semtree.lint(): duplicate entity names found:\n\n- Line 4: "grandchild2"\n',
+          );
 
         });
 
@@ -359,6 +300,15 @@ describe('parse()', () => {
             }]
           };
         });
+
+        // todo
+        // const testMultiFile = (description: string, content: string) => {
+        //   it(description, () => {
+        //     const actl: SemTree | string = parse(content, 'root', opts);
+        //     const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+        //     assert.deepStrictEqual(actl, expd);
+        //   });
+        // };
 
         describe('default', () => {
 
@@ -721,70 +671,119 @@ describe('parse()', () => {
 
         describe('error handling', () => {
 
-          it('\'content\' param of record type should require \'root\' param', () => {
-            const content: Record<string,string> = {
-              'root':
-  `- [[child1a]]
-    - [[grandchild1a]]
-    - [[branch]]
-  `,
-              'branch':
-  `- [[child1b]]
-  `,};
-            assert.strictEqual(
-              parse(content, '', opts),
-              'semtree.parse(): cannot parse multiple files without a "root" defined',
-            );
-          });
+          const testErrorMultiFile = (description: string, content: Record<string, string>, root: string | undefined, error: string) => {
+            it(description, () => {
+              const actl: SemTree | string = parse(content, root, opts);
+              const expd: string = error;
+              assert.strictEqual(actl, expd);
+            });
+          };
 
-          it('inconsistent indentation', () => {
-            const content: Record<string,string> = {
-              'root':
+          testErrorMultiFile('\'content\' param of record type should require \'root\' param', {
+            'root':
+`- [[child1a]]
+  - [[grandchild1a]]
+  - [[branch]]
+`,
+            'branch':
+`- [[child1b]]
+`
+            },
+            undefined,
+            'semtree.parse(): cannot parse multiple files without a "root" defined',
+          );
+
+          testErrorMultiFile('inconsistent indentation', {
+            'root':
 `- [[child1a]]
   - [[grandchild1a]]
    - [[branch]]
 `,
-              'branch':
+            'branch':
 `- [[child1b]]
-`,};
-            assert.strictEqual(
-              parse(content, 'root', opts),
-              'semtree.lint(): improper indentation found:\n\n- File "root" Line 3 (inconsistent indentation): "   - [[branch]]"\n',
-            );
-          });
+`,
+            },
+            'root',
+            'semtree.lint(): improper indentation found:\n\n- File "root" Line 3 (inconsistent indentation): "   - [[branch]]"\n',
+          );
 
-          it('over-indented', () => {
-            const content: Record<string,string> = {
-              'root':
+          testErrorMultiFile('over-indented', {
+            'root':
 `- [[child1a]]
   - [[grandchild1a]]
      - [[branch]]
 `,
-              'branch':
+            'branch':
 `- [[child1b]]
-`,};
-            assert.strictEqual(
-              parse(content, 'root', opts),
-              'semtree.lint(): improper indentation found:\n\n- File "root" Line 3 (inconsistent indentation): "     - [[branch]]"\n',
-            );
-          });
+`,
+            },
+            'root',
+            'semtree.lint(): improper indentation found:\n\n- File "root" Line 3 (inconsistent indentation): "     - [[branch]]"\n',
+          );
 
-          it('no root; all branches contain all 0-indented entries', () => {
-            const content: Record<string,string> = {
-              'root':
+          testErrorMultiFile('no root; all branches contain all 0-indented entries', {
+            'root':
 `- [[branch1]]
 - [[child1a]]
 `,
-              'branch1':
+            'branch1':
 `- [[child1b]]
 - [[child2b]]
 `,
-            };
-            assert.deepStrictEqual(
-              parse(content, 'root', opts),
-              'semtree.parse(): lvlSize could not be determined -- is it possible no root exists?',
-            );
-          });
+            },
+            'root',
+            'semtree.parse(): lvlSize could not be determined -- is it possible no root exists?',
+          );
+
+          testErrorMultiFile('cycle; self; branch', {
+            'root':
+`- [[child1a]]
+  - [[grandchild1a]]
+- [[branch]]
+`,
+            'branch':
+`- [[branch]]
+- [[child1b]]
+`,
+            },
+            'root',
+            `semtree.lint(): duplicate entity names found:
+
+- File "branch" Line 1: "branch"
+`,
+          );
+
+          testErrorMultiFile('cycle; cross-file; root', {
+            'root':
+`- [[child1a]]
+  - [[grandchild1a]]
+- [[branch]]
+`,
+            'branch':
+`- [[root]]
+`,},
+            'root',
+            'semtree.buildTree(): cycle detected involving node "root"',
+          );
+
+          testErrorMultiFile('cycle; cross-file; branch', {
+            'root':
+`- [[child1a]]
+  - [[grandchild1a]]
+- [[branch1]]
+`,
+            'branch1':
+`- [[branch2]]
+`,
+            'branch2':
+`- [[branch1]]
+`},
+          'root',
+          `semtree.lint(): duplicate entity names found:
+
+- File "branch2" Line 1: "branch1"
+`,
+          );
 
           describe('concrete-trunk-only error cases', () => {
 
@@ -837,63 +836,6 @@ root
                   },
                 );
               }
-            });
-
-            it('cycle; self; branch', () => {
-              const content: Record<string,string> = {
-                'root':
-`- [[child1a]]
-  - [[grandchild1a]]
-  - [[branch]]
-`,
-                'branch':
-`- [[branch]]
-- [[child1b]]
-`,};
-              assert.strictEqual(
-                parse(content, 'root', opts),
-                `semtree.lint(): duplicate entity names found:
-
-- File "branch" Line 1: "branch"
-`,
-              );
-            });
-
-            it('cycle; cross-file; root', () => {
-              const content: Record<string,string> = {
-                'root':
-`- [[child1a]]
-  - [[grandchild1a]]
-  - [[branch]]
-`,
-                'branch':
-`- [[root]]
-`,};              assert.strictEqual(
-                parse(content, 'root', opts),
-                'semtree.buildTree(): cycle detected involving node "root"',
-              );
-            });
-
-            it('cycle; cross-file; branch', () => {
-              const content: Record<string,string> = {
-                'root':
-`- [[child1a]]
-  - [[grandchild1a]]
-  - [[branch1]]
-`,
-                'branch1':
-`- [[branch2]]
-`,
-                'branch2':
-`- [[branch1]]
-`};
-              assert.strictEqual(
-                parse(content, 'root', opts),
-                `semtree.lint(): duplicate entity names found:
-
-- File "branch2" Line 1: "branch1"
-`,
-              );
             });
 
           });
