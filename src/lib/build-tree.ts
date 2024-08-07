@@ -11,7 +11,6 @@ export const buildTree = (
 ): SemTree | string  => {
   // opts
   // tree
-  const strict: boolean       = opts.strict       ?? true;
   const virtualTrunk: boolean = opts.virtualTrunk ?? false;
   // subtree building
   const subroot: string       = opts.subroot      ?? '';
@@ -176,10 +175,10 @@ export const buildTree = (
     delete content[curKey];
     visited.delete(curKey);
     // if some files were not processed and we are at the root-file-level, error out
-    if (strict && (Object.entries(content).length !== 0) && (totalLevel == 0)) {
+    if ((Object.entries(content).length !== 0) && (totalLevel == 0)) {
       return `semtree.buildTree(): some files were not processed --\n${Object.keys(content)}`;
     }
-    if (!strict || (Object.entries(content).length === 0)) {
+    if (Object.entries(content).length === 0) {
       // duplicates are checked later in updateSubTree()
       if (!isSubTree) {
         // if duplicate nodes were found, return warning string

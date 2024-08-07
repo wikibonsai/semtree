@@ -18,7 +18,6 @@ export const parse = (
 ): SemTree | string => {
   // opts
   // tree
-  const strict: boolean       = opts.strict       ?? true;
   const virtualTrunk: boolean = opts.virtualTrunk ?? false;
   // syntax
   const mkdnList: boolean     = opts.mkdnList     ?? true;

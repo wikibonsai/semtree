@@ -7,7 +7,6 @@ export interface SemTree {
 
 export interface SemTreeOpts {
   // params
-  strict?: boolean;                                    // whether or not to strictly enforce the tree structure (e.g. allow dangling branches)
   virtualTrunk?: boolean;                              // whether or not to include the semtree/index files themselves as nodes in the tree
   lvlSize?: number;                                    // the number of indentations per tree level
   // lvlType?: 'space' | 'tab';                           // the type of indentation (space or tab)

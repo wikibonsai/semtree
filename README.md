@@ -245,12 +245,6 @@ Whether `semtree` should expect file content to use markdown bullets `- `, `* `,
 
 A function that can return/operate on the root name of the tree when it is being set.
 
-### `strict: boolean`
-
-Whether or not to strictly enforce a valid tree structure. Defaults to `true`.
-
-For now, this means if not all branches or index files were processed in `parse()`, the tree will still build.
-
 ### `virtualTrunk: boolean`
 
 Whether or not to include the semtree/index files themselves as nodes in the tree. This option is a useful toggle between 'tree-building' (non-virtual to allow for index/trunk file traversal) and 'tree-viewing' (virtual to eliminate unnecessary index/trunk files) states. Default is `false`. Best used for things like static site generation where updates are not a usual occurrence.
