@@ -192,12 +192,20 @@ export const buildTree = (
         opts.setRoot(tree.root);
       }
       if (opts.graft) {
-        for (const node of tree.nodes) {
-          if (tree.root !== node.text) {
-            opts.graft(node.text, node.ancestors);
+        // sort nodes by their level to ensure parents are grafted before children
+        const sortedNodes: TreeNode[] = tree.nodes.sort((a, b) => a.ancestors.length - b.ancestors.length);
+        for (const node of sortedNodes) {
+          if (node.text !== tree.root) {
+            const parentName: string | undefined = node.ancestors[node.ancestors.length - 1];
+            if (parentName) {
+              opts.graft(parentName, node.text);
+            }
           }
-          // todo: print Object.keys(content)
-          // todo: print warning for unused hash content (e.g. hanging index docs)
+        }
+        // Check for unused content
+        const unusedContent = Object.keys(content);
+        if (unusedContent.length > 0) {
+          console.warn('Unused content:', unusedContent);
         }
       }
     }

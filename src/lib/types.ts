@@ -14,8 +14,8 @@ export interface SemTreeOpts {
   mkdnList?: boolean;                                  // whether or not to expect markdown bullets ('- ', '* ', '+ ') for each node
   wikitext?: boolean;                                  // whether or not to expect [[wikilink square brackets]] so they may be ignored when processing tree text
   // functions
-  graft?: (text: string, ancestors: string[]) => void; // a function to execute when each node is added to the tree
-  prune?: (text: string, ancestors: string[]) => void; // a function to execute when each node is removed from the tree
+  graft?: (parentID: string, childID: string) => void; // a function to execute when each node is added to the tree
+  prune?: (parentID: string, childID: string) => void; // a function to execute when each node is removed from the tree
   setRoot?: (name: string) => void;                    // a function that can return/handle the root name of the tree
 }
 
