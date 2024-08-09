@@ -32,10 +32,10 @@ export const update = (
     contentHash[subroot] = content.split('\n');
   } else {
     if (!subroot) {
-      return 'semtree.updateSubTree(): cannot update multiple files without a "subroot" defined';
+      return 'semtree.update(): cannot update multiple files without a "subroot" defined';
     }
     if (!Object.keys(content).includes(subroot)) {
-      return `semtree.updateSubTree(): content hash does not contain root: '${subroot}'`;
+      return `semtree.update(): content hash does not contain root: '${subroot}'`;
     }
     for (const [filename, fileContent] of Object.entries(content)) {
       contentHash[filename] = fileContent.split('\n');
@@ -44,7 +44,7 @@ export const update = (
   // find and validate subroot node
   const subrootNode: TreeNode | undefined = tree.nodes.find((node) => node.text === subroot);
   if (!subrootNode) {
-    return `semtree.updateSubTree(): subroot not found in the tree: "${subroot}"`;
+    return `semtree.update(): subroot not found in the tree: "${subroot}"`;
   }
   // prune existing subtree
   const pruneError: void | string = pruneSubTree(subroot);

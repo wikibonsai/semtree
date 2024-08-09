@@ -63,7 +63,7 @@ export const build = (
   ): TreeNode[] | string {
     // cycle check
     if (visited.has(curKey)) {
-      return `semtree.buildTree(): cycle detected involving node "${curKey}"`;
+      return `semtree.build(): cycle detected involving node "${curKey}"`;
     }
     visited.add(curKey);
     let nodeBuilder: TreeNode;
@@ -86,7 +86,7 @@ export const build = (
         } else {
           const trnkFname: string | undefined = getTrunkKey(curKey, structuredClone(content));
           if (trnkFname === undefined) {
-            return `semtree.buildTree(): trunk file for '${curKey}' not found in content`;
+            return `semtree.build(): trunk file for '${curKey}' not found in content`;
           }
           addBranch(curKey, nodeBuilder.ancestors, trnkFname);
         }
@@ -177,7 +177,7 @@ export const build = (
     visited.delete(curKey);
     // if some files were not processed and we are at the root-file-level, error out
     if ((Object.entries(content).length !== 0) && (totalLevel == 0)) {
-      return `semtree.buildTree(): some files were not processed --\n${Object.keys(content)}`;
+      return `semtree.build(): some files were not processed --\n${Object.keys(content)}`;
     }
     if (Object.entries(content).length === 0) {
       // duplicates are checked later in updateSubTree()

@@ -36,7 +36,7 @@ describe('create()', () => {
       it('empty input', () => {
         assert.deepStrictEqual(
           create(''),
-          'semtree.parse(): no root specified and no line with zero indentation found. please provide a root or fix the indentation.',
+          'semtree.create(): no root specified and no line with zero indentation found. please provide a root or fix the indentation.',
         );
       });
 
@@ -220,7 +220,7 @@ describe('create()', () => {
 - [[child2]]
 - [[child3]]
 `,
-            'semtree.parse(): multiple lines with zero indentation found. A tree with multiple roots cannot be made. Please add a filename as a "root" parameter or fix the indentation.'
+            'semtree.create(): multiple lines with zero indentation found. A tree with multiple roots cannot be made. Please add a filename as a "root" parameter or fix the indentation.'
           );
 
           testError('inconsistent indentation',
@@ -590,7 +590,7 @@ describe('create()', () => {
             assert.strictEqual(fakeConsoleWarn.callCount, 1);
             assert.strictEqual(
               fakeConsoleWarn.firstCall.args[0],
-              'semtree.parse(): indentation found in non-root file "branch1". This may lead to unexpected results.\n'
+              'semtree.create(): indentation found in non-root file "branch1". This may lead to unexpected results.\n'
             );
           });
 
@@ -690,7 +690,7 @@ describe('create()', () => {
 `
             },
             undefined,
-            'semtree.parse(): cannot parse multiple files without a "root" defined',
+            'semtree.create(): cannot parse multiple files without a "root" defined',
           );
 
           testErrorMultiFile('inconsistent indentation', {
@@ -732,7 +732,7 @@ describe('create()', () => {
 `,
             },
             'root',
-            'semtree.parse(): lvlSize could not be determined -- is it possible no root exists?',
+            'semtree.create(): lvlSize could not be determined -- is it possible no root exists?',
           );
 
           testErrorMultiFile('cycle; self; branch', {
@@ -763,7 +763,7 @@ describe('create()', () => {
 `- [[root]]
 `,},
             'root',
-            'semtree.buildTree(): cycle detected involving node "root"',
+            'semtree.build(): cycle detected involving node "root"',
           );
 
           testErrorMultiFile('cycle; cross-file; branch', {

@@ -35,7 +35,7 @@ export const create = (
     const zeroIndentLines: string[] = lines.filter(line => !line.match(/^\s/));
     // single root does not exist
     if (zeroIndentLines.length > 1) {
-      return 'semtree.parse(): multiple lines with zero indentation found. A tree with multiple roots cannot be made. Please add a filename as a "root" parameter or fix the indentation.';
+      return 'semtree.create(): multiple lines with zero indentation found. A tree with multiple roots cannot be made. Please add a filename as a "root" parameter or fix the indentation.';
     // single root does exist
     } else if (zeroIndentLines.length === 1) {
       if (typeof root !== 'string') {
@@ -50,17 +50,17 @@ export const create = (
       }
     } else {
       if (!root) {
-        return 'semtree.parse(): no root specified and no line with zero indentation found. please provide a root or fix the indentation.';
+        return 'semtree.create(): no root specified and no line with zero indentation found. please provide a root or fix the indentation.';
       }
       contentHash[root] = lines;
     }
   // multi file
   } else {
     if (!root) {
-      return 'semtree.parse(): cannot parse multiple files without a "root" defined';
+      return 'semtree.create(): cannot parse multiple files without a "root" defined';
     }
     if (!Object.keys(content).includes(root)) {
-      return `semtree.parse(): content hash does not contain: '${root}'; keys are: ${Object.keys(content)}`;
+      return `semtree.create(): content hash does not contain: '${root}'; keys are: ${Object.keys(content)}`;
     }
     contentHash = Object.fromEntries(
       Object.entries(content).map(([key, value]) => [key, value.split('\n')])
@@ -73,7 +73,7 @@ export const create = (
         if (lvlSize > 0) { break; }
       }
       if (lvlSize < 0) {
-        return 'semtree.parse(): lvlSize could not be determined -- is it possible no root exists?';
+        return 'semtree.create(): lvlSize could not be determined -- is it possible no root exists?';
       }
     }
   }

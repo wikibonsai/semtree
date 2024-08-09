@@ -772,7 +772,7 @@ describe('update()', () => {
           // go
           assert.strictEqual(
             update(tree, { 'missing': '- [[newnode]]' }, 'missing'),
-            'semtree.updateSubTree(): subroot not found in the tree: "missing"',
+            'semtree.update(): subroot not found in the tree: "missing"',
           );
         });
 
