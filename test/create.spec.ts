@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import sinon from 'sinon';
 
 import type { SemTree, SemTreeOpts } from '../src/lib/types';
-import { create } from '../src/lib/parse';
+import { create } from '../src/lib/create';
 
 
 let fakeConsoleWarn: sinon.SinonSpy;

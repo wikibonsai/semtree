@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 
 import type { SemTree, SemTreeOpts, TreeNode } from '../src/lib/types';
-import { update } from '../src/lib/update-subtree';
+import { update } from '../src/lib/update';
 
 
 let opts: SemTreeOpts;

@@ -1,6 +1,6 @@
 // main api
-export { create } from './lib/parse';
-export { update } from './lib/update-subtree';
+export { create } from './lib/create';
+export { update } from './lib/update';
 // helper funcs
 export { lint } from './lib/lint';
 export { print } from './lib/print';
