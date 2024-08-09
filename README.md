@@ -164,15 +164,15 @@ A content string or a `Record` whose keys are entities (such as files) and value
 
 Number of spaces or tabs which represent each level in the tree.
 
-### `create(content: string | Record<string, string>, root?: string, opts?: SemTreeOpts): TreeNode[] | string;`
+### `create(root: string, content: Record<string, string>, opts: SemTreeOpts = defaultOpts): SemTree | string;`
 
 Create a tree from a given file or files and build a tree from the filenames and their content. Will return a tree instance upon successful creation. Will return an error string otherwise, for example if there are duplicates found in the tree.
 
 #### Parameters
 
-##### `content: string | Record<string, string>`
+##### `content: Record<string, string>`
 
-A content string or a `Record` whose keys are entities (such as files) and values are content strings of those entities.
+A `Record` whose keys are entities (such as files) and values are content strings of those entities.
 
 ##### `root: string`
 
@@ -209,19 +209,27 @@ A tree object.
 
 Seeing this to `false` will suppress printing the tree to the console log and just return the string representation.
 
-### update(tree: SemTree, content: string | Record<string, string>, subroot?: string, opts: SemTreeOpts = defaultOpts): TreeNode[] | string;`
+### `update(tree: SemTree, subroot: string, content: Record<string, string>, opts: SemTreeOpts = defaultOpts): SemTree | string;`
 
 A method to update a subtree within the semantic tree. (Best used to update individual `index` documents.) Returns the updated subtree nodes.
 
 #### Parameters
 
-##### `content: string | Record<string, string>`
+##### `tree: SemTree`
 
-A content string or a `Record` whose keys are entities (such as files) and values are content strings of those entities.
+A tree object.
+
+##### `content: Record<string, string>`
+
+A `Record` whose keys are entities (such as files) and values are content strings of those entities.
 
 ##### `subroot: string`
 
 Name of the subroot node of the subtree to be replaced.
+
+##### `opts: SemTreeOpts`
+
+Options object -- see [options](#Options) below.
 
 ### semtree.clear()
 
@@ -249,7 +257,7 @@ A function that can return/operate on the root name of the tree when it is being
 
 Whether or not to include the semtree/index files themselves as nodes in the tree. This option is a useful toggle between 'tree-building' (non-virtual to allow for index/trunk file traversal) and 'tree-viewing' (virtual to eliminate unnecessary index/trunk files) states. Default is `false`. Best used for things like static site generation where updates are not a usual occurrence.
 
-Note: If `virtualTrunk` is set to `true`, the resulting tree will not be updatable via the [`updateSubTree()` function](#updatesubtreetree-semtree-content-string--recordstring-string-subroot-string-opts-semtreeopts--defaultopts-treenode--string).
+Note: If `virtualTrunk` is set to `true`, the resulting tree will not be updatable via the `update` function.
 
 ### `wikitext: boolean`
 

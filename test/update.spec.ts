@@ -76,7 +76,7 @@ describe('update()', () => {
   - [[newChild]]
 `;
         // subtree                               // go
-        const actlSubTree: TreeNode[] | string = update(tree, { 'branch2': replacement }, 'branch2');
+        const actlSubTree: TreeNode[] | string = update(tree, 'branch2', { 'branch2': replacement }, opts);
         const expdSubTree: TreeNode[] = [
           {
             text: 'branch2',
@@ -191,7 +191,7 @@ describe('update()', () => {
 `- [[child1c]]
 `;
         // returned subtree                      // go
-        const actlSubTree: TreeNode[] | string = update(tree, { 'branch2': replacement }, 'branch2');
+        const actlSubTree: TreeNode[] | string = update(tree, 'branch2', { 'branch2': replacement }, opts);
         const expdSubTree: TreeNode[] = [
           {
             text: 'branch2',
@@ -303,7 +303,7 @@ describe('update()', () => {
 `
         };
         // returned subtree                      // go
-        const actlSubTree: TreeNode[] | string = update(tree, replacement, 'branch2');
+        const actlSubTree: TreeNode[] | string = update(tree, 'branch2', replacement, opts);
         const expdSubTree: TreeNode[] = [
           {
             text: 'branch2',
@@ -431,7 +431,7 @@ describe('update()', () => {
 `- [[child1b]]
 `;
           // subtree                               // go
-          const actlSubTree: TreeNode[] | string = update(tree, { 'branch1': replacement }, 'branch1');
+          const actlSubTree: TreeNode[] | string = update(tree, 'branch1', { 'branch1': replacement }, opts);
           const expdSubTree: TreeNode[] = [
             {
               text: 'branch1',
@@ -534,7 +534,7 @@ describe('update()', () => {
   - [[grandchild1a]]
 `;
           // subtree                               // go
-          const actlSubTree: TreeNode[] | string = update(tree, { 'root': replacement }, 'root');
+          const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, opts);
           const expdSubTree: TreeNode[] = [
             {
               text: 'root',
@@ -600,7 +600,7 @@ describe('update()', () => {
   - [[newChild1]]
   - [[newChild2]]
 `;
-          const actlSubTree: TreeNode[] | string = update(tree, { 'root': replacement }, 'root', { lvlSize: 2 });
+          const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, lvlSize: 2 });
           const expdSubTree: TreeNode[] = [
             {
               text: 'root',
@@ -647,7 +647,7 @@ describe('update()', () => {
 `* [[child1]]
   + [[newChild]]
 `;
-          const actlSubTree: TreeNode[] | string = update(tree, { 'root': replacement }, 'root', { mkdnList: true });
+          const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, mkdnList: true });
           const expdSubTree: TreeNode[] = [
             {
               text: 'root',
@@ -690,7 +690,7 @@ describe('update()', () => {
 `- child1
   - newChild
 `;
-          const actlSubTree: TreeNode[] | string = update(tree, { 'root': replacement }, 'root', { wikitext: false });
+          const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, wikitext: false });
           const expdSubTree: TreeNode[] = [
             {
               text: 'root',
@@ -771,7 +771,7 @@ describe('update()', () => {
           };
           // go
           assert.strictEqual(
-            update(tree, { 'missing': '- [[newnode]]' }, 'missing'),
+            update(tree, 'missing', { 'missing': '- [[newnode]]' }, opts),
             'semtree.update(): subroot not found in the tree: "missing"',
           );
         });

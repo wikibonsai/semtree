@@ -8,17 +8,10 @@ import { build } from './build';
 import { getLevelSize } from './func';
 
 
-// // useful for single page updates (even if page includes links to other index files)
-// // e.g. the index file is the 'subroot' and the [[wikirefs]] on the page are 'branchNodes'
-// // single file
-// export function update(content: string, subroot?: string, opts?: SemTreeOpts): TreeNode[] | string;
-// // multiple files
-// export function update(content: Record<string, string>, subroot: string, opts?: SemTreeOpts): TreeNode[] | string;
-// define
 export const update = (
   tree: SemTree,
+  subroot: string,
   content: string | Record<string, string>,
-  subroot?: string,
   opts: SemTreeOpts = defaultOpts,
 ): TreeNode[] | string => {
   // opts
@@ -39,20 +32,17 @@ export const update = (
   }
   // go
   const contentHash: Record<string, string[]> = {};
-  if ((typeof content === 'string') && (subroot !== undefined)) {
-    contentHash[subroot] = content.split('\n');
+  if (typeof content === 'string') {
+    contentHash[subroot] = content.split('\n').filter(line => line.trim().length > 0);
     if (lvlSize === -1) {
       lvlSize = getLevelSize(contentHash[subroot]);
     }
   } else {
-    if (!subroot) {
-      return 'semtree.update(): cannot update multiple files without a "subroot" defined';
-    }
     if (!Object.keys(content).includes(subroot)) {
       return `semtree.update(): content hash does not contain root: '${subroot}'`;
     }
     for (const [filename, fileContent] of Object.entries(content)) {
-      contentHash[filename] = fileContent.split('\n');
+      contentHash[filename] = fileContent.split('\n').filter(line => line.trim().length > 0);
     }
     if (lvlSize === -1) {
       lvlSize = getLevelSize(contentHash[subroot]);

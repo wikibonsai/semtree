@@ -35,8 +35,8 @@ describe('create()', () => {
 
       it('empty input', () => {
         assert.deepStrictEqual(
-          create(''),
-          'semtree.create(): no root specified and no line with zero indentation found. please provide a root or fix the indentation.',
+          create('', {}, opts),
+          'semtree.create(): cannot parse "content" without a "root" defined',
         );
       });
 
@@ -102,7 +102,7 @@ describe('create()', () => {
 
         const testSingleFile = (description: string, content: string) => {
           it(description, () => {
-            const actl: SemTree | string = create(content, 'root', opts);
+            const actl: SemTree | string = create('root', { 'root': content }, opts);
             const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
             assert.deepStrictEqual(actl, expd);
           });
@@ -194,8 +194,8 @@ describe('create()', () => {
     [[greatgrandchild1]]
 `);
 
-          testSingleFile('wikitext: false', `
-- child1
+          testSingleFile('wikitext: false',
+`- child1
   - grandchild1
   - grandchild2
     - greatgrandchild1
@@ -209,7 +209,7 @@ describe('create()', () => {
 
           const testError = (description: string, content: string, error: string) => {
             it(description, () => {
-              const actl: SemTree | string = create(content, 'root', opts);
+              const actl: SemTree | string = create('root', { 'root': content }, opts);
               const expd: string = error;
               assert.strictEqual(actl, expd);
             });
@@ -220,7 +220,7 @@ describe('create()', () => {
 - [[child2]]
 - [[child3]]
 `,
-            'semtree.create(): multiple lines with zero indentation found. A tree with multiple roots cannot be made. Please add a filename as a "root" parameter or fix the indentation.'
+            'semtree.create(): indentation could not be determined -- is it possible no root exists?'
           );
 
           testError('inconsistent indentation',
@@ -229,7 +229,7 @@ describe('create()', () => {
   - [[grandchild2]]
      - [[greatgrandchild1]]
 `,
-            'semtree.lint(): improper indentation found:\n\n- Line 4 (inconsistent indentation): "     - [[greatgrandchild1]]"\n',
+            'semtree.lint(): improper indentation found:\n\n- File "root" Line 4 (inconsistent indentation): "     - [[greatgrandchild1]]"\n',
           );
 
           testError('duplicate text',
@@ -239,7 +239,7 @@ describe('create()', () => {
   - [[grandchild2]]
     - [[greatgrandchild1]]
 `,
-            'semtree.lint(): duplicate entity names found:\n\n- Line 4: "grandchild2"\n',
+            'semtree.lint(): duplicate entity names found:\n\n- File "root" Line 4: "grandchild2"\n',
           );
 
         });
@@ -320,7 +320,7 @@ describe('create()', () => {
   - [[child1b]]
 `
             };
-            const actlData: SemTree | string = create(content, 'root', opts);
+            const actlData: SemTree | string = create('root', content, opts);
             const expdData: SemTree = trunkType === 'concrete' ? {
               root: 'root',
               trunk: ['root'],
@@ -383,7 +383,7 @@ describe('create()', () => {
 `- [[child1b]]
 `,
             };
-            const actlData: SemTree | string = create(content, 'root', opts);
+            const actlData: SemTree | string = create('root', content, opts);
             const expdData: SemTree = trunkType === 'concrete' ? concreteData : virtualData;
             assert.deepStrictEqual(actlData, expdData);
           });
@@ -402,7 +402,7 @@ describe('create()', () => {
 `- [[child1c]]
 `
             };
-            const actlData: SemTree | string = create(content, 'root', opts);
+            const actlData: SemTree | string = create('root', content, opts);
             const expdData: SemTree = trunkType === 'concrete' ? {
               root: 'root',
               trunk: ['root', 'branch1', 'branch2'],
@@ -474,7 +474,7 @@ describe('create()', () => {
   - [[child2b]]
 `,
             };
-            const actlData: SemTree | string = create(content, 'root', opts);
+            const actlData: SemTree | string = create('root', content, opts);
             const expdData: SemTree = trunkType === 'concrete' ? {
               root: 'root',
               trunk: ['root'],
@@ -532,7 +532,7 @@ describe('create()', () => {
   - [[child2b]]
 `,
             };
-            const actlData: SemTree | string = create(content, 'root', opts);
+            const actlData: SemTree | string = create('root', content, opts);
             const expdData: SemTree = trunkType === 'concrete' ? {
               root: 'root',
               trunk: ['root'],
@@ -607,7 +607,7 @@ describe('create()', () => {
 `- [[child1c]]
 `
             };
-            const actlData: SemTree | string = create(content, 'root', opts);
+            const actlData: SemTree | string = create('root', content, opts);
             const expdData: SemTree = trunkType === 'concrete' ? {
               root: 'root',
               trunk: ['root'],
@@ -671,115 +671,103 @@ describe('create()', () => {
 
         describe('error handling', () => {
 
-          const testErrorMultiFile = (description: string, content: Record<string, string>, root: string | undefined, error: string) => {
+          const testErrorMultiFile = (description: string, root: string, content: Record<string, string>, error: string) => {
             it(description, () => {
-              const actl: SemTree | string = create(content, root, opts);
+              const actl: SemTree | string = create(root, content, opts);
               const expd: string = error;
               assert.strictEqual(actl, expd);
             });
           };
 
-          testErrorMultiFile('\'content\' param of record type should require \'root\' param', {
-            'root':
-`- [[child1a]]
-  - [[grandchild1a]]
-  - [[branch]]
-`,
-            'branch':
-`- [[child1b]]
-`
-            },
-            undefined,
-            'semtree.create(): cannot parse multiple files without a "root" defined',
-          );
-
-          testErrorMultiFile('inconsistent indentation', {
-            'root':
+          testErrorMultiFile('inconsistent indentation',
+            'root',
+            {
+              'root':
 `- [[child1a]]
   - [[grandchild1a]]
    - [[branch]]
 `,
-            'branch':
+              'branch':
 `- [[child1b]]
 `,
             },
-            'root',
             'semtree.lint(): improper indentation found:\n\n- File "root" Line 3 (inconsistent indentation): "   - [[branch]]"\n',
           );
 
-          testErrorMultiFile('over-indented', {
-            'root':
+          testErrorMultiFile('over-indented',
+            'root', {
+              'root':
 `- [[child1a]]
   - [[grandchild1a]]
      - [[branch]]
 `,
-            'branch':
+              'branch':
 `- [[child1b]]
 `,
             },
-            'root',
             'semtree.lint(): improper indentation found:\n\n- File "root" Line 3 (inconsistent indentation): "     - [[branch]]"\n',
           );
 
-          testErrorMultiFile('no root; all branches contain all 0-indented entries', {
-            'root':
+          testErrorMultiFile('no root; all branches contain all 0-indented entries',
+            'root', {
+              'root':
 `- [[branch1]]
 - [[child1a]]
 `,
-            'branch1':
+              'branch1':
 `- [[child1b]]
 - [[child2b]]
 `,
             },
-            'root',
-            'semtree.create(): lvlSize could not be determined -- is it possible no root exists?',
+            'semtree.create(): indentation could not be determined -- is it possible no root exists?',
           );
 
-          testErrorMultiFile('cycle; self; branch', {
-            'root':
+          testErrorMultiFile('cycle; self; branch',
+            'root', {
+              'root':
 `- [[child1a]]
   - [[grandchild1a]]
 - [[branch]]
 `,
-            'branch':
+              'branch':
 `- [[branch]]
 - [[child1b]]
 `,
             },
-            'root',
             `semtree.lint(): duplicate entity names found:
 
 - File "branch" Line 1: "branch"
 `,
           );
 
-          testErrorMultiFile('cycle; cross-file; root', {
-            'root':
+          testErrorMultiFile('cycle; cross-file; root',
+            'root', {
+              'root':
 `- [[child1a]]
   - [[grandchild1a]]
 - [[branch]]
 `,
-            'branch':
+              'branch':
 `- [[root]]
-`,},
-            'root',
+`},
             'semtree.build(): cycle detected involving node "root"',
           );
 
-          testErrorMultiFile('cycle; cross-file; branch', {
-            'root':
+          testErrorMultiFile('cycle; cross-file; branch',
+            'root', {
+              'root':
 `- [[child1a]]
   - [[grandchild1a]]
 - [[branch1]]
 `,
-            'branch1':
+              'branch1':
 `- [[branch2]]
 `,
-            'branch2':
+              'branch2':
 `- [[branch1]]
-`},
-          'root',
-          `semtree.lint(): duplicate entity names found:
+`
+            },
+            `semtree.lint(): duplicate entity names found:
 
 - File "branch2" Line 1: "branch1"
 `,
@@ -800,7 +788,7 @@ describe('create()', () => {
 `,};
               if (trunkType === 'concrete') {
                 assert.strictEqual(
-                  create(content, 'root', opts),
+                  create('root', content, opts),
                   `semtree.checkDuplicates(): tree did not build, duplicate nodes found:
 
 root
@@ -809,7 +797,7 @@ root
                 );
               } else {
                 assert.deepStrictEqual(
-                  create(content, 'root', opts),
+                  create('root', content, opts),
                   {
                     root: 'root',
                     trunk: [],

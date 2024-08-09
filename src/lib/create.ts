@@ -1,21 +1,23 @@
 import type { SemTree, SemTreeOpts } from './types';
 
 import { defaultOpts } from './const';
-import { getLevelSize, rawText } from './func';
+import { getLevelSize } from './func';
 import { lint } from './lint';
 import { build } from './build';
 
 
-// // single file
-// function parse(content: string, root?: string): any;
-// // multiple files
-// function parse(content: Record<string, string>, root: string): any;
-// define
 export const create = (
-  content: string | Record<string, string>,
-  root?: string,
+  root: string,
+  content: Record<string, string>,
   opts: SemTreeOpts = defaultOpts,
 ): SemTree | string => {
+  // validation
+  if (!root) {
+    return 'semtree.create(): cannot parse "content" without a "root" defined';
+  }
+  if (!Object.keys(content).includes(root)) {
+    return `semtree.create(): content hash does not contain: '${root}'; keys are: ${Object.keys(content)}`;
+  }
   // opts
   opts = { ...defaultOpts, ...opts };
   // tree
@@ -25,62 +27,30 @@ export const create = (
   const wikitext: boolean     = opts.wikitext     ?? true;
   let lvlSize: number         = opts.lvlSize      ?? -1;
   // go
-  let contentHash: Record<string, string[]> = {};
-  // single file
-  if (typeof content === 'string') {
-    const lines: string[] = content.split('\n').filter(line => line.trim().length > 0);
-    if (lvlSize === -1) {
-      lvlSize = getLevelSize(lines);
+  /* eslint-disable indent */
+  const contentHash: Record<string, string[]> = Object.fromEntries(
+                                                Object.entries(content)
+                                                      .map(([key, value]) => [key, value.split('\n')
+                                                                                        .filter((line) => line.length > 0)])
+                                              );
+  /* eslint-enable indent */
+  lvlSize = getLevelSize(contentHash[root]);
+  // if lvlSize is still -1, try to find it in the other files
+  if (lvlSize == -1) {
+    for (const key of Object.keys(contentHash)) {
+      lvlSize = getLevelSize(contentHash[key]);
+      if (lvlSize > 0) { break; }
     }
-    const zeroIndentLines: string[] = lines.filter(line => !line.match(/^\s/));
-    // single root does not exist
-    if (zeroIndentLines.length > 1) {
-      return 'semtree.create(): multiple lines with zero indentation found. A tree with multiple roots cannot be made. Please add a filename as a "root" parameter or fix the indentation.';
-    // single root does exist
-    } else if (zeroIndentLines.length === 1) {
-      if (typeof root !== 'string') {
-        root = rawText(zeroIndentLines[0], { hasBullets: mkdnList, hasWiki: wikitext });
-      }
-      // rm root line and adjust indentation for remaining lines
-      if (!virtualTrunk && (root === undefined)) {
-        const remainingLines: string[] = lines.slice(1).filter(line => line.trim().length > 0);
-        contentHash[root] = remainingLines.map((line: string) =>  line.slice(lvlSize));
-      } else {
-        contentHash[root] = lines;
-      }
-    } else {
-      if (!root) {
-        return 'semtree.create(): no root specified and no line with zero indentation found. please provide a root or fix the indentation.';
-      }
-      contentHash[root] = lines;
-    }
-  // multi file
-  } else {
-    if (!root) {
-      return 'semtree.create(): cannot parse multiple files without a "root" defined';
-    }
-    if (!Object.keys(content).includes(root)) {
-      return `semtree.create(): content hash does not contain: '${root}'; keys are: ${Object.keys(content)}`;
-    }
-    contentHash = Object.fromEntries(
-      Object.entries(content).map(([key, value]) => [key, value.split('\n')])
-    );
-    lvlSize = getLevelSize(contentHash[root]);
-    // if lvlSize is still -1, try to find it in the other files
-    if (lvlSize == -1) {
-      for (const key of Object.keys(contentHash)) {
-        lvlSize = getLevelSize(contentHash[key]);
-        if (lvlSize > 0) { break; }
-      }
-      if (lvlSize < 0) {
-        return 'semtree.create(): lvlSize could not be determined -- is it possible no root exists?';
-      }
+    if (lvlSize < 0) {
+      return 'semtree.create(): indentation could not be determined -- is it possible no root exists?';
     }
   }
+  // lint
   const lintError: string | void = lint(content, lvlSize);
   if (lintError) {
     return lintError;
   }
+  // go
   const tree: SemTree | string = build(root, contentHash, { ...opts, lvlSize: lvlSize });
   return tree;
 };
