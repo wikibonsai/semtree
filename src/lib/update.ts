@@ -1,17 +1,19 @@
 import { SemTree, SemTreeOpts, TreeNode } from './types';
 
 import { defaultOpts } from './const';
+import { lint } from './lint';
 import { pruneDangling } from './dangling';
 import { checkDuplicates } from './duplicates';
 import { build } from './build';
+import { getLevelSize } from './func';
 
 
 // // useful for single page updates (even if page includes links to other index files)
 // // e.g. the index file is the 'subroot' and the [[wikirefs]] on the page are 'branchNodes'
 // // single file
-// function updateSubTree(content: string, subroot: string): TreeNode[] | string;
+// export function update(content: string, subroot?: string, opts?: SemTreeOpts): TreeNode[] | string;
 // // multiple files
-// function updateSubTree(content: Record<string, string>, subroot: string): TreeNode[] | string;
+// export function update(content: Record<string, string>, subroot: string, opts?: SemTreeOpts): TreeNode[] | string;
 // define
 export const update = (
   tree: SemTree,
@@ -21,15 +23,27 @@ export const update = (
 ): TreeNode[] | string => {
   // opts
   opts = { ...defaultOpts, ...opts };
+  // syntax
+  const mkdnList: boolean     = opts.mkdnList     ?? true;
+  const wikitext: boolean     = opts.wikitext     ?? true;
+  let lvlSize: number         = opts.lvlSize      ?? -1;
   // state management (in case tree is invalid)
   let originalNodes: TreeNode[] = [];
   let originalTrunk: string[] = [];
   let originalPetioleMap: Record<string, string> = {};
   storeState(tree);
+  // find and validate subroot node
+  const subrootNode: TreeNode | undefined = tree.nodes.find((node) => node.text === subroot);
+  if (!subrootNode) {
+    return `semtree.update(): subroot not found in the tree: "${subroot}"`;
+  }
   // go
   const contentHash: Record<string, string[]> = {};
   if ((typeof content === 'string') && (subroot !== undefined)) {
     contentHash[subroot] = content.split('\n');
+    if (lvlSize === -1) {
+      lvlSize = getLevelSize(contentHash[subroot]);
+    }
   } else {
     if (!subroot) {
       return 'semtree.update(): cannot update multiple files without a "subroot" defined';
@@ -40,16 +54,20 @@ export const update = (
     for (const [filename, fileContent] of Object.entries(content)) {
       contentHash[filename] = fileContent.split('\n');
     }
-  }
-  // find and validate subroot node
-  const subrootNode: TreeNode | undefined = tree.nodes.find((node) => node.text === subroot);
-  if (!subrootNode) {
-    return `semtree.update(): subroot not found in the tree: "${subroot}"`;
+    if (lvlSize === -1) {
+      lvlSize = getLevelSize(contentHash[subroot]);
+    }
   }
   // prune existing subtree
   const pruneError: void | string = pruneSubTree(subroot);
   if (pruneError) {
     return pruneError;
+  }
+  // lint
+  const lintError: string | void = lint(content, lvlSize);
+  if (lintError) {
+    restoreState(tree);
+    return lintError;
   }
   // rebuild subtree
   const subrootNodeAncestors: TreeNode[] = tree.nodes.filter((node: TreeNode) => subrootNode.ancestors.includes(node.text));
