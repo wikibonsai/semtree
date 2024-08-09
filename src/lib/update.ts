@@ -14,11 +14,13 @@ export const update = (
   content: string | Record<string, string>,
   opts: SemTreeOpts = defaultOpts,
 ): TreeNode[] | string => {
+  // validation
+  if (!Object.keys(content).includes(subroot)) {
+    return `semtree.create(): "content" does not contain: '${subroot}'; keys are: ${Object.keys(content)}`;
+  }
   // opts
   opts = { ...defaultOpts, ...opts };
-  // syntax
-  const mkdnList: boolean     = opts.mkdnList     ?? true;
-  const wikitext: boolean     = opts.wikitext     ?? true;
+  // tree level size
   let lvlSize: number         = opts.lvlSize      ?? -1;
   // state management (in case tree is invalid)
   let originalNodes: TreeNode[] = [];

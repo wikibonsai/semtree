@@ -36,7 +36,7 @@ describe('create()', () => {
       it('empty input', () => {
         assert.deepStrictEqual(
           create('', {}, opts),
-          'semtree.create(): cannot parse "content" without a "root" defined',
+          'semtree.create(): "content" does not contain: \'\'; keys are: ',
         );
       });
 

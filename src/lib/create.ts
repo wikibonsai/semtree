@@ -11,20 +11,12 @@ export const create = (
   content: Record<string, string>,
   opts: SemTreeOpts = defaultOpts,
 ): SemTree | string => {
-  // validation
-  if (!root) {
-    return 'semtree.create(): cannot parse "content" without a "root" defined';
-  }
   if (!Object.keys(content).includes(root)) {
-    return `semtree.create(): content hash does not contain: '${root}'; keys are: ${Object.keys(content)}`;
+    return `semtree.create(): "content" does not contain: '${root}'; keys are: ${Object.keys(content)}`;
   }
   // opts
   opts = { ...defaultOpts, ...opts };
-  // tree
-  const virtualTrunk: boolean = opts.virtualTrunk ?? false;
-  // syntax
-  const mkdnList: boolean     = opts.mkdnList     ?? true;
-  const wikitext: boolean     = opts.wikitext     ?? true;
+  // tree level size
   let lvlSize: number         = opts.lvlSize      ?? -1;
   // go
   /* eslint-disable indent */
