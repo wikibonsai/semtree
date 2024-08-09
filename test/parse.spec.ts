@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import sinon from 'sinon';
 
 import type { SemTree, SemTreeOpts } from '../src/lib/types';
-import { parse } from '../src/lib/parse';
+import { create } from '../src/lib/parse';
 
 
 let fakeConsoleWarn: sinon.SinonSpy;
@@ -12,7 +12,7 @@ let virtualData: SemTree;
 
 let opts: SemTreeOpts;
 
-describe('parse()', () => {
+describe('create()', () => {
 
   [
     'concrete',
@@ -35,7 +35,7 @@ describe('parse()', () => {
 
       it('empty input', () => {
         assert.deepStrictEqual(
-          parse(''),
+          create(''),
           'semtree.parse(): no root specified and no line with zero indentation found. please provide a root or fix the indentation.',
         );
       });
@@ -102,7 +102,7 @@ describe('parse()', () => {
 
         const testSingleFile = (description: string, content: string) => {
           it(description, () => {
-            const actl: SemTree | string = parse(content, 'root', opts);
+            const actl: SemTree | string = create(content, 'root', opts);
             const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
             assert.deepStrictEqual(actl, expd);
           });
@@ -209,7 +209,7 @@ describe('parse()', () => {
 
           const testError = (description: string, content: string, error: string) => {
             it(description, () => {
-              const actl: SemTree | string = parse(content, 'root', opts);
+              const actl: SemTree | string = create(content, 'root', opts);
               const expd: string = error;
               assert.strictEqual(actl, expd);
             });
@@ -320,7 +320,7 @@ describe('parse()', () => {
   - [[child1b]]
 `
             };
-            const actlData: SemTree | string = parse(content, 'root', opts);
+            const actlData: SemTree | string = create(content, 'root', opts);
             const expdData: SemTree = trunkType === 'concrete' ? {
               root: 'root',
               trunk: ['root'],
@@ -383,7 +383,7 @@ describe('parse()', () => {
 `- [[child1b]]
 `,
             };
-            const actlData: SemTree | string = parse(content, 'root', opts);
+            const actlData: SemTree | string = create(content, 'root', opts);
             const expdData: SemTree = trunkType === 'concrete' ? concreteData : virtualData;
             assert.deepStrictEqual(actlData, expdData);
           });
@@ -402,7 +402,7 @@ describe('parse()', () => {
 `- [[child1c]]
 `
             };
-            const actlData: SemTree | string = parse(content, 'root', opts);
+            const actlData: SemTree | string = create(content, 'root', opts);
             const expdData: SemTree = trunkType === 'concrete' ? {
               root: 'root',
               trunk: ['root', 'branch1', 'branch2'],
@@ -474,7 +474,7 @@ describe('parse()', () => {
   - [[child2b]]
 `,
             };
-            const actlData: SemTree | string = parse(content, 'root', opts);
+            const actlData: SemTree | string = create(content, 'root', opts);
             const expdData: SemTree = trunkType === 'concrete' ? {
               root: 'root',
               trunk: ['root'],
@@ -532,7 +532,7 @@ describe('parse()', () => {
   - [[child2b]]
 `,
             };
-            const actlData: SemTree | string = parse(content, 'root', opts);
+            const actlData: SemTree | string = create(content, 'root', opts);
             const expdData: SemTree = trunkType === 'concrete' ? {
               root: 'root',
               trunk: ['root'],
@@ -607,7 +607,7 @@ describe('parse()', () => {
 `- [[child1c]]
 `
             };
-            const actlData: SemTree | string = parse(content, 'root', opts);
+            const actlData: SemTree | string = create(content, 'root', opts);
             const expdData: SemTree = trunkType === 'concrete' ? {
               root: 'root',
               trunk: ['root'],
@@ -673,7 +673,7 @@ describe('parse()', () => {
 
           const testErrorMultiFile = (description: string, content: Record<string, string>, root: string | undefined, error: string) => {
             it(description, () => {
-              const actl: SemTree | string = parse(content, root, opts);
+              const actl: SemTree | string = create(content, root, opts);
               const expd: string = error;
               assert.strictEqual(actl, expd);
             });
@@ -800,7 +800,7 @@ describe('parse()', () => {
 `,};
               if (trunkType === 'concrete') {
                 assert.strictEqual(
-                  parse(content, 'root', opts),
+                  create(content, 'root', opts),
                   `semtree.checkDuplicates(): tree did not build, duplicate nodes found:
 
 root
@@ -809,7 +809,7 @@ root
                 );
               } else {
                 assert.deepStrictEqual(
-                  parse(content, 'root', opts),
+                  create(content, 'root', opts),
                   {
                     root: 'root',
                     trunk: [],

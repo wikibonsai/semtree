@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 
 import type { SemTree, SemTreeOpts, TreeNode } from '../src/lib/types';
-import { updateSubTree } from '../src/lib/update-subtree';
+import { update } from '../src/lib/update-subtree';
 
 
 let opts: SemTreeOpts;
 
-describe('updateSubTree()', () => {
+describe('update()', () => {
 
   describe('concrete trunk', () => {
 
@@ -76,7 +76,7 @@ describe('updateSubTree()', () => {
   - [[newChild]]
 `;
         // subtree                               // go
-        const actlSubTree: TreeNode[] | string = updateSubTree(tree, { 'branch2': replacement }, 'branch2');
+        const actlSubTree: TreeNode[] | string = update(tree, { 'branch2': replacement }, 'branch2');
         const expdSubTree: TreeNode[] = [
           {
             text: 'branch2',
@@ -191,7 +191,7 @@ describe('updateSubTree()', () => {
 `- [[child1c]]
 `;
         // returned subtree                      // go
-        const actlSubTree: TreeNode[] | string = updateSubTree(tree, { 'branch2': replacement }, 'branch2');
+        const actlSubTree: TreeNode[] | string = update(tree, { 'branch2': replacement }, 'branch2');
         const expdSubTree: TreeNode[] = [
           {
             text: 'branch2',
@@ -303,7 +303,7 @@ describe('updateSubTree()', () => {
 `
         };
         // returned subtree                      // go
-        const actlSubTree: TreeNode[] | string = updateSubTree(tree, replacement, 'branch2');
+        const actlSubTree: TreeNode[] | string = update(tree, replacement, 'branch2');
         const expdSubTree: TreeNode[] = [
           {
             text: 'branch2',
@@ -431,7 +431,7 @@ describe('updateSubTree()', () => {
 `- [[child1b]]
 `;
           // subtree                               // go
-          const actlSubTree: TreeNode[] | string = updateSubTree(tree, { 'branch1': replacement }, 'branch1');
+          const actlSubTree: TreeNode[] | string = update(tree, { 'branch1': replacement }, 'branch1');
           const expdSubTree: TreeNode[] = [
             {
               text: 'branch1',
@@ -534,7 +534,7 @@ describe('updateSubTree()', () => {
   - [[grandchild1a]]
 `;
           // subtree                               // go
-          const actlSubTree: TreeNode[] | string = updateSubTree(tree, { 'root': replacement }, 'root');
+          const actlSubTree: TreeNode[] | string = update(tree, { 'root': replacement }, 'root');
           const expdSubTree: TreeNode[] = [
             {
               text: 'root',
@@ -600,7 +600,7 @@ describe('updateSubTree()', () => {
   - [[newChild1]]
   - [[newChild2]]
 `;
-          const actlSubTree: TreeNode[] | string = updateSubTree(tree, { 'root': replacement }, 'root', { lvlSize: 2 });
+          const actlSubTree: TreeNode[] | string = update(tree, { 'root': replacement }, 'root', { lvlSize: 2 });
           const expdSubTree: TreeNode[] = [
             {
               text: 'root',
@@ -647,7 +647,7 @@ describe('updateSubTree()', () => {
 `* [[child1]]
   + [[newChild]]
 `;
-          const actlSubTree: TreeNode[] | string = updateSubTree(tree, { 'root': replacement }, 'root', { mkdnList: true });
+          const actlSubTree: TreeNode[] | string = update(tree, { 'root': replacement }, 'root', { mkdnList: true });
           const expdSubTree: TreeNode[] = [
             {
               text: 'root',
@@ -690,7 +690,7 @@ describe('updateSubTree()', () => {
 `- child1
   - newChild
 `;
-          const actlSubTree: TreeNode[] | string = updateSubTree(tree, { 'root': replacement }, 'root', { wikitext: false });
+          const actlSubTree: TreeNode[] | string = update(tree, { 'root': replacement }, 'root', { wikitext: false });
           const expdSubTree: TreeNode[] = [
             {
               text: 'root',
@@ -771,7 +771,7 @@ describe('updateSubTree()', () => {
           };
           // go
           assert.strictEqual(
-            updateSubTree(tree, { 'missing': '- [[newnode]]' }, 'missing'),
+            update(tree, { 'missing': '- [[newnode]]' }, 'missing'),
             'semtree.updateSubTree(): subroot not found in the tree: "missing"',
           );
         });

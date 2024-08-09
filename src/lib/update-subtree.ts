@@ -13,7 +13,7 @@ import { buildTree } from './build-tree';
 // // multiple files
 // function updateSubTree(content: Record<string, string>, subroot: string): TreeNode[] | string;
 // define
-export const updateSubTree = (
+export const update = (
   tree: SemTree,
   content: string | Record<string, string>,
   subroot?: string,

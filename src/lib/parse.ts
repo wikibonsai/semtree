@@ -11,7 +11,7 @@ import { buildTree } from './build-tree';
 // // multiple files
 // function parse(content: Record<string, string>, root: string): any;
 // define
-export const parse = (
+export const create = (
   content: string | Record<string, string>,
   root?: string,
   opts: SemTreeOpts = defaultOpts,

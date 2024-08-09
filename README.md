@@ -67,7 +67,7 @@ const semTreeText: Record<string, string> = {
 - [[node-4]]
 `,
 };
-const tree = semtree.parse(semTreeText, rootName, opts);
+const tree = semtree.create(semTreeText, rootName, opts);
 ```
 
 Which will create a tree that looks like:
@@ -164,9 +164,9 @@ A content string or a `Record` whose keys are entities (such as files) and value
 
 Number of spaces or tabs which represent each level in the tree.
 
-### `parse(content: string | Record<string, string>, root?: string, opts?: SemTreeOpts): TreeNode[] | string;`
+### `create(content: string | Record<string, string>, root?: string, opts?: SemTreeOpts): TreeNode[] | string;`
 
-Parse a given file or files and build a tree from the filenames and their content. Will return a tree instance upon successful parse. Will return an error string otherwise, for example if there are duplicates found in the tree.
+Create a tree from a given file or files and build a tree from the filenames and their content. Will return a tree instance upon successful creation. Will return an error string otherwise, for example if there are duplicates found in the tree.
 
 #### Parameters
 
@@ -209,7 +209,7 @@ A tree object.
 
 Seeing this to `false` will suppress printing the tree to the console log and just return the string representation.
 
-### updateSubTree(tree: SemTree, content: string | Record<string, string>, subroot?: string, opts: SemTreeOpts = defaultOpts): TreeNode[] | string;`
+### update(tree: SemTree, content: string | Record<string, string>, subroot?: string, opts: SemTreeOpts = defaultOpts): TreeNode[] | string;`
 
 A method to update a subtree within the semantic tree. (Best used to update individual `index` documents.) Returns the updated subtree nodes.
 
