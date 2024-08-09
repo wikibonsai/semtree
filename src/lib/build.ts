@@ -20,20 +20,7 @@ export const build = (
   // syntax
   const mkdnList: boolean     = opts.mkdnList     ?? true;
   const wikitext: boolean     = opts.wikitext     ?? true;
-  let lvlSize: number         = opts.lvlSize      ?? -1;
-  if (lvlSize === -1) {
-    lvlSize = getLevelSize(content[root]);
-    // if lvlSize is still -1, try to find it in the other files
-    if (lvlSize == -1) {
-      for (const key of Object.keys(content)) {
-        lvlSize = getLevelSize(content[key]);
-        if (lvlSize > 0) { break; }
-      }
-      if (lvlSize < 0) {
-        return 'semtree.buildTree(): lvlSize could not be determined -- is it possible no root exists?';
-      }
-    }
-  }
+  const lvlSize: number       = opts.lvlSize      ?? getLevelSize(content[root]);
   // tree
   const tree: SemTree = opts.tree ?? {
     nodes: [],
