@@ -20,6 +20,8 @@ export const updateSubTree = (
   subroot?: string,
   opts: SemTreeOpts = defaultOpts,
 ): TreeNode[] | string => {
+  // opts
+  opts = { ...defaultOpts, ...opts };
   // state management (in case tree is invalid)
   let originalNodes: TreeNode[] = [];
   let originalTrunk: string[] = [];

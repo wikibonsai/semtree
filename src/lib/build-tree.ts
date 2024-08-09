@@ -10,6 +10,7 @@ export const buildTree = (
   opts: BuildTreeOpts = defaultOpts,
 ): SemTree | string  => {
   // opts
+  opts = { ...defaultOpts, ...opts };
   // tree
   const virtualTrunk: boolean = opts.virtualTrunk ?? false;
   // subtree building

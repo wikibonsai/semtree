@@ -17,6 +17,7 @@ export const parse = (
   opts: SemTreeOpts = defaultOpts,
 ): SemTree | string => {
   // opts
+  opts = { ...defaultOpts, ...opts };
   // tree
   const virtualTrunk: boolean = opts.virtualTrunk ?? false;
   // syntax
