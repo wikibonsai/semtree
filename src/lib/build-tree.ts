@@ -1,7 +1,7 @@
 import { SemTree, BuildTreeOpts, TreeNode } from './types';
 import { defaultOpts, RGX_LVL } from './const';
 import { checkDuplicates } from './duplicates';
-import { deepcopy, rawText, getLevelSize } from './func';
+import { rawText, getLevelSize } from './func';
 
 
 export const buildTree = (
@@ -84,7 +84,7 @@ export const buildTree = (
         if (tree.root === '' && totalLevel === 0) {
           addRoot(curKey);
         } else {
-          const trnkFname: string | undefined = getTrunkKey(curKey, deepcopy(content));
+          const trnkFname: string | undefined = getTrunkKey(curKey, structuredClone(content));
           if (trnkFname === undefined) {
             return `semtree.buildTree(): trunk file for '${curKey}' not found in content`;
           }
@@ -135,7 +135,7 @@ export const buildTree = (
           const result: TreeNode[] | string = build(
             rawTxt,
             content,
-            deepcopy(ancestors),
+            structuredClone(ancestors),
             thisLevel,
           );
           if (typeof result === 'string') {
@@ -150,7 +150,7 @@ export const buildTree = (
           const result: TreeNode[] | string = build(
             rawTxt,
             content,
-            deepcopy(ancestors),
+            structuredClone(ancestors),
             thisLevel,
           );
           if (typeof result === 'string') {
@@ -211,7 +211,7 @@ export const buildTree = (
       }
     }
     // return current state of nodes
-    return deepcopy(tree.nodes);
+    return structuredClone(tree.nodes);
   }
 
   function addRoot(text: string): void {

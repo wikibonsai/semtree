@@ -1,11 +1,6 @@
 import { RGX_LVL } from './const';
 
 
-export const deepcopy = (item: any) => {
-  // 🦨
-  return JSON.parse(JSON.stringify(item));
-};
-
 export const getLevelSize = (lines: string[]): number => {
   let lvlSize: number = -1;
   // calculate chunk size (number of spaces per level) and size of deepest level

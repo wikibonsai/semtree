@@ -1,7 +1,6 @@
 import { SemTree, SemTreeOpts, TreeNode } from './types';
 
 import { defaultOpts } from './const';
-import { deepcopy } from './func';
 import { pruneDangling } from './dangling';
 import { checkDuplicates } from './duplicates';
 import { buildTree } from './build-tree';
@@ -56,7 +55,7 @@ export const updateSubTree = (
   const subrootNodeAncestors: TreeNode[] = tree.nodes.filter((node: TreeNode) => subrootNode.ancestors.includes(node.text));
   const updatedTree: SemTree | string = buildTree(
     subroot,
-    deepcopy(contentHash),
+    structuredClone(contentHash),
     {
       ...opts,
       // BuildTreeOpts
@@ -89,7 +88,7 @@ export const updateSubTree = (
     return Object.keys(contentHash).includes(n.text) ||
       Object.keys(contentHash).some(key => n.ancestors.includes(key));
   });
-  return deepcopy(updatedNodes);
+  return structuredClone(updatedNodes);
 
   // helper functions
 
@@ -142,7 +141,7 @@ export const updateSubTree = (
   // store state
 
   function storeState(tree: SemTree): void {
-    originalNodes = deepcopy(tree.nodes);
+    originalNodes = structuredClone(tree.nodes);
     originalTrunk = [ ...tree.trunk ];
     originalPetioleMap = { ...tree.petioleMap };
   }
