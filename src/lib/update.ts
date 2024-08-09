@@ -3,7 +3,7 @@ import { SemTree, SemTreeOpts, TreeNode } from './types';
 import { defaultOpts } from './const';
 import { pruneDangling } from './dangling';
 import { checkDuplicates } from './duplicates';
-import { buildTree } from './build-tree';
+import { build } from './build-tree';
 
 
 // // useful for single page updates (even if page includes links to other index files)
@@ -53,7 +53,7 @@ export const update = (
   }
   // rebuild subtree
   const subrootNodeAncestors: TreeNode[] = tree.nodes.filter((node: TreeNode) => subrootNode.ancestors.includes(node.text));
-  const updatedTree: SemTree | string = buildTree(
+  const updatedTree: SemTree | string = build(
     subroot,
     structuredClone(contentHash),
     {

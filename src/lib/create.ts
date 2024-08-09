@@ -1,9 +1,9 @@
-import type { SemTree, SemTreeOpts, TreeNode } from './types';
+import type { SemTree, SemTreeOpts } from './types';
 
 import { defaultOpts } from './const';
 import { getLevelSize, rawText } from './func';
 import { lint } from './lint';
-import { buildTree } from './build-tree';
+import { build } from './build-tree';
 
 
 // // single file
@@ -81,6 +81,6 @@ export const create = (
   if (lintError) {
     return lintError;
   }
-  const tree: SemTree | string = buildTree(root, contentHash, { ...opts, lvlSize: lvlSize });
+  const tree: SemTree | string = build(root, contentHash, { ...opts, lvlSize: lvlSize });
   return tree;
 };

@@ -4,7 +4,7 @@ import { checkDuplicates } from './duplicates';
 import { rawText, getLevelSize } from './func';
 
 
-export const buildTree = (
+export const build = (
   root: string,
   content: Record<string, string[]>,
   opts: BuildTreeOpts = defaultOpts,
@@ -46,7 +46,7 @@ export const buildTree = (
   }
   const visited: Set<string> = new Set();
   // go
-  const buildRes: TreeNode[] | string = build(root, content, ancestors, level);
+  const buildRes: TreeNode[] | string = buildTree(root, content, ancestors, level);
   if (typeof buildRes === 'string') {
     return buildRes;
   }
@@ -55,7 +55,7 @@ export const buildTree = (
 
   // helper functions
 
-  function build(
+  function buildTree(
     curKey: string,
     content: Record<string, string[]>,
     ancestors: TreeNode[] = [],
@@ -132,7 +132,7 @@ export const buildTree = (
         ancestors.push(nodeBuilder);
         // ?
         if (!selfRef && thisLineIsTrunk) {
-          const result: TreeNode[] | string = build(
+          const result: TreeNode[] | string = buildTree(
             rawTxt,
             content,
             structuredClone(ancestors),
@@ -147,7 +147,7 @@ export const buildTree = (
         // trunk
         if (!selfRef && thisLineIsTrunk) {
           ancestors = popGrandAncestor(cumulativeLevel, ancestors);
-          const result: TreeNode[] | string = build(
+          const result: TreeNode[] | string = buildTree(
             rawTxt,
             content,
             structuredClone(ancestors),
