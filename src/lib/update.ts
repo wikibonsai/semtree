@@ -3,7 +3,7 @@ import { SemTree, SemTreeOpts, TreeNode } from './types';
 import { defaultOpts } from './const';
 import { pruneDangling } from './dangling';
 import { checkDuplicates } from './duplicates';
-import { build } from './build-tree';
+import { build } from './build';
 
 
 // // useful for single page updates (even if page includes links to other index files)

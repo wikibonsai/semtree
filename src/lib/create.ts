@@ -3,7 +3,7 @@ import type { SemTree, SemTreeOpts } from './types';
 import { defaultOpts } from './const';
 import { getLevelSize, rawText } from './func';
 import { lint } from './lint';
-import { build } from './build-tree';
+import { build } from './build';
 
 
 // // single file
