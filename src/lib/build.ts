@@ -1,5 +1,5 @@
 import { SemTree, BuildTreeOpts, TreeNode } from './types';
-import { defaultOpts, RGX_LVL } from './const';
+import { defaultOpts, RGX_INDENT } from './const';
 import { checkDuplicates } from './duplicates';
 import { rawText } from './func';
 
@@ -22,7 +22,7 @@ export const build = (
   // syntax
   const mkdnList: boolean        = opts.mkdnList     ?? true;
   const wikitext: boolean        = opts.wikitext     ?? true;
-  const lvlSize: number          = opts.lvlSize      ?? 2;
+  const indentSize: number       = opts.indentSize    ?? 2;
   // tree
   const tree: SemTree = opts.tree ?? {
     nodes: [],
@@ -103,7 +103,7 @@ export const build = (
     const lines: string[] = content[curKey];
     for (const [i, line] of lines.entries()) {
       // txt processing
-      const text: string = line.replace(RGX_LVL, '');
+      const text: string = line.replace(RGX_INDENT, '');
       if (!text || text.length == 0) { continue; }
       const rawTxt: string = rawText(text, { hasBullets: mkdnList, hasWiki: wikitext });
       // self-reference check
@@ -115,9 +115,9 @@ export const build = (
       const trunkNames: string[] = Array.from(new Set(Object.keys(content)));
       const isTrunk: boolean = trunkNames.includes(rawTxt);
       // calculate level
-      const levelMatch: RegExpMatchArray | null = line.match(RGX_LVL);
-      if (levelMatch === null) { continue; }
-      const cumulativeLevel: number = calcLvl(levelMatch, i) + totalLevel;
+      const indentMatch: RegExpMatchArray | null = line.match(RGX_INDENT);
+      if (indentMatch === null) { continue; }
+      const cumulativeLevel: number = calcLvl(indentMatch, i) + totalLevel;
       // go
       ancestors = popGrandAncestor(cumulativeLevel, ancestors);
       // trunk
@@ -168,8 +168,8 @@ export const build = (
     const size: number | undefined = levelMatch[0].length;
     const bumpForZeroBase: number = 1;
     const thisLevel: number = (!virtualTrunk && (i === 0))
-      ? (size / lvlSize) + bumpForZeroBase
-      : size / lvlSize;
+      ? (size / indentSize) + bumpForZeroBase
+      : size / indentSize;
     return thisLevel;
   }
 

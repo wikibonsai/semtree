@@ -1,7 +1,7 @@
 import type { SemTree, SemTreeOpts } from './types';
 
 import { defaultOpts } from './const';
-import { getLevelSize } from './func';
+import { getIndentSize } from './func';
 import { lint } from './lint';
 import { build } from './build';
 
@@ -24,15 +24,14 @@ export const create = (
                                                                                         .filter((line) => line.length > 0)])
                                               );
   /* eslint-enable indent */
-  // tree level size
-  const lvlSize: number | string = opts.lvlSize ?? getLevelSize(root, contentHash);
-  if (typeof lvlSize === 'string') { return lvlSize; }
+  const indentSize: number | string = opts.indentSize ?? getIndentSize(root, contentHash);
+  if (typeof indentSize === 'string') { return indentSize; }
   // lint
-  const lintError: string | void = lint(content, lvlSize);
+  const lintError: string | void = lint(content, indentSize);
   if (lintError) {
     return lintError;
   }
   // go
-  const tree: SemTree | string = build(root, contentHash, { ...opts, lvlSize: lvlSize });
+  const tree: SemTree | string = build(root, contentHash, { ...opts, indentSize: indentSize });
   return tree;
 };

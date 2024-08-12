@@ -1,31 +1,31 @@
-import { RGX_LVL } from './const';
+import { RGX_INDENT } from './const';
 
 
-export const getLevelSize = (root: string, contentHash: Record<string, string[]>): number | string=> {
-  let lvlSize: number = -1;
+export const getIndentSize = (root: string, contentHash: Record<string, string[]>): number | string=> {
+  let indentSize: number = -1;
   function calcSize(key: string): void {
     const lines: string[] = contentHash[key];
     lines.forEach((line, i) => {
-      const levelMatch: RegExpMatchArray | null = line.match(RGX_LVL);
+      const indentMatch: RegExpMatchArray | null = line.match(RGX_INDENT);
       // calculates number of spaces
-      if (levelMatch && levelMatch[0] && lvlSize < 0) {
-        lvlSize = levelMatch[0].length;
+      if (indentMatch && indentMatch[0] && indentSize < 0) {
+        indentSize = indentMatch[0].length;
       }
     });
   }
   calcSize(root);
-  // if lvlSize is still -1, try to find it in the other files
-  if (lvlSize == -1) {
+  // if indentSize is still -1, try to find it in the other files
+  if (indentSize == -1) {
     const trunkFiles: string[] = Object.keys(contentHash);
     for (const key of trunkFiles) {
       calcSize(key);
-      if (lvlSize > 0) { break; }
+      if (indentSize > 0) { break; }
     }
-    if (lvlSize < 0) {
-      return 'semtree.getLevelSize(): indentation could not be determined -- is it possible no root exists?';
+    if (indentSize < 0) {
+      return 'semtree.getIndentSize(): indentation could not be determined -- is it possible no root exists?';
     }
   }
-  return lvlSize;
+  return indentSize;
 };
 
 export const rawText = (

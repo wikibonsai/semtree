@@ -1,10 +1,10 @@
-import { RGX_LVL } from './const';
+import { RGX_INDENT } from './const';
 
 
 // todo: add tab/space linting option?
 export const lint = (
   content: string | Record<string, string>,
-  lvlSize: number,
+  indentSize: number,
 ): void | string => {
   let previousIndent: number = 0;
   const badIndentations: { fname?: string, line: number; content: string; reason: string }[] = [];
@@ -14,17 +14,17 @@ export const lint = (
   const lintLine = (line: string, lineNumber: number, fname?: string) => {
     if (line.length > 0) {
       // indentation check
-      const match: RegExpMatchArray | null = line.match(RGX_LVL);
+      const match: RegExpMatchArray | null = line.match(RGX_INDENT);
       const currentIndent: number = match ? match[0].length : 0;
       // improper indentation
-      if (currentIndent % lvlSize !== 0) {
+      if (currentIndent % indentSize !== 0) {
         badIndentations.push({
           fname: fname ? fname : '',
           line: lineNumber,
           content: line,
           reason: 'inconsistent indentation',
         });
-      } else if (currentIndent > previousIndent + lvlSize) {
+      } else if (currentIndent > previousIndent + indentSize) {
         badIndentations.push({
           fname: fname ? fname : '',
           line: lineNumber,
@@ -37,7 +37,7 @@ export const lint = (
       /* eslint-disable indent */
       const entityName: string = line.trim()
                                      // strip indentation
-                                     .replace(RGX_LVL, '')
+                                     .replace(RGX_INDENT, '')
                                      // strip markdown bullets
                                      .replace(/[-*+] /, '')
                                      // strip wikiref markers

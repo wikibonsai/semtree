@@ -145,7 +145,7 @@ Tree requirements are sparse because the idea is to allow the end-user to determ
 
 ### API
 
-### `lint(content: string | Record<string, string>, lvlSize: number = -1): void | string`
+### `lint(content: string | Record<string, string>, indentSize: number): void | string`
 
 Lint a file's content or a record of multiple files' file content.
 
@@ -160,7 +160,7 @@ Checks for:
 
 A content string or a `Record` whose keys are entities (such as files) and values are content strings of those entities.
 
-##### `lvlSize: number = -1`
+##### `indentSize: number`
 
 Number of spaces or tabs which represent each level in the tree.
 
@@ -241,7 +241,7 @@ Delete the local copy of the tree.
 
 A function to execute when each node is added to the tree.
 
-### `lvlSize: number`
+### `indentSize: number`
 
 The size of each level in the tree -- corresponds to number of spaces or tabs. The default is 2 whitespaces. Indentation will be dynamically determined if none is set, but in some scenarios (such as no indentatino exists at all) the defaults will be used if not set explicitly. This can lead to incorrect behavior if the actual indentation does not match the configured indentation.
 

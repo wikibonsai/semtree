@@ -8,8 +8,8 @@ export interface SemTree {
 export interface SemTreeOpts {
   // params
   virtualTrunk?: boolean;                              // whether or not to include the semtree/index files themselves as nodes in the tree
-  lvlSize?: number;                                    // the number of indentations per tree level
-  // lvlType?: 'space' | 'tab';                           // the type of indentation (space or tab)
+  indentSize?: number;                                 // the number of indentations per tree level
+  // indentKind?: 'space' | 'tab';                        // the type of indentation (space or tab)
   subroot?: string;                                    // the root of the subtree to be updated
   mkdnList?: boolean;                                  // whether or not to expect markdown bullets ('- ', '* ', '+ ') for each node
   wikitext?: boolean;                                  // whether or not to expect [[wikilink square brackets]] so they may be ignored when processing tree text
@@ -31,7 +31,4 @@ export interface TreeNode {
   children: string[];
   // optional data -- for flexibly adding new node properties
   [key: string]: any;
-  // for building
-  line?: number;
-  level?: number;
 }

@@ -24,7 +24,7 @@ describe('lint()', () => {
 
   // options
 
-  describe('manually set lvlSize', () => {
+  describe('manually set indentSize', () => {
 
     let content: Record<string, string>;
 

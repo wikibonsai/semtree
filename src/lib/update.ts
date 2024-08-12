@@ -5,7 +5,7 @@ import { lint } from './lint';
 import { pruneDangling } from './dangling';
 import { checkDuplicates } from './duplicates';
 import { build } from './build';
-import { getLevelSize } from './func';
+import { getIndentSize } from './func';
 
 
 export const update = (
@@ -42,16 +42,16 @@ export const update = (
       contentHash[filename] = fileContent.split('\n').filter(line => line.trim().length > 0);
     }
   }
-  const size: number | string = getLevelSize(subroot, contentHash);
-  const fallback: number = opts.lvlSize ?? 2;
-  const lvlSize: number = (typeof size !== 'string') ? size : fallback;
+  const size: number | string = getIndentSize(subroot, contentHash);
+  const fallback: number = opts.indentSize ?? 2;
+  const indentSize: number = (typeof size !== 'string') ? size : fallback;
   // prune existing subtree
   const pruneError: void | string = pruneSubTree(subroot);
   if (pruneError) {
     return pruneError;
   }
   // lint
-  const lintError: string | void = lint(content, lvlSize);
+  const lintError: string | void = lint(content, indentSize);
   if (lintError) {
     restoreState(tree);
     return lintError;

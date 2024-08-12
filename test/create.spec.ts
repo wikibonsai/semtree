@@ -180,7 +180,7 @@ describe('create()', () => {
 
         describe('options', () => {
 
-          testSingleFile('lvlSize',
+          testSingleFile('indentSize',
 `- [[child1]]
     - [[grandchild1]]
     - [[grandchild2]]
@@ -220,7 +220,7 @@ describe('create()', () => {
 - [[child2]]
 - [[child3]]
 `,
-            'semtree.getLevelSize(): indentation could not be determined -- is it possible no root exists?'
+            'semtree.getIndentSize(): indentation could not be determined -- is it possible no root exists?'
           );
 
           testError('inconsistent indentation',
@@ -830,7 +830,7 @@ describe('create()', () => {
 
         describe('options', () => {
 
-          it.skip('lvlSize', () => {
+          it.skip('indentSize', () => {
             assert.strictEqual(0, 1);
           });
 

@@ -1,12 +1,12 @@
 import type { SemTreeOpts } from './types';
 
 
-export const RGX_LVL = /^[ \t]*/;
+export const RGX_INDENT = /^[ \t]*/;
 
 export const defaultOpts: SemTreeOpts = {
   virtualTrunk: false,
-  // lvlSize: 2,
-  // lvlType: 'space',
+  // indentSize: 2,
+  // indentKind: 'space',
   mkdnList: true,
   wikitext: true,
 };

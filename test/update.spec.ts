@@ -366,7 +366,7 @@ describe('update()', () => {
 
       describe('option', () => {
 
-        it('lvlSize (this needs to be set, esp. in the scenario update content does not contain indentation)', () => {
+        it('indentSize (this needs to be set, esp. in the scenario update content does not contain indentation)', () => {
           // setup
           const tree: SemTree = {
             root: 'root',
@@ -392,7 +392,7 @@ describe('update()', () => {
 [[newChild1]]
 [[newChild2]]`;
           // subtree                               // go
-          const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, lvlSize: 1 });
+          const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, indentSize: 1 });
           const expdSubTree: TreeNode[] = [
             {
               text: 'root',
@@ -629,7 +629,7 @@ describe('update()', () => {
 
       describe('options', () => {
 
-        it('lvlSize', () => {
+        it('indentSize', () => {
           const tree: SemTree = {
             root: 'root',
             trunk: ['root'],
@@ -654,7 +654,7 @@ describe('update()', () => {
   - [[newChild1]]
   - [[newChild2]]
 `;
-          const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, lvlSize: 2 });
+          const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, indentSize: 2 });
           const expdSubTree: TreeNode[] = [
             {
               text: 'root',
