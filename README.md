@@ -243,7 +243,7 @@ A function to execute when each node is added to the tree.
 
 ### `lvlSize: number`
 
-The size of each level in the tree -- corresponds to number of spaces or tabs.
+The size of each level in the tree -- corresponds to number of spaces or tabs. The default is 2 whitespaces. Indentation will be dynamically determined if none is set, but in some scenarios (such as no indentatino exists at all) the defaults will be used if not set explicitly. This can lead to incorrect behavior if the actual indentation does not match the configured indentation.
 
 ### `mkdnList: boolean`
 

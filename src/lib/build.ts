@@ -1,7 +1,7 @@
 import { SemTree, BuildTreeOpts, TreeNode } from './types';
 import { defaultOpts, RGX_LVL } from './const';
 import { checkDuplicates } from './duplicates';
-import { rawText, getLevelSize } from './func';
+import { rawText } from './func';
 
 
 export const build = (
@@ -9,18 +9,20 @@ export const build = (
   content: Record<string, string[]>,
   opts: BuildTreeOpts = defaultOpts,
 ): SemTree | string  => {
+  ////
+  // setup
   // opts
   opts = { ...defaultOpts, ...opts };
   // tree
-  const virtualTrunk: boolean = opts.virtualTrunk ?? false;
+  const virtualTrunk: boolean    = opts.virtualTrunk ?? false;
   // subtree building
-  const subroot: string       = opts.subroot      ?? '';
-  const ancestors: TreeNode[] = opts.ancestors    ?? [];
-  const level: number         = opts.level        ?? 0;
+  const subroot: string          = opts.subroot      ?? '';
+  const ancestors: TreeNode[]    = opts.ancestors    ?? [];
+  const level: number            = opts.level        ?? 0;
   // syntax
-  const mkdnList: boolean     = opts.mkdnList     ?? true;
-  const wikitext: boolean     = opts.wikitext     ?? true;
-  const lvlSize: number       = opts.lvlSize      ?? getLevelSize(content[root]);
+  const mkdnList: boolean        = opts.mkdnList     ?? true;
+  const wikitext: boolean        = opts.wikitext     ?? true;
+  const lvlSize: number          = opts.lvlSize      ?? 2;
   // tree
   const tree: SemTree = opts.tree ?? {
     nodes: [],
@@ -32,12 +34,48 @@ export const build = (
     tree.trunk = Object.keys(content);
   }
   const visited: Set<string> = new Set();
+  ////
   // go
   const buildRes: TreeNode[] | string = buildTree(root, content, ancestors, level);
   if (typeof buildRes === 'string') {
     return buildRes;
   }
+  ////
+  // validate
+  // check for unprocessed content
+  if (Object.keys(content).length > 0) {
+    const unprocessedFiles = Object.keys(content).join(', ');
+    return `semtree.build(): some files were not processed: ${unprocessedFiles}`;
+  }
+  if (Object.entries(content).length === 0) {
+    // duplicates are checked later in updateSubTree()
+    if (subroot.length === 0) {
+      // if duplicate nodes were found, return warning string
+      const hasDups: string | undefined = checkDuplicates(tree.nodes);
+      if (typeof hasDups === 'string') {
+        return hasDups;
+      }
+    }
+  }
+  ////
+  // finish
   tree.nodes = buildRes;
+  // if given, call option methods
+  if (opts.setRoot) {
+    opts.setRoot(tree.root);
+  }
+  if (opts.graft) {
+    // sort nodes by their level to ensure parents are grafted before children
+    const sortedNodes: TreeNode[] = tree.nodes.sort((a, b) => a.ancestors.length - b.ancestors.length);
+    for (const node of sortedNodes) {
+      if (node.text !== tree.root) {
+        const parentName: string | undefined = node.ancestors[node.ancestors.length - 1];
+        if (parentName) {
+          opts.graft(parentName, node.text);
+        }
+      }
+    }
+  }
   return tree;
 
   // helper functions
@@ -53,171 +91,128 @@ export const build = (
       return `semtree.build(): cycle detected involving node "${curKey}"`;
     }
     visited.add(curKey);
-    let nodeBuilder: TreeNode;
-    const isSubTree: boolean = subroot.length > 0;
-    const trunkNames: string[] = Array.from(new Set(Object.keys(content)));
-    // if the trunk isn't virtual, handle index/trunk file
-    const isTrunk: boolean = trunkNames.includes(curKey);
-    if (!virtualTrunk && isTrunk) {
-      nodeBuilder = {
-        line: -1,
-        level: totalLevel,
-        text: curKey,
-        ancestors: ancestors.map(n => n.text),
-        children: [],
-      } as TreeNode;
-      // don't create a new node if we're handling the subroot of a subtree update
-      if (curKey !== subroot) {
-        if (tree.root === '' && totalLevel === 0) {
-          addRoot(curKey);
-        } else {
-          const trnkFname: string | undefined = getTrunkKey(curKey, structuredClone(content));
-          if (trnkFname === undefined) {
-            return `semtree.build(): trunk file for '${curKey}' not found in content`;
-          }
-          addBranch(curKey, nodeBuilder.ancestors, trnkFname);
-        }
+    if (!virtualTrunk) {
+      const node: TreeNode | string = handleFname(curKey, totalLevel);
+      if (typeof node === 'string') {
+        return node;
       }
-      ancestors.push(nodeBuilder);
+      ancestors.push(node);
       totalLevel += 1;
     }
     // handle file...
     const lines: string[] = content[curKey];
     for (const [i, line] of lines.entries()) {
+      // txt processing
       const text: string = line.replace(RGX_LVL, '');
       if (!text || text.length == 0) { continue; }
       const rawTxt: string = rawText(text, { hasBullets: mkdnList, hasWiki: wikitext });
-      const isFirst: boolean = (totalLevel === 0) && (i === 0);
+      // self-reference check
       const selfRef: boolean = (curKey === rawTxt);
-      const thisLineIsTrunk: boolean = trunkNames.includes(rawTxt);
-      // connect subtree via 'virtual' semantic-tree node
-      // if (nodes.map((node) => node.text).includes(rawTxt)) {
-      //   this.duplicates.push(rawTxt);
-      //   return this.warnDuplicates();
-      // }
+      if (!virtualTrunk && selfRef) {
+        return `semtree.build(): self-referential node "${rawTxt}"`;
+      }
+      // trunk check
+      const trunkNames: string[] = Array.from(new Set(Object.keys(content)));
+      const isTrunk: boolean = trunkNames.includes(rawTxt);
       // calculate level
-      const lineNum: number = i + 1;
       const levelMatch: RegExpMatchArray | null = line.match(RGX_LVL);
       if (levelMatch === null) { continue; }
-      const size: number | undefined = levelMatch[0].length;
-      const thisLevel: number = size / lvlSize;
-      const cumulativeLevel: number = thisLevel + totalLevel;
-      // root
-      // if (isFirst && (virtualTrunk && !isTrunk) && (tree.root === '')) {
-      if (isFirst) {
-        // init
-        nodeBuilder = {
-          line: lineNum,
-          level: cumulativeLevel,
-          text: rawTxt,
-          ancestors: [],
-          children: [],
-        } as TreeNode;
-        if (!isSubTree) {
-          addRoot(rawTxt);
+      const cumulativeLevel: number = calcLvl(levelMatch, i) + totalLevel;
+      // go
+      ancestors = popGrandAncestor(cumulativeLevel, ancestors);
+      // trunk
+      if (isTrunk) {
+        const result: TreeNode[] | string = buildTree(
+          rawTxt,
+          content,
+          ancestors,
+          cumulativeLevel,
+        );
+        if (typeof result === 'string') {
+          return result;
         }
-        ancestors.push(nodeBuilder);
-        // ?
-        if (!selfRef && thisLineIsTrunk) {
-          const result: TreeNode[] | string = buildTree(
-            rawTxt,
-            content,
-            structuredClone(ancestors),
-            thisLevel,
-          );
-          if (typeof result === 'string') {
-            return result;
-          }
+        const resNode: TreeNode | undefined = result.find(node => node.text === rawTxt);
+        if (resNode !== undefined) {
+          ancestors.push(resNode);
         }
-      // node
+      // 'leaf'
       } else {
-        // trunk
-        if (!selfRef && thisLineIsTrunk) {
-          ancestors = popGrandAncestor(cumulativeLevel, ancestors);
-          const result: TreeNode[] | string = buildTree(
-            rawTxt,
-            content,
-            structuredClone(ancestors),
-            thisLevel,
-          );
-          if (typeof result === 'string') {
-            return result;
+        // if virtualTrunk, create root from very first node
+        if ((cumulativeLevel === 0) && virtualTrunk) {
+          if (tree.root !== '') {
+            return `semtree.build(): cannot have multiple root nodes, node "${rawTxt}" at same level as root node "${tree.root}"`;
           }
-        // leaf
-        } else {
-          ancestors = popGrandAncestor(cumulativeLevel, ancestors);
-          // init
-          nodeBuilder = {
-            line: lineNum,
-            level: cumulativeLevel,
-            text: rawTxt,
-            ancestors: ancestors.map(p => p.text),
-            children: [],
-          } as TreeNode;
-          ancestors.push(nodeBuilder);
-          addBranch(nodeBuilder.text, nodeBuilder.ancestors, curKey);
+          const node: TreeNode | string = addRoot(rawTxt);
+          if (typeof node === 'string') {
+            return node;
+          }
+          ancestors.push(node);
+          continue;
         }
+        // leaf
+        const node: TreeNode | string = addBranch(rawTxt, ancestors.map(p => p.text), curKey);
+        if (typeof node === 'string') {
+          return node;
+        }
+        ancestors.push(node);
       }
     }
     // rm node after processing
     delete content[curKey];
     visited.delete(curKey);
-    // if some files were not processed and we are at the root-file-level, error out
-    if ((Object.entries(content).length !== 0) && (totalLevel == 0)) {
-      return `semtree.build(): some files were not processed --\n${Object.keys(content)}`;
-    }
-    if (Object.entries(content).length === 0) {
-      // duplicates are checked later in updateSubTree()
-      if (!isSubTree) {
-        // if duplicate nodes were found, return warning string
-        const hasDups: string | undefined = checkDuplicates(tree.nodes);
-        if (typeof hasDups === 'string') {
-          return hasDups;
-        }
-      }
-      // if given, call option methods
-      if (opts.setRoot) {
-        opts.setRoot(tree.root);
-      }
-      if (opts.graft) {
-        // sort nodes by their level to ensure parents are grafted before children
-        const sortedNodes: TreeNode[] = tree.nodes.sort((a, b) => a.ancestors.length - b.ancestors.length);
-        for (const node of sortedNodes) {
-          if (node.text !== tree.root) {
-            const parentName: string | undefined = node.ancestors[node.ancestors.length - 1];
-            if (parentName) {
-              opts.graft(parentName, node.text);
-            }
-          }
-        }
-        // Check for unused content
-        const unusedContent = Object.keys(content);
-        if (unusedContent.length > 0) {
-          console.warn('Unused content:', unusedContent);
-        }
-      }
-    }
     // return current state of nodes
     return structuredClone(tree.nodes);
   }
 
-  function addRoot(text: string): void {
+  function calcLvl(levelMatch: RegExpMatchArray, i: number): number {
+    const size: number | undefined = levelMatch[0].length;
+    const bumpForZeroBase: number = 1;
+    const thisLevel: number = (!virtualTrunk && (i === 0))
+      ? (size / lvlSize) + bumpForZeroBase
+      : size / lvlSize;
+    return thisLevel;
+  }
+
+  function handleFname(curKey: string, totalLevel: number): TreeNode | string {
+    if (curKey === subroot) {
+      const node: TreeNode | undefined = tree.nodes.find(n => n.text === subroot);
+      if (node === undefined) {
+        return `semtree.handleRoot(): subroot node "${subroot}" not found in tree`;
+      } else {
+        return node;
+      }
+    } else {
+      if (tree.root === '' && totalLevel === 0) {
+        return addRoot(curKey);
+      } else {
+        const trnkFname: string | undefined = getTrunkKey(curKey, structuredClone(content));
+        if (trnkFname === undefined) {
+          return `semtree.handleRoot(): trunk file for '${curKey}' not found in content`;
+        }
+        return addBranch(curKey, ancestors.map(n => n.text), trnkFname);
+      }
+    }
+  }
+
+  function addRoot(text: string): TreeNode {
     tree.root = text;
-    tree.nodes.push({
+    const rootNode: TreeNode = {
       text: text,
       ancestors: [],
       children: [],
-    } as TreeNode);
+    };
+    tree.nodes.push(rootNode);
     if (!virtualTrunk) {
       tree.petioleMap[text] = text;
     }
+    return rootNode;
   }
 
   function addBranch(
     text: string,
     ancestryTitles: string[],
     trnkFname?: string,
-  ): void | string {
+  ): TreeNode | string {
     if (tree.root.length === 0) {
       return `semtree.addBranch(): cannot add branch "${text}" to empty tree`;
     }
@@ -237,14 +232,16 @@ export const build = (
         }
       }
     }
-    tree.nodes.push({
+    const newNode: TreeNode = {
       text: text,
       ancestors: ancestryTitles,
       children: [],
-    } as TreeNode);
+    };
+    tree.nodes.push(newNode);
     if (!virtualTrunk) {
       tree.petioleMap[text] = trnkFname;
     }
+    return newNode;
   }
 
   function getTrunkKey(curKey: string, content: Record<string, string[]>): string | undefined {
@@ -257,38 +254,45 @@ export const build = (
   }
 
   function popGrandAncestor(level: number, ancestors: TreeNode[]): TreeNode[] {
-    const parent: TreeNode = ancestors[ancestors.length - 1];
-    const isChild: boolean = (parent.level === (level - 1));
-    const isSibling: boolean = (parent.level === level);
-    // root case
-    // if ((ancestors.length === 0) && (parent.level === 0)) {
-    //   return ancestors;
-    // child:
-    // - [[parent]]
-    //   - [[child]]
-    // } else
-    if (isChild) {
-      // continue...
-    // sibling:
-    // - [[sibling]]
-    // - [[sibling]]
-    } else if (isSibling) {
-      // we can safely throw away the last node name because
-      // it can't have children if we've already decreased the level
+    const ancestorsToRemove = ancestors.length - level;
+    for (let i = 0; i < ancestorsToRemove; i++) {
       ancestors.pop();
-    // unrelated (great+) (grand)parent:
-    //     - [[descendent]]
-    // - [[great-grandparent]]
-    } else if (parent.level) { // (parent.level < level)
-      const levelDiff: number = parent.level - level;
-      for (let i = 1; i <= levelDiff + 1; i++) {
-        ancestors.pop();
-      }
-    } else {
-      // first node on page
-      // ...
-      console.warn(`semtree.popGrandAncestor(): unknown ancestor level: ${parent.level}`);
     }
     return ancestors;
   }
+  // function popGrandAncestor(level: number, ancestors: TreeNode[]): TreeNode[] {
+  //   const parent: TreeNode = ancestors[ancestors.length - 1];
+  //   const isChild: boolean = (parent.level === (level - 1));
+  //   const isSibling: boolean = (parent.level === level);
+  //   // root case
+  //   // if ((ancestors.length === 0) && (parent.level === 0)) {
+  //   //   return ancestors;
+  //   // child:
+  //   // - [[parent]]
+  //   //   - [[child]]
+  //   // } else
+  //   if (isChild) {
+  //     // continue...
+  //   // sibling:
+  //   // - [[sibling]]
+  //   // - [[sibling]]
+  //   } else if (isSibling) {
+  //     // we can safely throw away the last node name because
+  //     // it can't have children if we've already decreased the level
+  //     ancestors.pop();
+  //   // unrelated (great+) (grand)parent:
+  //   //     - [[descendent]]
+  //   // - [[great-grandparent]]
+  //   } else if (parent.level) { // (parent.level < level)
+  //     const levelDiff: number = parent.level - level;
+  //     for (let i = 1; i <= levelDiff + 1; i++) {
+  //       ancestors.pop();
+  //     }
+  //   } else {
+  //     // first node on page
+  //     // ...
+  //     console.warn(`semtree.popGrandAncestor(): unknown ancestor level: ${parent.level}`);
+  //   }
+  //   return ancestors;
+  // }
 };

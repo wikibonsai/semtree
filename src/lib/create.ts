@@ -16,8 +16,6 @@ export const create = (
   }
   // opts
   opts = { ...defaultOpts, ...opts };
-  // tree level size
-  let lvlSize: number         = opts.lvlSize      ?? -1;
   // go
   /* eslint-disable indent */
   const contentHash: Record<string, string[]> = Object.fromEntries(
@@ -26,17 +24,9 @@ export const create = (
                                                                                         .filter((line) => line.length > 0)])
                                               );
   /* eslint-enable indent */
-  lvlSize = getLevelSize(contentHash[root]);
-  // if lvlSize is still -1, try to find it in the other files
-  if (lvlSize == -1) {
-    for (const key of Object.keys(contentHash)) {
-      lvlSize = getLevelSize(contentHash[key]);
-      if (lvlSize > 0) { break; }
-    }
-    if (lvlSize < 0) {
-      return 'semtree.create(): indentation could not be determined -- is it possible no root exists?';
-    }
-  }
+  // tree level size
+  const lvlSize: number | string = opts.lvlSize ?? getLevelSize(root, contentHash);
+  if (typeof lvlSize === 'string') { return lvlSize; }
   // lint
   const lintError: string | void = lint(content, lvlSize);
   if (lintError) {

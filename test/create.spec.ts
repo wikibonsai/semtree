@@ -220,7 +220,7 @@ describe('create()', () => {
 - [[child2]]
 - [[child3]]
 `,
-            'semtree.create(): indentation could not be determined -- is it possible no root exists?'
+            'semtree.getLevelSize(): indentation could not be determined -- is it possible no root exists?'
           );
 
           testError('inconsistent indentation',
@@ -464,7 +464,182 @@ describe('create()', () => {
             assert.deepStrictEqual(actlData, expdData);
           });
 
-          it.skip('indentation not on root file', () => {
+          it('deep backtracking', () => {
+            const content: Record<string,string> = {
+              'root':
+`- [[childa]]
+  - [[grandchild]]
+    - [[greatgrandchild1]]
+      - [[greatgreatgrandchild]]
+        - [[greatgreatgreatgrandchild]]
+  - [[branch]]
+    - [[greatgrandchild2]]
+`,
+              'branch':
+`- [[childb]]
+`,
+            };
+            const actlData: SemTree | string = create('root', content, opts);
+            const expdData: SemTree = trunkType === 'concrete' ? {
+              root: 'root',
+              trunk: ['root', 'branch'],
+              petioleMap: {
+                'root': 'root',
+                'childa': 'root',
+                'grandchild': 'root',
+                'greatgrandchild1': 'root',
+                'greatgreatgrandchild': 'root',
+                'greatgreatgreatgrandchild': 'root',
+                'branch': 'root',
+                'childb': 'branch',
+                'greatgrandchild2': 'root',
+              },
+              nodes: [
+                {
+                  text: 'root',
+                  ancestors: [],
+                  children: ['childa'],
+                },{
+                  text: 'childa',
+                  ancestors: ['root'],
+                  children: ['grandchild', 'branch'],
+                },{
+                  text: 'grandchild',
+                  ancestors: ['root', 'childa'],
+                  children: ['greatgrandchild1'],
+                },{
+                  text: 'greatgrandchild1',
+                  ancestors: ['root', 'childa', 'grandchild'],
+                  children: ['greatgreatgrandchild'],
+                },{
+                  text: 'greatgreatgrandchild',
+                  ancestors: ['root', 'childa', 'grandchild', 'greatgrandchild1'],
+                  children: ['greatgreatgreatgrandchild'],
+                },{
+                  text: 'greatgreatgreatgrandchild',
+                  ancestors: ['root', 'childa', 'grandchild', 'greatgrandchild1', 'greatgreatgrandchild'],
+                  children: [],
+                },{
+                  text: 'branch',
+                  ancestors: ['root', 'childa'],
+                  children: ['childb', 'greatgrandchild2'],
+                },{
+                  text: 'childb',
+                  ancestors: ['root', 'childa', 'branch'],
+                  children: [],
+                },{
+                  text: 'greatgrandchild2',
+                  ancestors: ['root', 'childa', 'branch'],
+                  children: [],
+                },
+              ]
+            } : {
+              root: 'childa',
+              trunk: [],
+              petioleMap: {},
+              nodes: [
+                {
+                  text: 'childa',
+                  ancestors: [],
+                  children: ['grandchild', 'childb'],
+                },{
+                  text: 'grandchild',
+                  ancestors: ['childa'],
+                  children: ['greatgrandchild1'],
+                },{
+                  text: 'greatgrandchild1',
+                  ancestors: ['childa', 'grandchild'],
+                  children: ['greatgreatgrandchild'],
+                },{
+                  text: 'greatgreatgrandchild',
+                  ancestors: ['childa', 'grandchild', 'greatgrandchild1'],
+                  children: ['greatgreatgreatgrandchild'],
+                },{
+                  text: 'greatgreatgreatgrandchild',
+                  ancestors: ['childa', 'grandchild', 'greatgrandchild1', 'greatgreatgrandchild'],
+                  children: [],
+                },{
+                  text: 'childb',
+                  ancestors: ['childa'],
+                  children: ['greatgrandchild2'],
+                },{
+                  text: 'greatgrandchild2',
+                  ancestors: ['childa', 'childb'],
+                  children: [],
+                },
+              ]
+            };
+            assert.deepStrictEqual(actlData, expdData);
+          });
+
+          it('deep backtracking to root file', () => {
+            const content: Record<string,string> = {
+              'root':
+`- [[childa]]
+  - [[grandchild]]
+    - [[greatgrandchild]]
+      - [[greatgreatgrandchild]]
+        - [[greatgreatgreatgrandchild]]
+- [[branch]]
+`,
+              'branch':
+`- [[childb]]
+`,
+            };
+            const actlData: SemTree | string = create('root', content, opts);
+            const expdData: SemTree | string = trunkType === 'concrete' ? {
+              root: 'root',
+              trunk: ['root', 'branch'],
+              petioleMap: {
+                'root': 'root',
+                'childa': 'root',
+                'grandchild': 'root',
+                'greatgrandchild': 'root',
+                'greatgreatgrandchild': 'root',
+                'greatgreatgreatgrandchild': 'root',
+                'branch': 'root',
+                'childb': 'branch',
+              },
+              nodes: [
+                {
+                  text: 'root',
+                  ancestors: [],
+                  children: ['childa', 'branch'],
+                },{
+                  text: 'childa',
+                  ancestors: ['root'],
+                  children: ['grandchild'],
+                },{
+                  text: 'grandchild',
+                  ancestors: ['root', 'childa'],
+                  children: ['greatgrandchild'],
+                },{
+                  text: 'greatgrandchild',
+                  ancestors: ['root', 'childa', 'grandchild'],
+                  children: ['greatgreatgrandchild'],
+                },{
+                  text: 'greatgreatgrandchild',
+                  ancestors: ['root', 'childa', 'grandchild', 'greatgrandchild'],
+                  children: ['greatgreatgreatgrandchild'],
+                },{
+                  text: 'greatgreatgreatgrandchild',
+                  ancestors: ['root', 'childa', 'grandchild', 'greatgrandchild', 'greatgreatgrandchild'],
+                  children: [],
+                },{
+                  text: 'branch',
+                  ancestors: ['root'],
+                  children: ['childb'],
+                },{
+                  text: 'childb',
+                  ancestors: ['root', 'branch'],
+                  children: [],
+                }
+              ]
+            } : 'semtree.build(): cannot have multiple root nodes, node "childb" at same level as root node "childa"';
+            assert.deepStrictEqual(actlData, expdData);
+          });
+
+          it('indentation not on root file', () => {
             const content: Record<string,string> = {
               'root':
 `- [[branch1]]
@@ -477,7 +652,7 @@ describe('create()', () => {
             const actlData: SemTree | string = create('root', content, opts);
             const expdData: SemTree = trunkType === 'concrete' ? {
               root: 'root',
-              trunk: ['root'],
+              trunk: ['root', 'branch1'],
               petioleMap: {
                 'root': 'root',
                 'branch1': 'root',
@@ -685,20 +860,6 @@ describe('create()', () => {
               'root':
 `- [[child1a]]
   - [[grandchild1a]]
-   - [[branch]]
-`,
-              'branch':
-`- [[child1b]]
-`,
-            },
-            'semtree.lint(): improper indentation found:\n\n- File "root" Line 3 (inconsistent indentation): "   - [[branch]]"\n',
-          );
-
-          testErrorMultiFile('over-indented',
-            'root', {
-              'root':
-`- [[child1a]]
-  - [[grandchild1a]]
      - [[branch]]
 `,
               'branch':
@@ -706,20 +867,6 @@ describe('create()', () => {
 `,
             },
             'semtree.lint(): improper indentation found:\n\n- File "root" Line 3 (inconsistent indentation): "     - [[branch]]"\n',
-          );
-
-          testErrorMultiFile('no root; all branches contain all 0-indented entries',
-            'root', {
-              'root':
-`- [[branch1]]
-- [[child1a]]
-`,
-              'branch1':
-`- [[child1b]]
-- [[child2b]]
-`,
-            },
-            'semtree.create(): indentation could not be determined -- is it possible no root exists?',
           );
 
           testErrorMultiFile('cycle; self; branch',
@@ -773,60 +920,20 @@ describe('create()', () => {
 `,
           );
 
-          describe('concrete-trunk-only error cases', () => {
-
-            it('cycle; self; root (not error case with virtual trunk)', () => {
-              const content: Record<string,string> = {
-                'root':
+          testErrorMultiFile('cycle; self; root',
+            'root', {
+              'root':
 `- [[root]]
   - [[child1a]]
     - [[grandchild1a]]
       - [[branch]]
 `,
-                'branch':
+              'branch':
 `- [[child1b]]
-`,};
-              if (trunkType === 'concrete') {
-                assert.strictEqual(
-                  create('root', content, opts),
-                  `semtree.checkDuplicates(): tree did not build, duplicate nodes found:
-
-root
-
 `,
-                );
-              } else {
-                assert.deepStrictEqual(
-                  create('root', content, opts),
-                  {
-                    root: 'root',
-                    trunk: [],
-                    petioleMap: {},
-                    nodes: [
-                      {
-                        text: 'root',
-                        ancestors: [],
-                        children: ['child1a'],
-                      },{
-                        text: 'child1a',
-                        ancestors: ['root'],
-                        children: ['grandchild1a'],
-                      },{
-                        text: 'grandchild1a',
-                        ancestors: ['root', 'child1a'],
-                        children: ['child1b'],
-                      },{
-                        text: 'child1b',
-                        ancestors: ['root', 'child1a', 'grandchild1a'],
-                        children: [],
-                      }
-                    ]
-                  },
-                );
-              }
-            });
-
-          });
+            },
+            (trunkType === 'concrete') ? 'semtree.build(): self-referential node "root"' : 'semtree.build(): cycle detected involving node "root"',
+          );
 
         });
 

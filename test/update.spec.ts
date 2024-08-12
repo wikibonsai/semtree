@@ -38,7 +38,7 @@ describe('update()', () => {
           petioleMap: {
             'root': 'root',
             'branch1': 'root',
-            'branch2': 'branch2',
+            'branch2': 'branch1',
             'grandchild1a': 'root',
             'child1a': 'root',
             'child1c': 'branch2',
@@ -150,7 +150,7 @@ describe('update()', () => {
           petioleMap: {
             'root': 'root',
             'branch1': 'root',
-            'branch2': 'branch2',
+            'branch2': 'branch1',
             'grandchild1a': 'root',
             'child1a': 'root',
             'child1c': 'branch2',
@@ -256,7 +256,7 @@ describe('update()', () => {
           petioleMap: {
             'root': 'root',
             'branch1': 'root',
-            'branch2': 'branch2',
+            'branch2': 'branch1',
             'grandchild1a': 'root',
             'child1a': 'root',
             'child1c': 'branch2',
@@ -363,6 +363,60 @@ describe('update()', () => {
         ];
         assert.deepEqual(actlTree, expdTree);
       });
+
+      describe('option', () => {
+
+        it('lvlSize (this needs to be set, esp. in the scenario update content does not contain indentation)', () => {
+          // setup
+          const tree: SemTree = {
+            root: 'root',
+            trunk: ['root'],
+            petioleMap: {
+              'root': 'root',
+              'child1': 'root',
+            },
+            nodes: [
+              {
+                text: 'root',
+                ancestors: [],
+                children: ['child1'],
+              },{
+                text: 'child1',
+                ancestors: ['root'],
+                children: [],
+              }
+            ]
+          };
+          const replacement: string = 
+`[[child1]]
+[[newChild1]]
+[[newChild2]]`;
+          // subtree                               // go
+          const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, lvlSize: 1 });
+          const expdSubTree: TreeNode[] = [
+            {
+              text: 'root',
+              ancestors: [],
+              children: ['child1', 'newChild1', 'newChild2'],
+            },{
+              text: 'child1',
+              ancestors: ['root'],
+              children: [],
+            },{
+              text: 'newChild1',
+              ancestors: ['root'],
+              children: [],
+            },{
+              text: 'newChild2',
+              ancestors: ['root'],
+              children: [],
+            }
+          ];
+          assert.deepEqual(actlSubTree, expdSubTree);
+        });
+
+      });
+
 
     });
 
@@ -492,7 +546,7 @@ describe('update()', () => {
             petioleMap: {
               'root': 'root',
               'branch1': 'root',
-              'branch2': 'branch2',
+              'branch2': 'branch1',
               'grandchild1a': 'root',
               'child1a': 'root',
               'child1c': 'branch2',
@@ -733,7 +787,7 @@ describe('update()', () => {
             petioleMap: {
               'root': 'root',
               'branch1': 'root',
-              'branch2': 'branch2',
+              'branch2': 'branch1',
               'grandchild1a': 'root',
               'child1c': 'branch2',
             },

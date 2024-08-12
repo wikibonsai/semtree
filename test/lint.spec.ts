@@ -17,7 +17,7 @@ describe('lint()', () => {
     // no error
     const expdError: undefined = undefined;
     // go
-    const actlError: string | void = lint(content);
+    const actlError: string | void = lint(content, 2);
     // assert
     assert.strictEqual(actlError, expdError);
   });
@@ -82,7 +82,7 @@ describe('lint()', () => {
 - File "root" Line 4 (inconsistent indentation): " - [[badindentchild]]"
 `;
     // go
-    const actlError: string | void = lint(content);
+    const actlError: string | void = lint(content, 2);
     // assert
     assert.strictEqual(actlError, expdError);
   });
@@ -103,7 +103,7 @@ describe('lint()', () => {
 - File "root" Line 3 (over-indented): "      - [[overindentgreatgrandchild]]"
 `;
     // go
-    const actlError: string | void = lint(content);
+    const actlError: string | void = lint(content, 2);
     // assert
     assert.strictEqual(actlError, expdError);
   });
@@ -125,7 +125,7 @@ describe('lint()', () => {
 - File "root" Line 3: "duplicategrandchild"
 `;
     // go
-    const actlError: string | void = lint(content);
+    const actlError: string | void = lint(content, 2);
     // assert
     assert.strictEqual(actlError, expdError);
   });

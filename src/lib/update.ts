@@ -20,8 +20,6 @@ export const update = (
   }
   // opts
   opts = { ...defaultOpts, ...opts };
-  // tree level size
-  let lvlSize: number         = opts.lvlSize      ?? -1;
   // state management (in case tree is invalid)
   let originalNodes: TreeNode[] = [];
   let originalTrunk: string[] = [];
@@ -36,9 +34,6 @@ export const update = (
   const contentHash: Record<string, string[]> = {};
   if (typeof content === 'string') {
     contentHash[subroot] = content.split('\n').filter(line => line.trim().length > 0);
-    if (lvlSize === -1) {
-      lvlSize = getLevelSize(contentHash[subroot]);
-    }
   } else {
     if (!Object.keys(content).includes(subroot)) {
       return `semtree.update(): content hash does not contain root: '${subroot}'`;
@@ -46,10 +41,10 @@ export const update = (
     for (const [filename, fileContent] of Object.entries(content)) {
       contentHash[filename] = fileContent.split('\n').filter(line => line.trim().length > 0);
     }
-    if (lvlSize === -1) {
-      lvlSize = getLevelSize(contentHash[subroot]);
-    }
   }
+  const size: number | string = getLevelSize(subroot, contentHash);
+  const fallback: number = opts.lvlSize ?? 2;
+  const lvlSize: number = (typeof size !== 'string') ? size : fallback;
   // prune existing subtree
   const pruneError: void | string = pruneSubTree(subroot);
   if (pruneError) {
@@ -134,7 +129,7 @@ export const update = (
 
   function refreshAncestors(nodes: TreeNode[]): void {
     const updateAncestors = (node: TreeNode, ancestors: string[]): void => {
-      node.ancestors = [...ancestors]; // Create a new array to avoid reference issues
+      node.ancestors = [...ancestors];
       for (const childText of node.children) {
         const childNode: TreeNode | undefined = nodes.find(n => n.text === childText);
         if (childNode) {
