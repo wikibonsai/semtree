@@ -5,7 +5,7 @@ import { lint } from './lint';
 import { pruneDangling } from './dangling';
 import { checkDuplicates } from './duplicates';
 import { build } from './build';
-import { getIndentSize } from './func';
+import { getIndentSize } from './text';
 
 
 export const update = (

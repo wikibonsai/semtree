@@ -1,7 +1,7 @@
 import type { SemTree, SemTreeOpts } from './types';
 
 import { defaultOpts } from './const';
-import { getIndentSize } from './func';
+import { getIndentSize } from './text';
 import { lint } from './lint';
 import { build } from './build';
 

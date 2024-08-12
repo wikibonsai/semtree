@@ -1,7 +1,7 @@
 import { SemTree, BuildTreeOpts, TreeNode } from './types';
 import { defaultOpts, RGX_INDENT } from './const';
 import { checkDuplicates } from './duplicates';
-import { rawText } from './func';
+import { rawText } from './text';
 
 
 export const build = (
