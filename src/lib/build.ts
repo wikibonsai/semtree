@@ -22,7 +22,7 @@ export const build = (
   // syntax
   const mkdnList: boolean        = opts.mkdnList     ?? true;
   const wikitext: boolean        = opts.wikitext     ?? true;
-  const indentSize: number       = opts.indentSize    ?? 2;
+  const indentSize: number       = opts.indentSize   ?? 2;
   // tree
   const tree: SemTree = opts.tree ?? {
     nodes: [],

@@ -11,12 +11,12 @@ import { getIndentSize } from './text';
 export const update = (
   tree: SemTree,
   subroot: string,
-  content: string | Record<string, string>,
+  content: Record<string, string>,
   opts: SemTreeOpts = defaultOpts,
 ): TreeNode[] | string => {
   // validation
   if (!Object.keys(content).includes(subroot)) {
-    return `semtree.create(): "content" does not contain: '${subroot}'; keys are: ${Object.keys(content)}`;
+    return `semtree.update(): "content" does not contain: '${subroot}'; keys are: ${Object.keys(content)}`;
   }
   // opts
   opts = { ...defaultOpts, ...opts };
@@ -32,15 +32,8 @@ export const update = (
   }
   // go
   const contentHash: Record<string, string[]> = {};
-  if (typeof content === 'string') {
-    contentHash[subroot] = content.split('\n').filter(line => line.trim().length > 0);
-  } else {
-    if (!Object.keys(content).includes(subroot)) {
-      return `semtree.update(): content hash does not contain root: '${subroot}'`;
-    }
-    for (const [filename, fileContent] of Object.entries(content)) {
-      contentHash[filename] = fileContent.split('\n').filter(line => line.trim().length > 0);
-    }
+  for (const [filename, fileContent] of Object.entries(content)) {
+    contentHash[filename] = fileContent.split('\n').filter(line => line.trim().length > 0);
   }
   const size: number | string = getIndentSize(subroot, contentHash);
   const fallback: number = opts.indentSize ?? 2;

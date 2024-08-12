@@ -211,7 +211,7 @@ Seeing this to `false` will suppress printing the tree to the console log and ju
 
 ### `update(tree: SemTree, subroot: string, content: Record<string, string>, opts: SemTreeOpts = defaultOpts): SemTree | string;`
 
-A method to update a subtree within the semantic tree. (Best used to update individual `index` documents.) Returns the updated subtree nodes.
+A method to update a subtree within the semantic tree. (Best used to update individual `index` documents.) The given `tree` will be directly updated and the updated subtree nodes will be returned separately by `update()`.
 
 #### Parameters
 
