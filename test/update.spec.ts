@@ -838,20 +838,8 @@ describe('update()', () => {
 
   describe('virtual trunk', () => {
 
-    describe('single file replacement', () => {
-
-      it.skip('test', () => {
-        assert.strictEqual(0, 1);
-      });
-
-    });
-
-    describe('multi file replacement', () => {
-
-      it.skip('test', () => {
-        assert.strictEqual(0, 1);
-      });
-
+    it.skip('cannot run updates on virtual trunk', () => {
+      assert.strictEqual(0, 1);
     });
 
   });

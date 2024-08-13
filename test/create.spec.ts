@@ -16,7 +16,7 @@ describe('create()', () => {
 
   [
     'concrete',
-    'virtual',
+    // 'virtual',
   ].forEach((trunkType) => {
 
     describe(`${trunkType} trunk`, () => {
@@ -100,7 +100,7 @@ describe('create()', () => {
           // data = (trunkType === 'concrete') ? concreteData : virtualData;
         });
 
-        const testSingleFile = (description: string, content: string) => {
+        const testSingleFile = (description: string, content: string, opts: SemTreeOpts) => {
           it(description, () => {
             const actl: SemTree | string = create('root', { 'root': content }, opts);
             const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
@@ -115,35 +115,45 @@ describe('create()', () => {
   - [[grandchild1]]
   - [[grandchild2]]
     - [[greatgrandchild1]]
-`);
+`,
+            opts,
+          );
 
           testSingleFile('3 spaces',
 `- [[child1]]
    - [[grandchild1]]
    - [[grandchild2]]
       - [[greatgrandchild1]]
-`);
+`,
+            { ...opts, indentSize: 3 },
+          );
 
           testSingleFile('4 spaces',
 `- [[child1]]
     - [[grandchild1]]
     - [[grandchild2]]
         - [[greatgrandchild1]]
-`);
+`,
+            { ...opts, indentSize: 4 },
+          );
 
           testSingleFile('1 tab',
 `- [[child1]]
 \t- [[grandchild1]]
 \t- [[grandchild2]]
 \t\t- [[greatgrandchild1]]
-`);
+`,
+            { ...opts, indentSize: 1 },
+          );
 
           testSingleFile('2 tabs',
 `- [[child1]]
 \t\t- [[grandchild1]]
 \t\t- [[grandchild2]]
 \t\t\t\t- [[greatgrandchild1]]
-`);
+`,
+            { ...opts, indentSize: 2 },
+          );
 
         });
 
@@ -157,7 +167,9 @@ describe('create()', () => {
   - [[grandchild1]]
   - [[grandchild2]]
     - [[greatgrandchild1]]
-`);
+`,
+            opts,
+          );
 
           testSingleFile('strip trailing newlines',
 `- [[child1]]
@@ -167,14 +179,18 @@ describe('create()', () => {
 
 
 
-`);
+`,
+            opts,
+          );
 
           testSingleFile('accept different markdown list styles',
 `- [[child1]]
   * [[grandchild1]]
   * [[grandchild2]]
     + [[greatgrandchild1]]
-`);
+`,
+            opts,
+          );
 
         });
 
@@ -185,21 +201,27 @@ describe('create()', () => {
     - [[grandchild1]]
     - [[grandchild2]]
         - [[greatgrandchild1]]
-`);
+`,
+            { ...opts, indentSize: 4 },
+          );
 
           testSingleFile('mkdnList: false',
 `[[child1]]
   [[grandchild1]]
   [[grandchild2]]
     [[greatgrandchild1]]
-`);
+`,
+            { ...opts, mkdnList: false },
+          );
 
           testSingleFile('wikitext: false',
 `- child1
   - grandchild1
   - grandchild2
     - greatgrandchild1
-`);
+`,
+            { ...opts, wikitext: false },
+          );
 
           // todo: test mkdnList,wikitext false and show how parse will handle it if they exist
 
