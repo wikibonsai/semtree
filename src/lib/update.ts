@@ -11,32 +11,56 @@ export const update = (
   const contentArray: Record<string, string[]> = Object.fromEntries(
     Object.entries(content).map(([key, value]) => [key, value.split('\n').filter(line => line.trim().length > 0)])
   );
-  const updatedTrunkNodes: string[] = Object.keys(contentArray);
-
+  // validate subroot
   const subrootNode = tree.nodes.find(node => node.text === subroot);
   if (!subrootNode) {
     return `semtree.update(): subroot not found in the tree: "${subroot}"`;
   }
-
+  // track updated trunk nodes
+  const updatedTrunkNodes: string[] = Object.keys(contentArray);
+  // grab all original connections
+  const originalConnections = new Set(
+    tree.nodes.flatMap(node => node.children.map(child => `${node.text}:${child}`))
+  );
+  // go
   const updatedTree = build(subroot, contentArray, {
     ...defaultOpts,
     ...options,
     subroot: subroot,
   }, tree);
-
   if (typeof updatedTree === 'string') {
     return updatedTree;
   }
+  // grab updated connections
+  const updatedConnections = new Set(
+    updatedTree.nodes.flatMap(node => node.children.map(child => `${node.text}:${child}`))
+  );
+  if (options.graft) {
+    for (const connection of updatedConnections) {
+      if (!originalConnections.has(connection)) {
+        const [parent, child] = connection.split(':');
+        options.graft(parent, child);
+      }
+    }
+  }
 
-  // Update the full tree
+  if (options.prune) {
+    for (const connection of originalConnections) {
+      if (!updatedConnections.has(connection)) {
+        const [parent, child] = connection.split(':');
+        options.prune(parent, child);
+      }
+    }
+  }
+
+  // Update tree
   tree.nodes = updatedTree.nodes;
   tree.petioleMap = updatedTree.petioleMap;
   tree.trunk = updatedTree.trunk;
 
-  // Find the nodes that were actually updated (those in the content file or their descendants)
-  const updatedNodes: TreeNode[] = tree.nodes.filter(n => {
-    return updatedTrunkNodes.includes(n.text) ||
-      updatedTrunkNodes.some(key => tree.petioleMap[n.text] === key);
-  });
-  return updatedNodes;
+  // Return updated nodes
+  return updatedTree.nodes.filter(n => 
+    updatedTrunkNodes.includes(n.text) ||
+    updatedTrunkNodes.some(key => tree.petioleMap[n.text] === key)
+  );
 };

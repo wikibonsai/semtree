@@ -12,5 +12,21 @@ export const create = (
     Object.entries(content).map(([key, value]) => [key, value.split('\n').filter(line => line.trim().length > 0)])
   );
 
-  return build(root, contentArray, { ...defaultOpts, ...options });
+  const result = build(root, contentArray, { ...defaultOpts, ...options });
+
+  if (typeof result === 'string') {
+    return result;
+  }
+
+  // Perform graft operations
+  if (options.graft) {
+    for (const node of result.nodes) {
+      if (node.ancestors.length > 0) {
+        const parentText = node.ancestors[node.ancestors.length - 1];
+        options.graft(parentText, node.text);
+      }
+    }
+  }
+
+  return result;
 };
