@@ -237,31 +237,41 @@ Delete the local copy of the tree.
 
 ## Options
 
-### `graft: (text: string, ancestors: string[]) => void`
+### Config
 
-A function to execute when each node is added to the tree.
-
-### `indentSize: number`
-
-The size of each level in the tree -- corresponds to number of spaces or tabs. The default is 2 whitespaces. Indentation will be dynamically determined if none is set, but in some scenarios (such as no indentatino exists at all) the defaults will be used if not set explicitly. This can lead to incorrect behavior if the actual indentation does not match the configured indentation.
-
-### `mkdnList: boolean`
-
-Whether `semtree` should expect file content to use markdown bullets `- `, `* `, or `+ `.
-
-### `setRoot: (name: string) => void`
-
-A function that can return/operate on the root name of the tree when it is being set.
-
-### `virtualTrunk: boolean`
+#### `virtualTrunk: boolean`
 
 Whether or not to include the semtree/index files themselves as nodes in the tree. This option is a useful toggle between 'tree-building' (non-virtual to allow for index/trunk file traversal) and 'tree-viewing' (virtual to eliminate unnecessary index/trunk files) states. Default is `false`. Best used for things like static site generation where updates are not a usual occurrence.
 
 Note: If `virtualTrunk` is set to `true`, the resulting tree will not be updatable via the `update` function.
 
-### `wikitext: boolean`
+### Syntax
+
+#### `indentSize: number`
+
+The size of each level in the tree -- corresponds to number of spaces or tabs. The default is 2 whitespaces. Indentation will be dynamically determined if none is set, but in some scenarios (such as no indentatino exists at all) the defaults will be used if not set explicitly. This can lead to incorrect behavior if the actual indentation does not match the configured indentation.
+
+#### `mkdnList: boolean`
+
+Whether `semtree` should expect file content to use markdown bullets `- `, `* `, or `+ `.
+
+#### `wikitext: boolean`
 
 Whether or not to expect [[wikilink square brackets]] so they may be ignored when processing tree text. Default is `true`.
+
+### Functions
+
+#### `graft: (parentText: string, childText: string) => void`
+
+A function to execute when each node is added to the tree.
+
+#### `prune: (parentText: string, childText: string) => void`
+
+A function to execute when each node is removed from the tree.
+
+#### `setRoot: (text: string) => void`
+
+A function that can return/operate on the text of the root of the tree when it is being set.
 
 ## Context
 
