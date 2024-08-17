@@ -25,9 +25,9 @@ export const build = (
 ): SemTree | string => {
   try {
     if (!content || Object.keys(content).length === 0) {
-      return 'semtree.build(): No content provided';
+      return 'semtree.build(): no content provided';
     }
-
+    // go
     let state = createInitialState(root, content, options, existingTree);
     state = lintContent(state);
     if (state.isUpdate) {
@@ -50,6 +50,9 @@ export const build = (
           hasBullets: updatedState.options.mkdnList,
           hasWiki: updatedState.options.wikitext,
         });
+        if ((updatedState.root === leafText) || (updatedState.virtualRoot === leafText)) {
+          throw new Error(`semtree.build(): cycle detected involving node "${leafText}"`);
+        }
         // Handle root setting for virtual trunk mode
         if (updatedState.options.virtualTrunk
           && ((updatedState.level + thisLvl) === 0)
@@ -58,7 +61,7 @@ export const build = (
           if (updatedState.virtualRoot === root) {
             updatedState.virtualRoot = leafText;
           } else {
-            throw new Error('semtree.build(): Multiple root-level entries found in virtual trunk mode');
+            throw new Error(`semtree.build(): cannot have multiple root nodes, node "${leafText}" at same level as root node "${updatedState.virtualRoot}"`);
           }
         }
         // always process the leaf unless it's a trunk file in virtual trunk mode
@@ -88,16 +91,15 @@ export const build = (
       state = pruneDanglingNodes(state);
     }
     state = finalize(state);
-
+    // validate
     if (Object.keys(state.content).length > 0) {
       const unprocessedFiles = Object.keys(state.content).join(', ');
       return `semtree.build(): some files were not processed: ${unprocessedFiles}`;
     }
-
     if (!options.virtualTrunk && (!state.trunk || state.trunk.length === 0)) {
       return 'semtree.build(): No trunk generated';
     }
-
+    // return
     return {
       root: state.root ?? '',
       trunk: state.trunk,
@@ -106,8 +108,8 @@ export const build = (
     };
   } catch (error) {
     if (error instanceof Error) {
-      return `semtree.build(): ${error.message}`;
+      return error.message;
     }
-    return 'semtree.build(): An unknown error occurred';
+    return 'semtree.build(): an unknown error occurred';
   }
 };

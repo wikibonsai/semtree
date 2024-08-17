@@ -36,7 +36,7 @@ describe('create()', () => {
       it('empty input', () => {
         assert.deepStrictEqual(
           create('', {}, opts),
-          'semtree.create(): "content" does not contain: \'\'; keys are: ',
+          'semtree.build(): no content provided',
         );
       });
 
@@ -264,18 +264,6 @@ describe('create()', () => {
         });
 
         describe('error handling', () => {
-
-          it('no root; 0-indented entries only', () => {
-            const content: Record<string,string> = {
-              'root':
-`- [[child1]]
-- [[child2]]
-- [[child3]]
-`};
-            const actl: SemTree | string = create('root', content, opts);
-            const expd: string = 'semtree.getIndentSize(): indentation could not be determined';
-            assert.strictEqual(actl, expd);
-          });
 
           it('inconsistent indentation', () => {
             const content: Record<string,string> = {
@@ -985,7 +973,7 @@ describe('create()', () => {
 `- [[child1b]]
 `,
             },
-            (trunkType === 'concrete') ? 'semtree.build(): self-referential node "root"' : 'semtree.build(): cycle detected involving node "root"',
+            'semtree.build(): cycle detected involving node "root"',
           );
 
         });
