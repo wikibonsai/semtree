@@ -1,33 +1,3 @@
-import { RGX_INDENT } from './const';
-
-
-export const getIndentSize = (root: string, contentHash: Record<string, string[]>): number | string=> {
-  let indentSize: number = -1;
-  function calcSize(key: string): void {
-    const lines: string[] = contentHash[key];
-    lines.forEach((line, i) => {
-      const indentMatch: RegExpMatchArray | null = line.match(RGX_INDENT);
-      // calculates number of spaces
-      if (indentMatch && indentMatch[0] && indentSize < 0) {
-        indentSize = indentMatch[0].length;
-      }
-    });
-  }
-  calcSize(root);
-  // if indentSize is still -1, try to find it in the other files
-  if (indentSize == -1) {
-    const trunkFiles: string[] = Object.keys(contentHash);
-    for (const key of trunkFiles) {
-      calcSize(key);
-      if (indentSize > 0) { break; }
-    }
-    if (indentSize < 0) {
-      return 'semtree.getIndentSize(): indentation could not be determined';
-    }
-  }
-  return indentSize;
-};
-
 export const rawText = (
   fullText: string,
   {
