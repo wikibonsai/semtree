@@ -1,15 +1,21 @@
-import { SemTree, SemTreeOpts } from './types';
+import type {
+  SemTree,
+  SemTreeOpts,
+  TreeBuilderState,
+} from './types';
 import {
   createInitialState,
   lintContent,
   processRoot,
-  processChildren,
+  processBranch,
+  processLeaf,
   checkForDuplicates,
   pruneDanglingNodes,
   storeState,
   finalize,
+  getLevel,
 } from './state';
-
+import { rawText } from './text';
 
 export const build = (
   root: string,
@@ -18,34 +24,64 @@ export const build = (
   existingTree?: SemTree,
 ): SemTree | string => {
   try {
-    const initialState = createInitialState(root, content, options);
-    if (!initialState.content || Object.keys(initialState.content).length === 0) {
+    if (!content || Object.keys(content).length === 0) {
       return 'semtree.build(): No content provided';
     }
 
-    const lintedState = lintContent(initialState);
-    const storedState = storeState(lintedState);
-    const stateWithRoot = processRoot(storedState);
-    const stateWithChildren = processChildren(stateWithRoot);
-    const checkedState = checkForDuplicates(stateWithChildren);
-    // const prunedState = pruneDanglingNodes(checkedState);
-    // const finalState = finalize(prunedState);
-    const finalState = finalize(checkedState);
+    let state = createInitialState(root, content, options, existingTree);
+    state = lintContent(state);
+    state = storeState(state);
+    state = processRoot(state);
 
-    if (Object.keys(finalState.content).length > 0) {
-      const unprocessedFiles = Object.keys(finalState.content).join(', ');
+    const processContent = (currentState: TreeBuilderState, currentBranch: string): TreeBuilderState => {
+      if (!currentState.content[currentBranch]) {
+        return currentState;
+      }
+      let updatedState = processBranch(currentState, currentBranch);
+      updatedState.level += 1;
+      for (const line of updatedState.content[currentBranch]) {
+        const thisLvl: number = getLevel(line, state.options.indentSize || 2);
+        updatedState = processLeaf(updatedState, line, thisLvl, currentBranch);
+        const leafText = rawText(line.trim(), {
+          hasBullets: updatedState.options.mkdnList,
+          hasWiki: updatedState.options.wikitext,
+        });
+        if (updatedState.content[leafText]) {
+          updatedState.level += thisLvl;
+          updatedState = processContent(updatedState, leafText);
+          updatedState.level -= thisLvl;
+        }
+      }
+      updatedState.level -= 1;
+      delete updatedState.content[currentBranch];
+      return updatedState;
+    };
+
+    state = processContent(state, state.isUpdate ? state.subroot! : state.root!);
+
+    state = checkForDuplicates(state);
+    state = pruneDanglingNodes(state);
+    state = finalize(state);
+
+    if (options.virtualTrunk) {
+      state.trunk = [];
+      state.petioleMap = {};
+    }
+
+    if (Object.keys(state.content).length > 0) {
+      const unprocessedFiles = Object.keys(state.content).join(', ');
       return `semtree.build(): some files were not processed: ${unprocessedFiles}`;
     }
 
-    if (!options.virtualTrunk && (!finalState.trunk || finalState.trunk.length === 0)) {
+    if (!options.virtualTrunk && (!state.trunk || state.trunk.length === 0)) {
       return 'semtree.build(): No trunk generated';
     }
 
     return {
-      root: finalState.root ?? '',
-      trunk: finalState.trunk,
-      petioleMap: finalState.petioleMap,
-      nodes: finalState.nodes,
+      root: state.root ?? '',
+      trunk: state.trunk,
+      petioleMap: state.petioleMap,
+      nodes: state.nodes,
     };
   } catch (error) {
     if (error instanceof Error) {

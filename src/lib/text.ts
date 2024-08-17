@@ -22,7 +22,7 @@ export const getIndentSize = (root: string, contentHash: Record<string, string[]
       if (indentSize > 0) { break; }
     }
     if (indentSize < 0) {
-      return 'semtree.getIndentSize(): indentation could not be determined -- is it possible no root exists?';
+      return 'semtree.getIndentSize(): indentation could not be determined';
     }
   }
   return indentSize;

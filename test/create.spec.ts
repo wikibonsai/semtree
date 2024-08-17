@@ -16,7 +16,7 @@ describe('create()', () => {
 
   [
     'concrete',
-    // 'virtual',
+    'virtual',
   ].forEach((trunkType) => {
 
     describe(`${trunkType} trunk`, () => {
@@ -242,7 +242,7 @@ describe('create()', () => {
 - [[child2]]
 - [[child3]]
 `,
-            'semtree.getIndentSize(): indentation could not be determined -- is it possible no root exists?'
+            'semtree.getIndentSize(): indentation could not be determined'
           );
 
           testError('inconsistent indentation',

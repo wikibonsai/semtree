@@ -36,7 +36,7 @@ export const update = (
   // Find the nodes that were actually updated (those in the content file or their descendants)
   const updatedNodes: TreeNode[] = tree.nodes.filter(n => {
     return updatedTrunkNodes.includes(n.text) ||
-      updatedTrunkNodes.some(key => n.ancestors.includes(key));
+      updatedTrunkNodes.some(key => tree.petioleMap[n.text] === key);
   });
   return updatedNodes;
 };

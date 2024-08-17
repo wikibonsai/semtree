@@ -32,3 +32,29 @@ export interface TreeNode {
   // optional data -- for flexibly adding new node properties
   [key: string]: any;
 }
+
+export type TreeBuildingState = 'INITIAL'
+                              | 'PROCESSING_ROOT'
+                              | 'PROCESSING_BRANCH'
+                              | 'PROCESSING_LEAF'
+                              | 'FINALIZING';
+
+export type TreeBuilderState = {
+  state: TreeBuildingState;
+  // input
+  content: Record<string, string[]>;
+  options: SemTreeOpts;
+  // tree
+  root: string | null;
+  nodes: TreeNode[];
+  trunk: string[];
+  petioleMap: Record<string, string>;
+  // tree processing
+  level: number;
+  currentAncestors: string[];
+  // subtree
+  originalState?: { nodes: TreeNode[], trunk: string[], petioleMap: Record<string, string> };
+  isUpdate: boolean;
+  subroot?: string;
+  updatedNodes: TreeNode[];
+};
