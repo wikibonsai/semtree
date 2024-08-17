@@ -57,4 +57,6 @@ export type TreeBuilderState = {
   isUpdate: boolean;
   subroot?: string;
   updatedNodes: TreeNode[];
+  // virtual trunk
+  virtualRoot?: string;
 };

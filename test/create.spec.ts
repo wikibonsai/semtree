@@ -100,66 +100,80 @@ describe('create()', () => {
           // data = (trunkType === 'concrete') ? concreteData : virtualData;
         });
 
-        const testSingleFile = (description: string, content: string, opts: SemTreeOpts) => {
-          it(description, () => {
-            const actl: SemTree | string = create('root', { 'root': content }, opts);
-            const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
-            assert.deepStrictEqual(actl, expd);
-          });
-        };
-
         describe('indentation', () => {
 
-          testSingleFile('2 spaces (base)',
+          it('2 spaces (default)', () => {
+            const content: Record<string,string> = {
+              'root':
 `- [[child1]]
   - [[grandchild1]]
   - [[grandchild2]]
     - [[greatgrandchild1]]
-`,
-            opts,
-          );
+`};
+            const actl: SemTree | string = create('root', content, opts);
+            const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+            assert.deepStrictEqual(actl, expd);
+          });
 
-          testSingleFile('3 spaces',
+          it('3 spaces', () => {
+            const content: Record<string,string> = {
+              'root':
 `- [[child1]]
    - [[grandchild1]]
    - [[grandchild2]]
       - [[greatgrandchild1]]
-`,
-            { ...opts, indentSize: 3 },
-          );
+`};
+            const actl: SemTree | string = create('root', content, { ...opts, indentSize: 3 });
+            const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+            assert.deepStrictEqual(actl, expd);
+          });
 
-          testSingleFile('4 spaces',
+          it('4 spaces', () => {
+            const content: Record<string,string> = {
+              'root':
 `- [[child1]]
     - [[grandchild1]]
     - [[grandchild2]]
         - [[greatgrandchild1]]
-`,
-            { ...opts, indentSize: 4 },
-          );
+`};
+            const actl: SemTree | string = create('root', content, { ...opts, indentSize: 4 });
+            const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+            assert.deepStrictEqual(actl, expd);
+          });
 
-          testSingleFile('1 tab',
+          it('1 tab', () => {
+            const content: Record<string,string> = {
+              'root':
 `- [[child1]]
 \t- [[grandchild1]]
 \t- [[grandchild2]]
 \t\t- [[greatgrandchild1]]
-`,
-            { ...opts, indentSize: 1 },
-          );
+`};
+            const actl: SemTree | string = create('root', content, { ...opts, indentSize: 1 });
+            const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+            assert.deepStrictEqual(actl, expd);
+          });
 
-          testSingleFile('2 tabs',
+          it('2 tabs', () => {
+            const content: Record<string,string> = {
+              'root':
 `- [[child1]]
 \t\t- [[grandchild1]]
 \t\t- [[grandchild2]]
 \t\t\t\t- [[greatgrandchild1]]
-`,
-            { ...opts, indentSize: 2 },
-          );
+`};
+            const actl: SemTree | string = create('root', content, { ...opts, indentSize: 2 });
+            const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+            assert.deepStrictEqual(actl, expd);
+          });
 
         });
 
         describe('extra newlines', () => {
 
-          testSingleFile('strip leading newlines',
+          it('strip leading newlines', () => {
+            const content: Record<string,string> = {
+              'root':
 `
 
 
@@ -167,11 +181,15 @@ describe('create()', () => {
   - [[grandchild1]]
   - [[grandchild2]]
     - [[greatgrandchild1]]
-`,
-            opts,
-          );
+`};
+            const actl: SemTree | string = create('root', content, opts);
+            const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+            assert.deepStrictEqual(actl, expd);
+          });
 
-          testSingleFile('strip trailing newlines',
+          it('strip trailing newlines', () => {
+            const content: Record<string,string> = {
+              'root':
 `- [[child1]]
   - [[grandchild1]]
   - [[grandchild2]]
@@ -179,49 +197,67 @@ describe('create()', () => {
 
 
 
-`,
-            opts,
-          );
+`};
+            const actl: SemTree | string = create('root', content, opts);
+            const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+            assert.deepStrictEqual(actl, expd);
+          });
 
-          testSingleFile('accept different markdown list styles',
+          it('accept different markdown list styles', () => {
+            const content: Record<string,string> = {
+              'root':
 `- [[child1]]
   * [[grandchild1]]
   * [[grandchild2]]
     + [[greatgrandchild1]]
-`,
-            opts,
-          );
+`};
+            const actl: SemTree | string = create('root', content, opts);
+            const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+            assert.deepStrictEqual(actl, expd);
+          });
 
         });
 
         describe('options', () => {
 
-          testSingleFile('indentSize',
+          it('indentSize', () => {
+            const content: Record<string,string> = {
+              'root':
 `- [[child1]]
     - [[grandchild1]]
     - [[grandchild2]]
         - [[greatgrandchild1]]
-`,
-            { ...opts, indentSize: 4 },
-          );
+`};
+            const actl: SemTree | string = create('root', content, { ...opts, indentSize: 4 });
+            const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+            assert.deepStrictEqual(actl, expd);
+          });
 
-          testSingleFile('mkdnList: false',
+          it('mkdnList: false', () => {
+            const content: Record<string,string> = {
+              'root':
 `[[child1]]
   [[grandchild1]]
   [[grandchild2]]
     [[greatgrandchild1]]
-`,
-            { ...opts, mkdnList: false },
-          );
+`};
+            const actl: SemTree | string = create('root', content, { ...opts, mkdnList: false });
+            const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+            assert.deepStrictEqual(actl, expd);
+          });
 
-          testSingleFile('wikitext: false',
+          it('wikitext: false', () => {
+            const content: Record<string,string> = {
+              'root':
 `- child1
   - grandchild1
   - grandchild2
     - greatgrandchild1
-`,
-            { ...opts, wikitext: false },
-          );
+`};
+            const actl: SemTree | string = create('root', content, { ...opts, wikitext: false });
+            const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+            assert.deepStrictEqual(actl, expd);
+          });
 
           // todo: test mkdnList,wikitext false and show how parse will handle it if they exist
 
@@ -229,40 +265,44 @@ describe('create()', () => {
 
         describe('error handling', () => {
 
-          const testError = (description: string, content: string, error: string) => {
-            it(description, () => {
-              const actl: SemTree | string = create('root', { 'root': content }, opts);
-              const expd: string = error;
-              assert.strictEqual(actl, expd);
-            });
-          };
-
-          testError('no root; 0-indented entries only',
+          it('no root; 0-indented entries only', () => {
+            const content: Record<string,string> = {
+              'root':
 `- [[child1]]
 - [[child2]]
 - [[child3]]
-`,
-            'semtree.getIndentSize(): indentation could not be determined'
-          );
+`};
+            const actl: SemTree | string = create('root', content, opts);
+            const expd: string = 'semtree.getIndentSize(): indentation could not be determined';
+            assert.strictEqual(actl, expd);
+          });
 
-          testError('inconsistent indentation',
+          it('inconsistent indentation', () => {
+            const content: Record<string,string> = {
+              'root':
 `- [[child1]]
   - [[grandchild1]]
   - [[grandchild2]]
      - [[greatgrandchild1]]
-`,
-            'semtree.lint(): improper indentation found:\n\n- File "root" Line 4 (inconsistent indentation): "     - [[greatgrandchild1]]"\n',
-          );
+`};
+            const actl: SemTree | string = create('root', content, opts);
+            const expd: string = 'semtree.lint(): improper indentation found:\n\n- File "root" Line 4 (inconsistent indentation): "     - [[greatgrandchild1]]"\n';
+            assert.strictEqual(actl, expd);
+          });
 
-          testError('duplicate text',
+          it('duplicate text', () => {
+            const content: Record<string,string> = {
+              'root':
 `- [[child1]]
   - [[grandchild1]]
   - [[grandchild2]]
   - [[grandchild2]]
     - [[greatgrandchild1]]
-`,
-            'semtree.lint(): duplicate entity names found:\n\n- File "root" Line 4: "grandchild2"\n',
-          );
+`};
+            const actl: SemTree | string = create('root', content, opts);
+            const expd: string = 'semtree.lint(): duplicate entity names found:\n\n- File "root" Line 4: "grandchild2"\n';
+            assert.strictEqual(actl, expd);
+          });
 
         });
 
@@ -322,15 +362,6 @@ describe('create()', () => {
             }]
           };
         });
-
-        // todo
-        // const testMultiFile = (description: string, content: string) => {
-        //   it(description, () => {
-        //     const actl: SemTree | string = parse(content, 'root', opts);
-        //     const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
-        //     assert.deepStrictEqual(actl, expd);
-        //   });
-        // };
 
         describe('default', () => {
 

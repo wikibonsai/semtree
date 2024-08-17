@@ -3,7 +3,7 @@ import { RGX_INDENT } from './const';
 import { lint } from './lint';
 import { pruneDangling } from './dangling';
 import { checkDuplicates } from './duplicates';
-import { rawText, getIndentSize } from './text';
+import { rawText } from './text';
 
 
 export const createInitialState = (
@@ -27,7 +27,6 @@ export const createInitialState = (
 });
 
 export const processRoot = (state: TreeBuilderState): TreeBuilderState => {
-
   return {
     ...state,
     state: 'PROCESSING_ROOT',
@@ -37,6 +36,12 @@ export const processRoot = (state: TreeBuilderState): TreeBuilderState => {
     root: state.isUpdate
       ? state.root
       : (state.subroot || state.options.subroot || Object.keys(state.content)[0]),
+    virtualRoot: state.options.virtualTrunk
+      ? (state.isUpdate
+        ? state.root!
+        : (state.subroot || state.options.subroot || Object.keys(state.content)[0]))
+      : undefined,
+    // root: newRoot,
   };
 };
 
@@ -126,6 +131,9 @@ export const finalize = (state: TreeBuilderState): TreeBuilderState => {
   return {
     ...state,
     state: 'FINALIZING',
+    root: state.options.virtualTrunk ? state.virtualRoot! : state.root!,
+    trunk: state.options.virtualTrunk ? [] : state.trunk,
+    petioleMap: state.options.virtualTrunk ? {} : state.petioleMap,
   };
 };
 
