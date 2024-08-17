@@ -887,17 +887,8 @@ describe('create()', () => {
 
         describe('error handling', () => {
 
-          const testErrorMultiFile = (description: string, root: string, content: Record<string, string>, error: string) => {
-            it(description, () => {
-              const actl: SemTree | string = create(root, content, opts);
-              const expd: string = error;
-              assert.strictEqual(actl, expd);
-            });
-          };
-
-          testErrorMultiFile('inconsistent indentation',
-            'root',
-            {
+          it('inconsistent indentation', () => {
+            const content: Record<string, string> = {
               'root':
 `- [[child1a]]
   - [[grandchild1a]]
@@ -905,13 +896,32 @@ describe('create()', () => {
 `,
               'branch':
 `- [[child1b]]
-`,
-            },
-            'semtree.lint(): improper indentation found:\n\n- File "root" Line 3 (inconsistent indentation): "     - [[branch]]"\n',
-          );
+`           };
+            const actl: SemTree | string = create('root', content, opts);
+            const expd: string = 'semtree.lint(): improper indentation found:\n\n- File "root" Line 3 (inconsistent indentation): "     - [[branch]]"\n';
+            assert.strictEqual(actl, expd);
+          });
 
-          testErrorMultiFile('cycle; self; branch',
-            'root', {
+          it('cycle; self; root', () => {
+            const content: Record<string, string> = {
+              'root':
+`- [[root]]
+  - [[child1a]]
+    - [[grandchild1a]]
+      - [[branch]]
+`,
+              'branch':
+`- [[child1b]]
+`,
+            };
+            const actl: SemTree | string = create('root', content, opts);
+            const expd: string = 'semtree.checkForDuplicates(): cycle detected involving node "root"';
+            assert.strictEqual(actl, expd);
+          });
+
+
+          it('cycle; self; branch', () => {
+            const content: Record<string, string> = {
               'root':
 `- [[child1a]]
   - [[grandchild1a]]
@@ -921,15 +931,17 @@ describe('create()', () => {
 `- [[branch]]
 - [[child1b]]
 `,
-            },
-            `semtree.lint(): duplicate entity names found:
+            };
+            const actl: SemTree | string = create('root', content, opts);
+            const expd: string = `semtree.lint(): duplicate entity names found:
 
 - File "branch" Line 1: "branch"
-`,
-          );
+`;
+            assert.strictEqual(actl, expd);
+          });
 
-          testErrorMultiFile('cycle; cross-file; root',
-            'root', {
+          it('cycle; cross-file; root', () => {
+            const content: Record<string, string> = {
               'root':
 `- [[child1a]]
   - [[grandchild1a]]
@@ -937,12 +949,15 @@ describe('create()', () => {
 `,
               'branch':
 `- [[root]]
-`},
-            'semtree.build(): cycle detected involving node "root"',
-          );
+`
+            };
+            const actl: SemTree | string = create('root', content, opts);
+            const expd: string = 'semtree.checkForDuplicates(): cycle detected involving node "root"';
+            assert.strictEqual(actl, expd);
+          });
 
-          testErrorMultiFile('cycle; cross-file; branch',
-            'root', {
+          it('cycle; cross-file; branch', () => {
+            const content: Record<string, string> = {
               'root':
 `- [[child1a]]
   - [[grandchild1a]]
@@ -954,27 +969,14 @@ describe('create()', () => {
               'branch2':
 `- [[branch1]]
 `
-            },
-            `semtree.lint(): duplicate entity names found:
+            };
+            const actl: SemTree | string = create('root', content, opts);
+            const expd: string = `semtree.lint(): duplicate entity names found:
 
 - File "branch2" Line 1: "branch1"
-`,
-          );
-
-          testErrorMultiFile('cycle; self; root',
-            'root', {
-              'root':
-`- [[root]]
-  - [[child1a]]
-    - [[grandchild1a]]
-      - [[branch]]
-`,
-              'branch':
-`- [[child1b]]
-`,
-            },
-            'semtree.build(): cycle detected involving node "root"',
-          );
+`;
+            assert.strictEqual(actl, expd);
+          });
 
         });
 
