@@ -2,7 +2,6 @@ import type { SemTreeOpts, SemTree, TreeBuilderState } from './types';
 import { RGX_INDENT } from './const';
 import { lint } from './lint';
 import { pruneDangling } from './dangling';
-import { checkDuplicates } from './duplicates';
 import { rawText } from './text';
 
 
@@ -149,10 +148,41 @@ export const lintContent = (state: TreeBuilderState): TreeBuilderState => {
 };
 
 export const checkForDuplicates = (state: TreeBuilderState): TreeBuilderState => {
-  const hasDups = checkDuplicates(state.nodes);
-  if (typeof hasDups === 'string') {
-    throw new Error(hasDups);
+  const duplicates: string[] = [];
+  const seenTexts: Set<string> = new Set<string>();
+  
+  // Iterate through all content
+  for (const [file, lines] of Object.entries(state.content)) {
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) continue;
+      const nodeText = rawText(trimmedLine, {
+        hasBullets: state.options.mkdnList,
+        hasWiki: state.options.wikitext,
+      });
+      if (seenTexts.has(nodeText)) {
+        duplicates.push(nodeText);
+      } else {
+        seenTexts.add(nodeText);
+      }
+      // cycle check
+      if ((nodeText === state.root)
+        || (state.virtualRoot && (nodeText === state.virtualRoot))
+      ) {
+        throw new Error(`semtree.checkForDuplicates(): cycle detected involving node "${nodeText}"`);
+      }
+    }
   }
+
+  const hasDup: boolean = duplicates.length > 0;
+  if (hasDup) {
+    // delete duplicate duplicates, convert to array
+    const dupNames: string[] = Array.from(new Set(duplicates));
+    let errorMsg: string = 'semtree.checkForDuplicates(): tree did not build, duplicate nodes found:\n\n';
+    errorMsg += dupNames.join(', ') + '\n\n';
+    throw new Error(errorMsg);
+  }
+
   return state;
 };
 

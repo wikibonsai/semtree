@@ -17,6 +17,7 @@ import {
 } from './state';
 import { rawText } from './text';
 
+
 export const build = (
   root: string,
   content: Record<string, string[]>,
@@ -29,11 +30,12 @@ export const build = (
     }
     // go
     let state = createInitialState(root, content, options, existingTree);
+    state = processRoot(state);
     state = lintContent(state);
+    state = checkForDuplicates(state);
     if (state.isUpdate) {
       state = storeState(state);
     }
-    state = processRoot(state);
 
     const processContent = (currentState: TreeBuilderState, currentBranch: string, isRootFile: boolean = true): TreeBuilderState => {
       if (!currentState.content[currentBranch]) {
@@ -50,9 +52,6 @@ export const build = (
           hasBullets: updatedState.options.mkdnList,
           hasWiki: updatedState.options.wikitext,
         });
-        if ((updatedState.root === leafText) || (updatedState.virtualRoot === leafText)) {
-          throw new Error(`semtree.build(): cycle detected involving node "${leafText}"`);
-        }
         // Handle root setting for virtual trunk mode
         if (updatedState.options.virtualTrunk
           && ((updatedState.level + thisLvl) === 0)
@@ -86,7 +85,6 @@ export const build = (
     };
 
     state = processContent(state, state.isUpdate ? state.subroot! : state.root!, true);
-    state = checkForDuplicates(state);
     if (state.isUpdate) {
       state = pruneDanglingNodes(state);
     }
