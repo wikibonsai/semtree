@@ -75,7 +75,7 @@ export const build = (
         }
       }
       if (updatedState.options.virtualTrunk && isRootFile && updatedState.root === null) {
-        throw new Error('semtree.build(): No root-level entry found in virtual trunk mode');
+        throw new Error('semtree.build(): no root-level entry found in virtual trunk mode');
       }
       if (!currentState.options.virtualTrunk) {
         updatedState.level -= 1;
