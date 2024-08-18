@@ -6,8 +6,9 @@ import { build } from './build';
 export const create = (
   root: string,
   content: Record<string, string>,
-  options: SemTreeOpts,
+  options?: SemTreeOpts,
 ): SemTree | string => {
+  const opts = options ?? defaultOpts;
   const contentArray: Record<string, string[]> = Object.fromEntries(
     Object.entries(content).map(([key, value]) => [key, value.split('\n').filter(line => line.trim().length > 0)])
   );
@@ -19,7 +20,7 @@ export const create = (
   }
 
   // Perform graft operations
-  if (options.graft) {
+  if (options?.graft) {
     for (const node of result.nodes) {
       if (node.ancestors.length > 0) {
         const parentText = node.ancestors[node.ancestors.length - 1];

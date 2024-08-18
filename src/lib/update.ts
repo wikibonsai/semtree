@@ -6,8 +6,9 @@ export const update = (
   tree: SemTree,
   subroot: string,
   content: Record<string, string>,
-  options: SemTreeOpts,
+  options?: SemTreeOpts,
 ): TreeNode[] | string => {
+  const opts = options ?? defaultOpts;
   const contentArray: Record<string, string[]> = Object.fromEntries(
     Object.entries(content).map(([key, value]) => [key, value.split('\n').filter(line => line.trim().length > 0)])
   );
@@ -35,7 +36,7 @@ export const update = (
   const updatedConnections = new Set(
     updatedTree.nodes.flatMap(node => node.children.map(child => `${node.text}:${child}`))
   );
-  if (options.graft) {
+  if (options?.graft) {
     for (const connection of updatedConnections) {
       if (!originalConnections.has(connection)) {
         const [parent, child] = connection.split(':');
@@ -44,7 +45,7 @@ export const update = (
     }
   }
 
-  if (options.prune) {
+  if (options?.prune) {
     for (const connection of originalConnections) {
       if (!updatedConnections.has(connection)) {
         const [parent, child] = connection.split(':');
