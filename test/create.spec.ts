@@ -239,6 +239,100 @@ describe('create()', () => {
           assert.deepStrictEqual(actl, expd);
         });
 
+        describe('option functions', () => {
+
+          let spyGraft: sinon.SinonSpy;
+          let spyPrune: sinon.SinonSpy;
+          let opts: SemTreeOpts;
+          let initialTree: SemTree;
+        
+          beforeEach(() => {
+            spyGraft = sinon.spy();
+            spyPrune = sinon.spy();
+            opts = {
+              graft: spyGraft,
+              prune: spyPrune,
+            };
+            initialTree = {
+              root: 'root',
+              trunk: ['root'],
+              petioleMap: {
+                'root': 'root',
+                'child1': 'root',
+                'grandchild1': 'root',
+                'grandchild2': 'root',
+                'child2': 'root',
+              },
+              nodes: [
+                {
+                  text: 'root',
+                  ancestors: [],
+                  children: ['child1', 'child2'],
+                },
+                {
+                  text: 'child1',
+                  ancestors: ['root'],
+                  children: ['grandchild1', 'grandchild2'],
+                },
+                {
+                  text: 'grandchild1',
+                  ancestors: ['root', 'child1'],
+                  children: [],
+                },
+                {
+                  text: 'grandchild2',
+                  ancestors: ['root', 'child1'],
+                  children: [],
+                },
+                {
+                  text: 'child2',
+                  ancestors: ['root'],
+                  children: [],
+                },
+              ],
+            };
+          });
+
+          it(`${trunkType} trunk; single file; options; graft`, () => {
+            // setup
+            const content = {
+              'root': `
+- [[child1]]
+  - [[grandchild1]]
+  - [[grandchild2]]
+- [[child2]]
+`
+            };
+            // go
+            const result = create('root', content, opts);
+            // assert
+            assert(result instanceof Object);
+            assert.equal(spyGraft.callCount, 4);
+            assert(spyGraft.calledWith('root', 'child1'));
+            assert(spyGraft.calledWith('child1', 'grandchild1'));
+            assert(spyGraft.calledWith('child1', 'grandchild2'));
+            assert(spyGraft.calledWith('root', 'child2'));
+            assert.equal(spyPrune.callCount, 0);
+          });
+
+          it(`${trunkType} trunk; single file; options; graft; should not call for root node`, () => {
+            // setup
+            const content = {
+              'root': `
+- [[child1]]
+`
+            };
+            // go
+            const result = create('root', content, opts);
+            // assert
+            assert(result instanceof Object);
+            assert.equal(spyGraft.callCount, 1);
+            assert(spyGraft.calledWith('root', 'child1'));
+            assert.equal(spyPrune.callCount, 0);
+          });
+
+        });
+
         it(`${trunkType} trunk; single file; error handling; inconsistent indentation`, () => {
           const content: Record<string,string> = {
             'root':
@@ -746,20 +840,6 @@ describe('create()', () => {
             ]
           };
           assert.deepStrictEqual(actlData, expdData);
-        });
-
-        // options
-
-        it.skip(`${trunkType} trunk; multi file; options; indentSize`, () => {
-          assert.strictEqual(0, 1);
-        });
-
-        it.skip(`${trunkType} trunk; multi file; options; mkdnList: false`, () => {
-          assert.strictEqual(0, 1);
-        });
-
-        it.skip(`${trunkType} trunk; multi file; options; wikitext: false`, () => {
-          assert.strictEqual(0, 1);
         });
 
         // error handling
