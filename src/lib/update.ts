@@ -8,7 +8,6 @@ export const update = (
   content: Record<string, string>,
   options?: SemTreeOpts,
 ): TreeNode[] | string => {
-  const opts = options ?? defaultOpts;
   const contentArray: Record<string, string[]> = Object.fromEntries(
     Object.entries(content).map(([key, value]) => [key, value.split('\n').filter(line => line.trim().length > 0)])
   );
