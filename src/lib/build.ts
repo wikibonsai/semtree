@@ -13,9 +13,8 @@ import {
   pruneDanglingNodes,
   storeState,
   finalize,
-  getLevel,
 } from './state';
-import { rawText } from './text';
+import { getLevel, rawText } from './text';
 
 
 export const build = (
