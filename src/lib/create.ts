@@ -18,7 +18,10 @@ export const create = (
     return result;
   }
 
-  // Perform graft operations
+  // option function operations
+  if (options?.setRoot) {
+    options.setRoot(result.root);
+  }
   if (options?.graft) {
     for (const node of result.nodes) {
       if (node.ancestors.length > 0) {

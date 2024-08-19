@@ -39,6 +39,10 @@ export const update = (
   const updatedConnections = new Set(
     updatedTree.nodes.flatMap(node => node.children.map(child => `${node.text}:${child}`))
   );
+  // option function operations
+  if (options?.setRoot) {
+    options.setRoot(updatedTree.root);
+  }
   if (options?.graft) {
     for (const connection of updatedConnections) {
       if (!originalConnections.has(connection)) {
@@ -47,7 +51,6 @@ export const update = (
       }
     }
   }
-
   if (options?.prune) {
     for (const connection of originalConnections) {
       if (!updatedConnections.has(connection)) {
