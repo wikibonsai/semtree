@@ -65,6 +65,7 @@ describe('print()', () => {
             'child2b': 'branch2',
             'greatgrandchild': 'root',
           },
+          orphans: [],
         };
         const expdTreeStr: string =
 `root
@@ -125,6 +126,7 @@ describe('print()', () => {
             'grandchild': 'child',
             'greatgrandchild': 'child',
           },
+          orphans: [],
         };
         const expdTreeStr: string =
 `child
@@ -159,6 +161,7 @@ describe('print()', () => {
           'child1': 'root',
           'child2': 'root',
         },
+        orphans: [],
       };
       const expdTreeStr: string =
 `root

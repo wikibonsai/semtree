@@ -1,6 +1,6 @@
 import type { SemTreeOpts, SemTree, TreeBuilderState } from './types';
 import { lint } from './lint';
-import { pruneDangling } from './dangling';
+import { pruneOrphans } from './orphan';
 import { rawText } from './text';
 
 
@@ -17,6 +17,7 @@ export const createInitialState = (
   nodes: existingTree ? [...existingTree.nodes] : [],
   trunk: existingTree ? [...existingTree.trunk] : [],
   petioleMap: existingTree ? { ...existingTree.petioleMap } : {},
+  orphans: existingTree ? [...existingTree.orphans] : [],
   level: 0,
   currentAncestors: [],
   isUpdate: !!existingTree,
@@ -126,6 +127,7 @@ export const finalize = (state: TreeBuilderState): TreeBuilderState => {
     root: state.options.virtualTrunk ? state.virtualRoot! : state.root!,
     trunk: state.options.virtualTrunk ? [] : state.trunk,
     petioleMap: state.options.virtualTrunk ? {} : state.petioleMap,
+    orphans: state.options.virtualTrunk ? [] : [...Object.keys(state.content)],
   };
 };
 
@@ -133,9 +135,15 @@ export const lintContent = (state: TreeBuilderState): TreeBuilderState => {
   const contentAsStrings = Object.fromEntries(
     Object.entries(state.content).map(([key, value]) => [key, value.join('\n')])
   );
-  const lintError = lint(contentAsStrings, state.options.indentSize || 2);
-  if (lintError) {
-    throw new Error(lintError);
+  const lintError: { warn: string, error: string } | void = lint(contentAsStrings, {
+    // indentKind: state.options.indentKind,
+    indentSize: state.options.indentSize ?? 2,
+    mkdnList: state.options.mkdnList,
+    wikitext: state.options.wikitext,
+    root: state.root ?? '',
+  });
+  if (lintError?.error) {
+    throw new Error(lintError.warn + lintError.error);
   }
   return state;
 };
@@ -166,7 +174,6 @@ export const checkForDuplicates = (state: TreeBuilderState): TreeBuilderState =>
       }
     }
   }
-
   const hasDup: boolean = duplicates.length > 0;
   if (hasDup) {
     // delete duplicate duplicates, convert to array
@@ -179,12 +186,13 @@ export const checkForDuplicates = (state: TreeBuilderState): TreeBuilderState =>
   return state;
 };
 
-export const pruneDanglingNodes = (state: TreeBuilderState): TreeBuilderState => {
-  const pruned = pruneDangling({
+export const pruneOrphanNodes = (state: TreeBuilderState): TreeBuilderState => {
+  const pruned = pruneOrphans({
     root: state.root!,
     trunk: state.trunk,
     petioleMap: state.petioleMap,
     nodes: state.nodes,
+    orphans: state.orphans,
   });
 
   if (typeof pruned === 'string') {

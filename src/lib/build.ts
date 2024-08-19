@@ -10,7 +10,7 @@ import {
   processBranch,
   processLeaf,
   checkForDuplicates,
-  pruneDanglingNodes,
+  pruneOrphanNodes,
   storeState,
   finalize,
 } from './state';
@@ -85,23 +85,16 @@ export const build = (
 
     state = processContent(state, state.isUpdate ? state.subroot! : state.root!, true);
     if (state.isUpdate) {
-      state = pruneDanglingNodes(state);
+      state = pruneOrphanNodes(state);
     }
     state = finalize(state);
-    // validate
-    if (Object.keys(state.content).length > 0) {
-      const unprocessedFiles = Object.keys(state.content).join(', ');
-      return `semtree.build(): some files were not processed: ${unprocessedFiles}`;
-    }
-    if (!options.virtualTrunk && (!state.trunk || state.trunk.length === 0)) {
-      return 'semtree.build(): No trunk generated';
-    }
     // return
     return {
       root: state.root ?? '',
       trunk: state.trunk,
       petioleMap: state.petioleMap,
       nodes: state.nodes,
+      orphans: state.orphans,
     };
   } catch (error) {
     if (error instanceof Error) {

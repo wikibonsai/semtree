@@ -2,12 +2,16 @@ import { SemTree, TreeNode, SemTreeOpts } from './types';
 import { defaultOpts } from './const';
 import { build } from './build';
 
+
 export const update = (
   tree: SemTree,
   subroot: string,
   content: Record<string, string>,
   options?: SemTreeOpts,
 ): TreeNode[] | string => {
+  if (options?.virtualTrunk) {
+    return 'semtree.update(): cannot run updates on a virtual trunk';
+  }
   const contentArray: Record<string, string[]> = Object.fromEntries(
     Object.entries(content).map(([key, value]) => [key, value.split('\n').filter(line => line.trim().length > 0)])
   );
@@ -53,10 +57,11 @@ export const update = (
     }
   }
 
-  // Update tree
+  // update tree
   tree.nodes = updatedTree.nodes;
-  tree.petioleMap = updatedTree.petioleMap;
   tree.trunk = updatedTree.trunk;
+  tree.petioleMap = updatedTree.petioleMap;
+  tree.orphans = updatedTree.orphans;
 
   // Return updated nodes
   return updatedTree.nodes.filter(n => 

@@ -1,8 +1,9 @@
 export interface SemTree {
+  root: string;
   nodes: TreeNode[];
   trunk: string[];
   petioleMap: Record<string, string>;
-  root: string;
+  orphans: string[];
 }
 
 export interface SemTreeOpts {
@@ -23,6 +24,16 @@ export interface BuildTreeOpts extends SemTreeOpts {
   tree?: SemTree;                                      // the tree to be updated (if not provided, a new tree will be built)
   ancestors?: TreeNode[]                               // the ancestors of the node to be updated
   level?: number;                                      // the level of the tree to be updated
+}
+
+export interface LintOpts {
+  // syntax
+  indentSize?: number;                                 // the number of indentations per tree level
+  // indentKind?: 'space' | 'tab';                        // the type of indentation (space or tab)
+  mkdnList?: boolean;                                  // whether or not to expect markdown bullets ('- ', '* ', '+ ') for each node
+  wikitext?: boolean;                                  // whether or not to expect [[wikilink square brackets]] so they may be ignored when processing tree text
+  // tree
+  root?: string;                                       // the root of the subtree to be updated
 }
 
 export interface TreeNode {
@@ -48,6 +59,7 @@ export type TreeBuilderState = {
   root: string | null;
   nodes: TreeNode[];
   trunk: string[];
+  orphans: string[];
   petioleMap: Record<string, string>;
   // tree processing
   level: number;

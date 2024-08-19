@@ -1,11 +1,11 @@
-import type { SemTreeOpts } from './types';
+import type { LintOpts } from './types';
 import { defaultOpts, RGX_INDENT } from './const';
 
 
 export const lint = (
   content: string | Record<string, string>,
-  options: SemTreeOpts,
-): void | string => {
+  options: LintOpts,
+): void | { warn: string, error: string } => {
   // const indentKind = 'space';
   /* @ts-expect-error: options.indentSize is optional */
   const indentSize: number = options.indentSize ?? defaultOpts.indentSize;
@@ -15,7 +15,9 @@ export const lint = (
   const wikitext: boolean = options.wikitext ?? defaultOpts.wikitext;
   // warnings
   const badIndentations: { fname?: string, line: number; content: string; reason: string }[] = [];
-  const entities: Set<string> = new Set();
+  // Update the entities type
+  const orphanTrunks: string[] = [];
+  const entities: Map<string, { occurrences: { fname?: string, line: number }[] }> = new Map();
   const duplicates: { fname?: string, line: number; content: string }[] = [];
   const markdownWarnings: { fname?: string, line: number; content: string }[] = [];
   const wikitextWarnings: { fname?: string, line: number; content: string }[] = [];
@@ -78,20 +80,15 @@ export const lint = (
                                      .replace(/\]\]/, '');
       /* eslint-enable indent */
       if (entities.has(entityName)) {
+        const entityInfo = entities.get(entityName)!;
+        entityInfo.occurrences.push({ fname, line: lineNumber });
         duplicates.push({
-          fname: fname ? fname : '',
+          fname: fname ?? '',
           line: lineNumber,
           content: entityName,
         });
-      // note: this won't work for virtual trunks
-      // } else if (fname === entityName) {
-      //   duplicates.push({
-      //     fname: fname ? fname : '',
-      //     line: lineNumber,
-      //     content: entityName,
-      //   });
       } else {
-        entities.add(entityName);
+        entities.set(entityName, { occurrences: [{ fname, line: lineNumber }] });
       }
     }
   };
@@ -111,10 +108,38 @@ export const lint = (
         lintLine(lines[i], i + 1, filename);
       }
     }
+    // if a root is given we can check for unused trunk files
+    if (options.root) {
+      // track trunk/index usage
+      const contentKeys: string[] = Object.keys(content);
+      // remove root from contentKeys
+      const rootIndex: number = contentKeys.indexOf(options.root ?? '');
+      if (rootIndex !== -1) {
+        contentKeys.splice(rootIndex, 1);
+      }
+      for (const key of contentKeys) {
+        if (!entities.has(key)) {
+          orphanTrunks.push(key);
+        }
+      }
+    }
   }
 
   // errors
   let errorMsg: string = '';
+  const duplicateErrors = Array.from(entities.entries())
+    .filter(([_, info]) => info.occurrences.length > 1)
+    .map(([content, info]) => 
+      `- "${content}"\n` +
+      info.occurrences.map(({ fname, line }) => 
+        fname
+          ? `  - File "${fname}" Line ${line}\n`
+          : `  - Line ${line}\n`
+      ).join('')
+    );
+  if (duplicateErrors.length > 0) {
+    errorMsg += 'semtree.lint(): duplicate entity names found:\n\n' + duplicateErrors.join('');
+  }
   if (badIndentations.length > 0) {
     errorMsg += 'semtree.lint(): improper indentation found:\n\n';
     badIndentations.forEach(({ fname, line, content, reason }) => {
@@ -123,13 +148,16 @@ export const lint = (
         : `- Line ${line} (${reason}): "${content}"\n`;
     });
   }
-  if (duplicates.length > 0) {
-    errorMsg += 'semtree.lint(): duplicate entity names found:\n\n';
-    duplicates.forEach(({ fname, line, content }) => {
-      errorMsg += fname
-        ? `- File "${fname}" Line ${line}: "${content}"\n`
-        : `- Line ${line}: "${content}"\n`;
-    });
+  // warnings
+  let warnMsg: string = '';
+  // Check for unused content keys
+  if (typeof content === 'object') {
+    if (orphanTrunks.length > 0) {
+      warnMsg += 'semtree.lint(): orphan trunk files found:\n\n';
+      orphanTrunks.forEach(key => {
+        warnMsg += `- ${key}\n`;
+      });
+    }
   }
   if (markdownWarnings.length > 0) {
     errorMsg += 'semtree.lint(): ' + (mkdnList ? 'missing' : 'unexpected') + ' markdown bullet found:\n\n';
@@ -147,5 +175,11 @@ export const lint = (
         : `- Line ${line}: "${content}"\n`;
     });
   }
-  return errorMsg || undefined;
+  if ((warnMsg.length > 0) || (errorMsg.length > 0)) {
+    return {
+      warn: warnMsg,
+      error: errorMsg,
+    };
+  }
+  return undefined;
 };

@@ -39,6 +39,7 @@ describe('create()', () => {
             'grandchild2': 'root',
             'greatgrandchild1': 'root',
           },
+          orphans: [],
           nodes: [{
             text: 'root',
             ancestors: [],
@@ -65,6 +66,7 @@ describe('create()', () => {
           root: 'child1',
           trunk: [],
           petioleMap: {},
+          orphans: [],
           nodes: [{
             text: 'child1',
             ancestors: [],
@@ -263,6 +265,7 @@ describe('create()', () => {
                 'grandchild2': 'root',
                 'child2': 'root',
               },
+              orphans: [],
               nodes: [
                 {
                   text: 'root',
@@ -333,34 +336,41 @@ describe('create()', () => {
 
         });
 
-        it(`${trunkType} trunk; single file; error handling; inconsistent indentation`, () => {
-          const content: Record<string,string> = {
-            'root':
+      });
+
+      it(`${trunkType} trunk; single file; error handling; inconsistent indentation`, () => {
+        const content: Record<string,string> = {
+          'root':
 `- [[child1]]
   - [[grandchild1]]
   - [[grandchild2]]
      - [[greatgrandchild1]]
 `
-          };
-          const actl: SemTree | string = create('root', content, opts);
-          const expd: string = 'semtree.lint(): improper indentation found:\n\n- File "root" Line 4 (inconsistent indentation): "     - [[greatgrandchild1]]"\n';
-          assert.strictEqual(actl, expd);
-        });
+        };
+        const actl: SemTree | string = create('root', content, opts);
+        const expd: string = 'semtree.lint(): improper indentation found:\n\n- File "root" Line 4 (inconsistent indentation): "     - [[greatgrandchild1]]"\n';
+        assert.strictEqual(actl, expd);
+      });
 
-        it(`${trunkType} trunk; single file; error handling; duplicate text`, () => {
-          const content: Record<string,string> = {
-            'root':
+      it(`${trunkType} trunk; single file; error handling; duplicate text`, () => {
+        const content: Record<string,string> = {
+          'root':
 `- [[child1]]
   - [[grandchild1]]
   - [[grandchild2]]
   - [[grandchild2]]
     - [[greatgrandchild1]]
 `
-          };
-          const actl: SemTree | string = create('root', content, opts);
-          const expd: string = 'semtree.lint(): duplicate entity names found:\n\n- File "root" Line 4: "grandchild2"\n';
-          assert.strictEqual(actl, expd);
-        });
+        };
+        const actl: SemTree | string = create('root', content, opts);
+        const expd: string =
+`semtree.lint(): duplicate entity names found:
+
+- "grandchild2"
+  - File "root" Line 3
+  - File "root" Line 4
+`;
+        assert.strictEqual(actl, expd);
       });
 
       describe('multi file', () => {
@@ -376,6 +386,7 @@ describe('create()', () => {
               'branch': 'root',
               'child1b': 'branch',
             },
+            orphans: [],
             nodes: [{
               text: 'root',
               ancestors: [],
@@ -402,6 +413,7 @@ describe('create()', () => {
             root: 'child1a',
             trunk: [],
             petioleMap: {},
+            orphans: [],
             nodes: [{
               text: 'child1a',
               ancestors: [],
@@ -460,6 +472,7 @@ describe('create()', () => {
               'child1b': 'branch1',
               'child1c': 'branch2',
             },
+            orphans: [],
             nodes: [
               {
                 text: 'root',
@@ -491,6 +504,7 @@ describe('create()', () => {
             root: 'child1a',
             trunk: [],
             petioleMap: {},
+            orphans: [],
             nodes: [
               {
                 text: 'child1a',
@@ -508,6 +522,68 @@ describe('create()', () => {
             ]
           };
           assert.deepStrictEqual(actlData, expdData);
+        });
+
+        it(`${trunkType} trunk; multi file; unprocessed trunk files added to 'orphans'`, () => {
+          const content: Record<string, string> = {
+            'root':
+`- [[child1]]
+`,
+            'child1':
+`- [[grandchild1]]
+`,
+            'unused-file1':
+`- [[unused-child1]]
+`,
+            'unused-file2':
+`- [[unused-child2]]
+`,
+          };
+          
+          const actlData: SemTree | string = create('root', content, opts);
+          const expdData: SemTree = trunkType === 'concrete' ? {
+            root: 'root',
+            trunk: ['root', 'child1'],
+            petioleMap: {
+              'root': 'root',
+              'child1': 'root',
+              'grandchild1': 'child1',
+            },
+            orphans: ['unused-file1', 'unused-file2'],
+            nodes: [
+              {
+                text: 'root',
+                ancestors: [],
+                children: ['child1'],
+              },{
+                text: 'child1',
+                ancestors: ['root'],
+                children: ['grandchild1'],
+              },{
+                text: 'grandchild1',
+                ancestors: ['root', 'child1'],
+                children: [],
+              }
+            ]
+          } : {
+            root: 'grandchild1',
+            trunk: [],
+            petioleMap: {},
+            orphans: [],
+            nodes: [
+              {
+                text: 'grandchild1',
+                ancestors: [],
+                children: [],
+              }
+            ]
+          };
+          
+          if (typeof actlData === 'string') {
+            assert.fail(`Expected SemTree object, but got error string: ${actlData}`);
+          } else {
+            assert.deepStrictEqual(actlData, expdData);
+          }
         });
 
         it(`${trunkType} trunk; multi file; deep backtracking`, () => {
@@ -540,6 +616,7 @@ describe('create()', () => {
               'childb': 'branch',
               'greatgrandchild2': 'root',
             },
+            orphans: [],
             nodes: [
               {
                 text: 'root',
@@ -583,6 +660,7 @@ describe('create()', () => {
             root: 'childa',
             trunk: [],
             petioleMap: {},
+            orphans: [],
             nodes: [
               {
                 text: 'childa',
@@ -646,6 +724,7 @@ describe('create()', () => {
               'branch': 'root',
               'childb': 'branch',
             },
+            orphans: [],
             nodes: [
               {
                 text: 'root',
@@ -705,6 +784,7 @@ describe('create()', () => {
               'child1b': 'branch1',
               'child2b': 'branch1',
             },
+            orphans: [],
             nodes: [
               {
                 text: 'root',
@@ -728,6 +808,7 @@ describe('create()', () => {
             root: 'child1b',
             trunk: [],
             petioleMap: {},
+            orphans: [],
             nodes: [
               {
                 text: 'child1b',
@@ -763,6 +844,7 @@ describe('create()', () => {
               'child1b': 'branch1',
               'child2b': 'branch1',
             },
+            orphans: [],
             nodes: [
               {
                 text: 'root',
@@ -808,6 +890,7 @@ describe('create()', () => {
               'branch2': 'branch1',
               'child1c': 'branch2',
             },
+            orphans: [],
             nodes: [
               {
                 text: 'root',
@@ -831,6 +914,7 @@ describe('create()', () => {
             root: 'child1c',
             trunk: [],
             petioleMap: {},
+            orphans: [],
             nodes: [
               {
                 text: 'child1c',
@@ -840,6 +924,62 @@ describe('create()', () => {
             ]
           };
           assert.deepStrictEqual(actlData, expdData);
+        });
+
+        // orphan trunk files
+
+        it(`${trunkType} trunk; multi file; orphan trunk file`, () => {
+          // setup
+          const content: Record<string, string> = {
+            'root':
+`- [[child1]]
+`,
+            'child1':
+`- [[grandchild1]]
+`,
+            'unused-file':
+`- [[unused-child]]
+`,
+          };
+          const actlResult: SemTree | string = create('root', content, opts);
+          const expdResult: SemTree = trunkType === 'concrete' ? {
+            root: 'root',
+            trunk: ['root', 'child1'],
+            petioleMap: {
+              'root': 'root',
+              'child1': 'root',
+              'grandchild1': 'child1',
+            },
+            orphans: ['unused-file'],
+            nodes: [
+              {
+                text: 'root',
+                ancestors: [],
+                children: ['child1'],
+              },{
+                text: 'child1',
+                ancestors: ['root'],
+                children: ['grandchild1'],
+              },{
+                text: 'grandchild1',
+                ancestors: ['root', 'child1'],
+                children: [],
+              }
+            ]
+          } : {
+            root: 'grandchild1',
+            trunk: [],
+            petioleMap: {},
+            orphans: [],
+            nodes: [
+              {
+                text: 'grandchild1',
+                ancestors: [],
+                children: [],
+              }
+            ]
+          };
+          assert.deepStrictEqual(actlResult, expdResult);
         });
 
         // error handling
@@ -894,7 +1034,9 @@ describe('create()', () => {
           const actl: SemTree | string = create('root', content, opts);
           const expd: string = `semtree.lint(): duplicate entity names found:
 
-- File "branch2" Line 1: "branch1"
+- "branch1"
+  - File "root" Line 3
+  - File "branch2" Line 1
 `;
           assert.strictEqual(actl, expd);
         });
@@ -924,7 +1066,12 @@ describe('create()', () => {
 `
           };
           const actl: SemTree | string = create('root', content, opts);
-          const expd: string = 'semtree.lint(): duplicate entity names found:\n\n- File "root" Line 4: "grandchild2"\n';
+          const expd: string = `semtree.lint(): duplicate entity names found:
+
+- "grandchild2"
+  - File "root" Line 3
+  - File "root" Line 4
+`;
           assert.strictEqual(actl, expd);
         });
 
