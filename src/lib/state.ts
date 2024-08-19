@@ -136,8 +136,8 @@ export const lintContent = (state: TreeBuilderState): TreeBuilderState => {
     Object.entries(state.content).map(([key, value]) => [key, value.join('\n')])
   );
   const lintError: { warn: string, error: string } | void = lint(contentAsStrings, {
-    // indentKind: state.options.indentKind,
-    indentSize: state.options.indentSize ?? 2,
+    indentKind: state.options.indentKind,
+    indentSize: state.options.indentSize,
     mkdnList: state.options.mkdnList,
     wikitext: state.options.wikitext,
     root: state.root ?? '',

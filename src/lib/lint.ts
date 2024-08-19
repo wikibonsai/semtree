@@ -1,12 +1,19 @@
 import type { LintOpts } from './types';
-import { defaultOpts, RGX_INDENT } from './const';
+import {
+  defaultOpts,
+  RGX_INDENT_SPACE,
+  RGX_INDENT_TAB,
+  RGX_MKDN_BLT,
+  RGX_WIKI,
+} from './const';
 
 
 export const lint = (
   content: string | Record<string, string>,
   options: LintOpts,
 ): void | { warn: string, error: string } => {
-  // const indentKind = 'space';
+  /* @ts-expect-error: options.indentSize is optional */
+  const indentKind: 'space' | 'tab' = options.indentKind ?? defaultOpts.indentKind;
   /* @ts-expect-error: options.indentSize is optional */
   const indentSize: number = options.indentSize ?? defaultOpts.indentSize;
   /* @ts-expect-error: options.mkdnList is optional */
@@ -21,19 +28,26 @@ export const lint = (
   const duplicates: { fname?: string, line: number; content: string }[] = [];
   const markdownWarnings: { fname?: string, line: number; content: string }[] = [];
   const wikitextWarnings: { fname?: string, line: number; content: string }[] = [];
-  // regex
-  const bulletRegex = /^[-+*]\s/;
-  const wikitextRegex = /\[\[.*?\]\]/;
   // state
   let previousIndent: number = 0;
   // linting per line
   const lintLine = (line: string, lineNumber: number, fname?: string) => {
     if (line.length > 0) {
       // indentation check
+      const RGX_INDENT: RegExp = (indentKind === 'space') ? RGX_INDENT_SPACE : RGX_INDENT_TAB;
+      const RGX_WRONG_INDENT: RegExp = (indentKind === 'space') ? RGX_INDENT_TAB : RGX_INDENT_SPACE;
       const match: RegExpMatchArray | null = line.match(RGX_INDENT);
       const currentIndent: number = match ? match[0].length : 0;
+      const isFirstCharWhitespace: boolean = /\s/.test(line[0]);
       // improper indentation
-      if (currentIndent % indentSize !== 0) {
+      if (isFirstCharWhitespace && RGX_WRONG_INDENT.test(line)) {
+        badIndentations.push({
+          fname: fname ? fname : '',
+          line: lineNumber,
+          content: line,
+          reason: (indentKind === 'space') ? 'tabs found' : 'spaces found',
+        });
+      } else if (currentIndent % indentSize !== 0) {
         badIndentations.push({
           fname: fname ? fname : '',
           line: lineNumber,
@@ -51,7 +65,7 @@ export const lint = (
       previousIndent = currentIndent;
       const trimmedLine: string = line.trim();
       // markdown bullet check
-      const hasBullet: boolean = bulletRegex.test(trimmedLine);
+      const hasBullet: boolean = RGX_MKDN_BLT.test(trimmedLine);
       if ((currentIndent > 0) && (hasBullet !== mkdnList)) {
         markdownWarnings.push({
           fname: fname ? fname : '',
@@ -60,7 +74,7 @@ export const lint = (
         });
       }
       // wikitext check
-      const hasWikitext: boolean = wikitextRegex.test(trimmedLine);
+      const hasWikitext: boolean = RGX_WIKI.test(trimmedLine);
       if ((currentIndent > 0) && (hasWikitext !== wikitext)) {
         wikitextWarnings.push({
           fname: fname ? fname : '',

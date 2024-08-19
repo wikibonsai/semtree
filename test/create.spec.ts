@@ -147,7 +147,7 @@ describe('create()', () => {
 \t\t- [[greatgrandchild1]]
 `
           };
-          const actl: SemTree | string = create('root', content, { ...opts, indentSize: 1 });
+          const actl: SemTree | string = create('root', content, { ...opts, indentKind: 'tab', indentSize: 1 });
           const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
           assert.deepStrictEqual(actl, expd);
         });
@@ -161,7 +161,7 @@ describe('create()', () => {
 \t\t\t\t- [[greatgrandchild1]]
 `
           };
-          const actl: SemTree | string = create('root', content, { ...opts, indentSize: 2 });
+          const actl: SemTree | string = create('root', content, { ...opts, indentKind: 'tab', indentSize: 2 });
           const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
           assert.deepStrictEqual(actl, expd);
         });

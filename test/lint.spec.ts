@@ -10,6 +10,7 @@ describe('lint()', () => {
   
   beforeEach(() => {
     opts = {
+      indentKind: 'space',
       indentSize: 2,
       mkdnList: true,
       wikitext: true,
@@ -206,84 +207,91 @@ describe('lint()', () => {
 
   // options
 
-//   describe('opt; indentKind', () => {
+  describe('opt; indentKind', () => {
 
-//     it('success; space', () => {
-//       // setup
-//       const content: Record<string, string> = {
-//         'root':
-// `- [[child]]
-//   - [[grandchild]]
-//     - [[greatgrandchild]]
-// `,
-//       };
-//       // no error
-//       const expdError: undefined = undefined;
-//       // go
-//       const actlError: string | void = lint(content, { ...opts, indentKind: 'space' });
-//       // assert
-//       assert.strictEqual(actlError, expdError);
-//     });
+    it('success; expect space, has space', () => {
+      // setup
+      const content: Record<string, string> = {
+        'root':
+`- [[child]]
+  - [[grandchild]]
+    - [[greatgrandchild]]
+`,
+      };
+      // no error
+      const expdError: undefined = undefined;
+      // go
+      const actlError = lint(content, { ...opts, indentKind: 'space' });
+      // assert
+      assert.strictEqual(actlError, expdError);
+    });
 
-//     it('error; space', () => {
-//       // setup
-//       const content: Record<string, string> = {
-//         'root':
-// `- [[child]]
-//  - [[grandchild]]
-//    - [[greatgrandchild]]
-// `,
-//       };
-//       const expdError: string =
-// `semtree.lint(): improper indentation found:
+    it('error; expect space, has tab', () => {
+      // setup
+      const content: Record<string, string> = {
+        'root':
+`- [[child]]
+\t\t- [[grandchild]]
+\t\t\t\t- [[greatgrandchild]]
+`,
+      };
+      const expdError = {
+        warn: '',
+        error:
+`semtree.lint(): improper indentation found:
 
-// - File "root" Line 2 (inconsistent indentation): " - [[grandchild]]"
-// - File "root" Line 3 (inconsistent indentation): "   - [[greatgrandchild]]"
-// `;
-//       // go
-//       const actlError: string | void = lint(content, { ...opts, indentKind: 'space' });
-//       // assert
-//       assert.strictEqual(actlError, expdError);
-//     });
+- File "root" Line 2 (tabs found): "\t\t- [[grandchild]]"
+- File "root" Line 3 (tabs found): "\t\t\t\t- [[greatgrandchild]]"
+`,
+      };
+      // go
+      const actlError = lint(content, { ...opts, indentKind: 'space' });
+      // assert
+      assert.deepStrictEqual(actlError, expdError);
+    });
 
-//     it('success; tab', () => {
-//       // setup
-//       const content: Record<string, string> = {
-//         'root':
-// `- [[child]]
-// \t\t- [[grandchild]]
-// \t\t\t\t- [[greatgrandchild]]
-// `,
-//       };
-//       // no error
-//       const expdError: undefined = undefined;
-//       // go
-//       const actlError: string | void = lint(content, { ...opts, indentKind: 'tab' });
-//       // assert
-//       assert.strictEqual(actlError, expdError);
-//     });
+    it('success; expect tab, has tab', () => {
+      // setup
+      const content: Record<string, string> = {
+        'root':
+`- [[child]]
+\t\t- [[grandchild]]
+\t\t\t\t- [[greatgrandchild]]
+`,
+      };
+      // no error
+      const expdError: undefined = undefined;
+      // go
+      const actlError = lint(content, { ...opts, indentKind: 'tab' });
+      // assert
+      assert.strictEqual(actlError, expdError);
+    });
 
-//     it('error; tab', () => {
-//       // setup
-//       const content: Record<string, string> = {
-//         'root':
-// `- [[child]]
-// \t\t- [[grandchild]]
-// \t\t\t\t- [[greatgrandchild]]
-// `,
-//       };
-//       const expdError: string =
-// `semtree.lint(): improper indentation found:
+    it('error; expect tab, has space', () => {
+      // setup
+      const content: Record<string, string> = {
+        'root':
+`- [[child]]
+  - [[grandchild]]
+    - [[greatgrandchild]]
+`,
+      };
+      const expdError = {
+        warn: '',
+        error:
+`semtree.lint(): improper indentation found:
 
-// - File "root" Line 3 (inconsistent indentation): "\t \t- [[greatgrandchild]]"
-// `;
-//       // go
-//       const actlError: string | void = lint(content, { ...opts, indentKind: 'tab' });
-//       // assert
-//       assert.strictEqual(actlError, expdError);
-//     });
-// 
-//   });
+- File "root" Line 2 (spaces found): "  - [[grandchild]]"
+- File "root" Line 3 (spaces found): "    - [[greatgrandchild]]"
+`,
+      };
+      // go
+      const actlError = lint(content, { ...opts, indentKind: 'tab' });
+      // assert
+      assert.deepStrictEqual(actlError, expdError);
+    });
+
+  });
 
   describe('opt; indentSize', () => {
 

@@ -10,7 +10,7 @@ export interface SemTreeOpts {
   // params
   virtualTrunk?: boolean;                              // whether or not to include the semtree/index files themselves as nodes in the tree
   indentSize?: number;                                 // the number of indentations per tree level
-  // indentKind?: 'space' | 'tab';                        // the type of indentation (space or tab)
+  indentKind?: 'space' | 'tab';                        // the type of indentation (space or tab)
   subroot?: string;                                    // the root of the subtree to be updated
   mkdnList?: boolean;                                  // whether or not to expect markdown bullets ('- ', '* ', '+ ') for each node
   wikitext?: boolean;                                  // whether or not to expect [[wikilink square brackets]] so they may be ignored when processing tree text
@@ -29,7 +29,7 @@ export interface BuildTreeOpts extends SemTreeOpts {
 export interface LintOpts {
   // syntax
   indentSize?: number;                                 // the number of indentations per tree level
-  // indentKind?: 'space' | 'tab';                        // the type of indentation (space or tab)
+  indentKind?: 'space' | 'tab';                        // the type of indentation (space or tab)
   mkdnList?: boolean;                                  // whether or not to expect markdown bullets ('- ', '* ', '+ ') for each node
   wikitext?: boolean;                                  // whether or not to expect [[wikilink square brackets]] so they may be ignored when processing tree text
   // tree
