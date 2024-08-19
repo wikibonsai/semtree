@@ -1,3 +1,11 @@
+import { RGX_INDENT } from './const';
+
+
+export const getLevel = (line: string, indentSize: number): number => {
+  const match = line.match(RGX_INDENT);
+  return match ? Math.floor(match[0].length / indentSize) : 0;
+};
+
 export const rawText = (
   fullText: string,
   {
@@ -5,18 +13,8 @@ export const rawText = (
     hasWiki = false,
   }: { hasBullets?: boolean, hasWiki?: boolean },
 ): string => {
-  // wiki markers
-  const openBrackets: string = '[[';
-  const closeBrackets: string = ']]';
-  // mkdn list bullet markers
-  const markdownBulletAsterisk: string = '* ';
-  const markdownBulletDash: string = '- ';
-  const markdownBulletPlus: string = '+ ';
-
   function isMarkdownBullet(text: string): boolean {
-    return ((text === markdownBulletAsterisk)
-          || (text === markdownBulletDash)
-          || (text === markdownBulletPlus));
+    return ((text === '* ') || (text === '- ') || (text === '+ '));
   }
   // strip markdown list marker if it exists
   fullText = (hasBullets && isMarkdownBullet(fullText.substring(0, 2)))
@@ -24,7 +22,7 @@ export const rawText = (
     : fullText;
   // strip wikistring special chars
   fullText = hasWiki
-    ? fullText.replace(openBrackets, '').replace(closeBrackets, '')
+    ? fullText.replace('[[', '').replace(']]', '')
     : fullText;
   // strip linebreaks (see: https://stackoverflow.com/a/10805292)
   return fullText.replace(/\r?\n|\r/g, '');

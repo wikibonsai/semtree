@@ -1,5 +1,4 @@
 import type { SemTreeOpts, SemTree, TreeBuilderState } from './types';
-import { RGX_INDENT } from './const';
 import { lint } from './lint';
 import { pruneDangling } from './dangling';
 import { rawText } from './text';
@@ -40,7 +39,6 @@ export const processRoot = (state: TreeBuilderState): TreeBuilderState => {
         ? state.root!
         : (state.subroot || state.options.subroot || Object.keys(state.content)[0]))
       : undefined,
-    // root: newRoot,
   };
 };
 
@@ -119,11 +117,6 @@ export const processLeaf = (state: TreeBuilderState, line: string, level: number
     state: 'PROCESSING_LEAF',
     currentAncestors: [...state.currentAncestors, leafText],
   };
-};
-
-export const getLevel = (line: string, indentSize: number): number => {
-  const match = line.match(RGX_INDENT);
-  return match ? Math.floor(match[0].length / indentSize) : 0;
 };
 
 export const finalize = (state: TreeBuilderState): TreeBuilderState => {
