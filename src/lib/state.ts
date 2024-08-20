@@ -113,6 +113,7 @@ export const storeState = (state: TreeBuilderState): TreeBuilderState => ({
 // process content
 
 export const processBranch = (state: TreeBuilderState, branchText: string): TreeBuilderState => {
+  if (state.options.virtualTrunk) { return state; }
   let branchNode = state.nodes.find(node => node.text === branchText);
   if (!branchNode) {
     branchNode = {
@@ -132,13 +133,11 @@ export const processBranch = (state: TreeBuilderState, branchText: string): Tree
     state.updatedNodes.push(branchNode);
   }
 
-  if (!state.options.virtualTrunk) {
-    if (state.root === branchText) {
-      state.petioleMap[branchText] = state.root;
-    }
-    if (!state.trunk.includes(branchText)) {
-      state.trunk.push(branchText);
-    }
+  if (state.root === branchText) {
+    state.petioleMap[branchText] = state.root;
+  }
+  if (!state.trunk.includes(branchText)) {
+    state.trunk.push(branchText);
   }
 
   return {
