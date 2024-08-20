@@ -208,15 +208,19 @@ export const pruneOrphanNodes = (state: TreeBuilderState): TreeBuilderState => {
 export const storeState = (state: TreeBuilderState): TreeBuilderState => ({
   ...state,
   originalState: {
+    root: state.root!,
     nodes: state.nodes.map(node => ({ ...node })),
     trunk: [...state.trunk],
     petioleMap: { ...state.petioleMap },
+    orphans: [...state.orphans],
   },
 });
 
 export const restoreState = (state: TreeBuilderState): TreeBuilderState => ({
   ...state,
+  root: state.originalState?.root || state.root!,
   nodes: state.originalState?.nodes || [],
   trunk: state.originalState?.trunk || [],
   petioleMap: state.originalState?.petioleMap || {},
+  orphans: state.originalState?.orphans || [],
 });

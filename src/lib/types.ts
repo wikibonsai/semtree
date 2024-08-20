@@ -1,6 +1,8 @@
 export interface SemTreeOpts {
   // params
+  // tree
   virtualTrunk?: boolean;                              // whether or not to include the semtree/index files themselves as nodes in the tree
+  // text
   indentKind?: 'space' | 'tab';                        // the type of indentation (space or tab)
   indentSize?: number;                                 // the number of indentations per tree level
   subroot?: string;                                    // the root of the subtree to be updated
@@ -38,13 +40,12 @@ export type TreeBuilderState = {
   // tree processing
   level: number;
   currentAncestors: string[];
+  virtualRoot?: string; // for virtual trunk mode
   // subtree
-  originalState?: { nodes: TreeNode[], trunk: string[], petioleMap: Record<string, string> };
+  originalState?: SemTree;
   isUpdate: boolean;
   subroot?: string;
   updatedNodes: TreeNode[];
-  // virtual trunk
-  virtualRoot?: string;
 };
 
 export interface TreeNode {
