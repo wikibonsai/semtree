@@ -83,52 +83,6 @@ graph TD;
   fname-b-->node-4;
 ```
 
-Each node in the tree contains:
-
-```json
-{
-  "ancestors": [],
-  "children": [],
-  "text": "",
-}
-```
-
-`ancestors`: An array of strings that are the text of other nodes in the tree. Represents ancestors of the current node from the root node following the ancestral path to the current node.
-
-`children`: An array of strings that are the text of other nodes in the tree. Represents children of the current node.
-
-`text`: Contains the node text, which should be unique across all nodes in the tree and is used as an identifier in each nodes' other properties `ancestors` and `children`.
-
-⚠️ Note: Keep in mind preceeding newlines should be stripped from markdown content. For example:
-
-```js
-// 👍
-const semTreeText: Record<string, string> = {
-  // key: filename; value: file content
-  'fname-a':
-`- [[node-1]]
-  - [[node-1a]]
-  - [[node-2]]
-`
-};
-```
-
-```js
-// 👎 error: the preceeding newlines will break parsing
-
-const semTreeText: Record<string, string> = {
-  // key: filename; value: file content
-  'fname-a':
-// 👇 these newlines will break parsing 👇
-`
-
-- [[node-1]]
-  - [[node-1a]]
-  - [[node-2]]
-`
-};
-```
-
 ## Syntax and Validity
 
 Parsing:
@@ -145,28 +99,57 @@ Tree requirements are sparse because the idea is to allow the end-user to determ
 
 ### API
 
-### `lint(content: string | Record<string, string>, indentSize: number): void | string`
+### TreeNode
 
-Lint a file's content or a record of multiple files' file content.
+Each node in the tree contains:
 
-Checks for:
-  - Duplicates
-  - Improper indenting
-  - Over-indentation
+```ts
+export interface TreeNode {
+  text: string;
+  ancestors: string[];
+  children: string[];
+  // custom data
+  [key: string]: any;
+}
+```
 
-#### Parameters
+`ancestors`: An array of strings that are the text of other nodes in the tree. Represents ancestors of the current node from the root node following the ancestral path to the current node.
 
-##### `content: string | Record<string, string>`
+`children`: An array of strings that are the text of other nodes in the tree. Represents children of the current node.
 
-A content string or a `Record` whose keys are entities (such as files) and values are content strings of those entities.
+`text`: Contains the node text, which should be unique across all nodes in the tree and is used as an identifier in each nodes' other properties `ancestors` and `children`.
 
-##### `indentSize: number`
+Finally, custom data is supported.
 
-Number of spaces or tabs which represent each level in the tree.
+### SemTree
 
-### `create(root: string, content: Record<string, string>, opts: SemTreeOpts = defaultOpts): SemTree | string;`
+The full `SemTree` looks like this:
 
-Create a tree from a given file or files and build a tree from the filenames and their content. Will return a tree instance upon successful creation. Will return an error string otherwise, for example if there are duplicates found in the tree.
+```ts
+interface SemTree {
+  root: string;
+  nodes: TreeNode[];
+  trunk: string[];
+  petioleMap: Record<string, string>;
+  orphan: string[];
+}
+```
+
+`root`: The `text` of the root node.
+
+`nodes`: Contains a flat array of all the `TreeNode`s in the tree.
+
+`trunk`: An array of `text` names of all the index/branch nodes (which typically correspond to the keys of the `content` hash).
+
+`petioleMap`: A hash whose keys are the `text` names of all the nodes in the tree and the values are the `text` names of the index/branch node those keys appeared in (e.g. key `node-1` yields value `fname-a` from the example above because `node-1` appears in `fname-a`).
+
+('petiole': "A leaf petiole is a thin stalk that connects a leaf blade to a stem")
+
+`orphan`: An array of `text` names of any unprocessed index/branch nodes from the `content` hash keys not processed after calling [`create()`](#createroot-string-content-recordstring-string-opts-semtreeopts--defaultopts-semtree--string) or [`update()`](#updatetree-semtree-subroot-string-content-recordstring-string-opts-semtreeopts--defaultopts-semtree--string).
+
+### `create(root: string, content: Record<string, string>, opts: SemTreeOpts): SemTree | string;`
+
+Create a tree from a given `Record`, where keys represent nodes in a tree and values represent multiple values in the tree (such as filenames and their content) and build a tree from them. Will return a tree instance upon successful creation. Will return an error string otherwise, for example if there are duplicates found in the tree.
 
 #### Parameters
 
@@ -181,6 +164,50 @@ Name of the root node of the tree.
 ##### `opts: SemTreeOpts`
 
 Options object -- see [options](#Options) below.
+
+### `lint(content: string | Record<string, string>, opts: LintOpts): void | string`
+
+Lint a file's content or a record of multiple files' file content.
+
+Checks for:
+
+- Duplicates / cycles
+- Spaces / tabs
+- Inconsistent indentation
+- Over-indentation
+- [Markdown bullets](#mkdnlist-boolean)
+- [Wikitext](#wikitext-boolean)
+- Lists files that weren't linked in the tree
+
+#### Parameters
+
+##### `content: string | Record<string, string>`
+
+A content string or a `Record` whose keys are entities (such as files) and values are content strings of those entities.
+
+##### `opts: LintOpts`
+
+Lint options:
+
+###### `indentKind?: 'space' | 'tab'`
+
+Kind of indentation -- either 'space's or 'tab's.
+
+###### `indentSize?: number`
+
+Number of indentations (spaces or tabs) which represent each level in the tree.
+
+###### `mkdnList?: boolean`
+
+Whether the linter should check for markdown bullets (`-`, `*`, `+`)  and print a warning if any nodes are missing them.
+
+###### `wikitext?: boolean`
+
+Whether the linter should check for `[[wikitext]]` and print a warning if any nodes are missing them.
+
+###### `root?: string`
+
+The root filename is needed to print the names of any orphan (unprocessed / unlinked) index / trunk files.
 
 ### `print(tree: SemTree, print: boolean = true): string | undefined`
 
@@ -203,13 +230,13 @@ root
 
 ##### `tree: SemTree`
 
-A tree object.
+An instance of a [`SemTree`](#semtree-1).
 
 ##### `print: boolean = true`
 
 Seeing this to `false` will suppress printing the tree to the console log and just return the string representation.
 
-### `update(tree: SemTree, subroot: string, content: Record<string, string>, opts: SemTreeOpts = defaultOpts): SemTree | string;`
+### `update(tree: SemTree, subroot: string, content: Record<string, string>, opts?: SemTreeOpts): SemTree | string;`
 
 A method to update a subtree within the semantic tree. (Best used to update individual `index` documents.) The given `tree` will be directly updated and the updated subtree nodes will be returned separately by `update()`.
 
@@ -217,11 +244,11 @@ A method to update a subtree within the semantic tree. (Best used to update indi
 
 ##### `tree: SemTree`
 
-A tree object.
+A [`SemTree`](#semtree-1) object.
 
 ##### `content: Record<string, string>`
 
-A `Record` whose keys are entities (such as files) and values are content strings of those entities.
+A `Record` whose keys are entities (such as filenames) and values are content strings of those entities (such as file content).
 
 ##### `subroot: string`
 
@@ -230,10 +257,6 @@ Name of the subroot node of the subtree to be replaced.
 ##### `opts: SemTreeOpts`
 
 Options object -- see [options](#Options) below.
-
-### semtree.clear()
-
-Delete the local copy of the tree.
 
 ## Options
 
@@ -245,21 +268,27 @@ Whether or not to include the semtree/index files themselves as nodes in the tre
 
 Note: If `virtualTrunk` is set to `true`, the resulting tree will not be updatable via the `update` function.
 
-### Syntax
+### Text / Lint
+
+#### `indentKind: 'space' | 'tab'`
+
+The kind of whitespace expected for indentation of each level of the tree. The default is `'space'`.
 
 #### `indentSize: number`
 
-The size of each level in the tree -- corresponds to number of spaces or tabs. The default is 2 whitespaces. Indentation will be dynamically determined if none is set, but in some scenarios (such as no indentatino exists at all) the defaults will be used if not set explicitly. This can lead to incorrect behavior if the actual indentation does not match the configured indentation.
+The size of each indentation level in the tree -- corresponds to number of spaces or tabs. The default is 2.
 
 #### `mkdnList: boolean`
 
-Whether `semtree` should expect file content to use markdown bullets `- `, `* `, or `+ `.
+Whether or not to expect markdown bullets (`- `, `* `, `+ `).
 
 #### `wikitext: boolean`
 
-Whether or not to expect [[wikilink square brackets]] so they may be ignored when processing tree text. Default is `true`.
+Whether or not to expect `[[wikiref square brackets]]`. Default is `true`.
 
 ### Functions
+
+Option functions are useful when keeping the state of the tree in-sync with some other source like an index or database.
 
 #### `graft: (parentText: string, childText: string) => void`
 
