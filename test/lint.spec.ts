@@ -403,11 +403,11 @@ describe('lint()', () => {
 `,
       };
       const expdResult = {
-        warn: '',
-        error: `semtree.lint(): missing markdown bullet found:
+        warn: `semtree.lint(): missing markdown bullet found:
 
 - File "root" Line 3: "  [[grandchild2]]"
 `,
+        error: '',
       };
       // go
       const actlResult = lint(content, opts);
@@ -442,11 +442,11 @@ describe('lint()', () => {
 `,
       };
       const expdResult = {
-        warn: '',
-        error: `semtree.lint(): unexpected markdown bullet found:
+        warn: `semtree.lint(): unexpected markdown bullet found:
 
 - File "root" Line 3: "  - [[grandchild2]]"
 `,
+        error: '',
       };
       // go
       const actlResult = lint(content, { ...opts, mkdnList: false });
@@ -485,11 +485,11 @@ describe('lint()', () => {
 `,
       };
       const expdResult = {
-        warn: '',
-        error: `semtree.lint(): missing wikitext found:
+        warn: `semtree.lint(): missing wikitext found:
 
 - File "root" Line 3: "  - grandchild2"
 `,
+        error: '',
       };
       // go
       const actlResult = lint(content, opts);
@@ -524,11 +524,11 @@ describe('lint()', () => {
 `,
       };
       const expdResult = {
-        warn: '',
-        error: `semtree.lint(): unexpected wikitext found:
+        warn: `semtree.lint(): unexpected wikitext found:
 
 - File "root" Line 3: "  - [[grandchild2]]"
 `,
+        error: '',
       };
       // go
       const actlResult = lint(content, { ...opts, wikitext: false });

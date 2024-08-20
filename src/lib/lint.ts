@@ -23,11 +23,11 @@ export const lint = (
   // warnings
   const badIndentations: { fname?: string, line: number; content: string; reason: string }[] = [];
   // Update the entities type
-  const orphanTrunks: string[] = [];
   const entities: Map<string, { occurrences: { fname?: string, line: number }[] }> = new Map();
-  const duplicates: { fname?: string, line: number; content: string }[] = [];
-  const markdownWarnings: { fname?: string, line: number; content: string }[] = [];
-  const wikitextWarnings: { fname?: string, line: number; content: string }[] = [];
+  const lintOrphanTrunks: string[] = [];
+  const lintDuplicates: { fname?: string, line: number; content: string }[] = [];
+  const lintMkdnBullets: { fname?: string, line: number; content: string }[] = [];
+  const lintWikitext: { fname?: string, line: number; content: string }[] = [];
   // state
   let previousIndent: number = 0;
   // linting per line
@@ -67,7 +67,7 @@ export const lint = (
       // markdown bullet check
       const hasBullet: boolean = RGX_MKDN_BLT.test(trimmedLine);
       if ((currentIndent > 0) && (hasBullet !== mkdnList)) {
-        markdownWarnings.push({
+        lintMkdnBullets.push({
           fname: fname ? fname : '',
           line: lineNumber,
           content: line,
@@ -76,7 +76,7 @@ export const lint = (
       // wikitext check
       const hasWikitext: boolean = RGX_WIKI.test(trimmedLine);
       if ((currentIndent > 0) && (hasWikitext !== wikitext)) {
-        wikitextWarnings.push({
+        lintWikitext.push({
           fname: fname ? fname : '',
           line: lineNumber,
           content: line,
@@ -96,7 +96,7 @@ export const lint = (
       if (entities.has(entityName)) {
         const entityInfo = entities.get(entityName)!;
         entityInfo.occurrences.push({ fname, line: lineNumber });
-        duplicates.push({
+        lintDuplicates.push({
           fname: fname ?? '',
           line: lineNumber,
           content: entityName,
@@ -133,7 +133,7 @@ export const lint = (
       }
       for (const key of contentKeys) {
         if (!entities.has(key)) {
-          orphanTrunks.push(key);
+          lintOrphanTrunks.push(key);
         }
       }
     }
@@ -166,25 +166,25 @@ export const lint = (
   let warnMsg: string = '';
   // Check for unused content keys
   if (typeof content === 'object') {
-    if (orphanTrunks.length > 0) {
+    if (lintOrphanTrunks.length > 0) {
       warnMsg += 'semtree.lint(): orphan trunk files found:\n\n';
-      orphanTrunks.forEach(key => {
+      lintOrphanTrunks.forEach(key => {
         warnMsg += `- ${key}\n`;
       });
     }
   }
-  if (markdownWarnings.length > 0) {
-    errorMsg += 'semtree.lint(): ' + (mkdnList ? 'missing' : 'unexpected') + ' markdown bullet found:\n\n';
-    markdownWarnings.forEach(({ fname, line, content }) => {
-      errorMsg += fname
+  if (lintMkdnBullets.length > 0) {
+    warnMsg += 'semtree.lint(): ' + (mkdnList ? 'missing' : 'unexpected') + ' markdown bullet found:\n\n';
+    lintMkdnBullets.forEach(({ fname, line, content }) => {
+      warnMsg += fname
         ? `- File "${fname}" Line ${line}: "${content}"\n`
         : `- Line ${line}: "${content}"\n`;
     });
   }
-  if (wikitextWarnings.length > 0) {
-    errorMsg += 'semtree.lint(): ' + (wikitext ? 'missing' : 'unexpected') + ' wikitext found:\n\n';
-    wikitextWarnings.forEach(({ fname, line, content }) => {
-      errorMsg += fname
+  if (lintWikitext.length > 0) {
+    warnMsg += 'semtree.lint(): ' + (wikitext ? 'missing' : 'unexpected') + ' wikitext found:\n\n';
+    lintWikitext.forEach(({ fname, line, content }) => {
+      warnMsg += fname
         ? `- File "${fname}" Line ${line}: "${content}"\n`
         : `- Line ${line}: "${content}"\n`;
     });
