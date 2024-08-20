@@ -1052,7 +1052,7 @@ describe('create()', () => {
 `,
           };
           const actl: SemTree | string = create('root', content, opts);
-          const expd: string = 'semtree.checkForDuplicates(): cycle detected involving node "root"';
+          const expd: string = 'semtree.checkDuplicates(): cycle detected involving node "root"';
           assert.strictEqual(actl, expd);
         });
 
@@ -1068,7 +1068,7 @@ describe('create()', () => {
 `
           };
           const actl: SemTree | string = create('root', content, opts);
-          const expd: string = 'semtree.checkForDuplicates(): cycle detected involving node "root"';
+          const expd: string = 'semtree.checkDuplicates(): cycle detected involving node "root"';
           assert.strictEqual(actl, expd);
         });
 

@@ -9,7 +9,7 @@ import {
   processRoot,
   processBranch,
   processLeaf,
-  checkForDuplicates,
+  checkDuplicates,
   pruneOrphanNodes,
   storeState,
   finalize,
@@ -31,7 +31,7 @@ export const build = (
     let state = createInitialState(root, content, options, existingTree);
     state = processRoot(state);
     state = lintContent(state);
-    state = checkForDuplicates(state);
+    state = checkDuplicates(state);
     if (state.isUpdate) {
       state = storeState(state);
     }

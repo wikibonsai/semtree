@@ -61,7 +61,7 @@ export const lintContent = (state: TreeBuilderState): TreeBuilderState => {
   };
 };
 
-export const checkForDuplicates = (state: TreeBuilderState): TreeBuilderState => {
+export const checkDuplicates = (state: TreeBuilderState): TreeBuilderState => {
   const duplicates: string[] = [];
   const seenTexts: Set<string> = new Set<string>();
 
@@ -83,7 +83,7 @@ export const checkForDuplicates = (state: TreeBuilderState): TreeBuilderState =>
       if ((nodeText === state.root)
         || (state.virtualRoot && (nodeText === state.virtualRoot))
       ) {
-        throw new Error(`semtree.checkForDuplicates(): cycle detected involving node "${nodeText}"`);
+        throw new Error(`semtree.checkDuplicates(): cycle detected involving node "${nodeText}"`);
       }
     }
   }
