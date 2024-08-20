@@ -13,7 +13,7 @@ export const createInitialState = (
   state: 'INITIAL',
   content,
   options,
-  root: existingTree ? existingTree.root : null,
+  root: existingTree ? existingTree.root : root,
   nodes: existingTree ? [...existingTree.nodes] : [],
   trunk: existingTree ? [...existingTree.trunk] : [],
   petioleMap: existingTree ? { ...existingTree.petioleMap } : {},
@@ -29,16 +29,14 @@ export const processRoot = (state: TreeBuilderState): TreeBuilderState => {
   return {
     ...state,
     state: 'PROCESSING_ROOT',
-    subroot: state.isUpdate
-      ? (state.subroot || state.options.subroot || Object.keys(state.content)[0])
-      : undefined,
-    root: state.isUpdate
-      ? state.root
-      : (state.subroot || state.options.subroot || Object.keys(state.content)[0]),
+    root: state.root,
     virtualRoot: state.options.virtualTrunk
       ? (state.isUpdate
         ? state.root!
         : (state.subroot || state.options.subroot || Object.keys(state.content)[0]))
+      : undefined,
+    subroot: state.isUpdate
+      ? (state.subroot || state.options.subroot || Object.keys(state.content)[0])
       : undefined,
   };
 };
