@@ -241,6 +241,61 @@ describe('create()', () => {
           assert.deepStrictEqual(actl, expd);
         });
 
+        it(`${trunkType} trunk; single file; skips HTML comments`, () => {
+          const content: Record<string,string> = {
+            'root':
+`<!-- this is a comment and should be ignored -->
+- [[child1]]
+  <!-- nested comment -->
+                                    <!-- deeply nested comment -->
+  - [[grandchild1]]
+`
+          };
+          const actlData: SemTree | string = create('root', content, opts);
+          const expdData: SemTree = (trunkType === 'concrete') ? {
+            root: 'root',
+            trunk: ['root'],
+            petioleMap: {
+              'root': 'root',
+              'child1': 'root',
+              'grandchild1': 'root',
+            },
+            orphans: [],
+            nodes: [
+              {
+                text: 'root',
+                ancestors: [],
+                children: ['child1'],
+              },{
+                text: 'child1',
+                ancestors: ['root'],
+                children: ['grandchild1'],
+              },{
+                text: 'grandchild1',
+                ancestors: ['root', 'child1'],
+                children: [],
+              },
+            ]
+          } : {
+            root: 'child1',
+            trunk: [],
+            petioleMap: {},
+            orphans: [],
+            nodes: [
+              {
+                text: 'child1',
+                ancestors: [],
+                children: ['grandchild1'],
+              },{
+                text: 'grandchild1',
+                ancestors: ['child1'],
+                children: [],
+              },
+            ]
+          };
+          assert.deepStrictEqual(actlData, expdData);
+        });
+
         describe('option functions', () => {
 
           let spyGraft: sinon.SinonSpy;
