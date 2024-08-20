@@ -2,7 +2,7 @@ export interface SemTreeOpts {
   // params
   // tree
   virtualTrunk?: boolean;                              // whether or not to include the semtree/index files themselves as nodes in the tree
-  // text
+  // text / lint
   indentKind?: 'space' | 'tab';                        // the type of indentation (space or tab)
   indentSize?: number;                                 // the number of indentations per tree level
   subroot?: string;                                    // the root of the subtree to be updated
