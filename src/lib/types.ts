@@ -23,7 +23,6 @@ export interface BuildTreeOpts extends SemTreeOpts {
 export type TreeBuildingState = 'INITIAL'
                               | 'EXTRACTING_CONTENT'
                               | 'LINTING_CONTENT'
-                              | 'DUPLICATES_CHECK'
                               | 'STORING_STATE'
                               | 'PROCESSING_ROOT'
                               | 'PROCESSING_BRANCH'
@@ -79,5 +78,5 @@ export interface LintOpts {
   mkdnList?: boolean;                                  // whether or not to expect markdown bullets ('- ', '* ', '+ ') for each node
   wikitext?: boolean;                                  // whether or not to expect [[wikilink square brackets]] so they may be ignored when processing tree text
   // tree
-  root?: string;                                       // the root of the subtree to be updated
+  root?: string;                                       // for linting duplicates (cycles) and unused turnk files
 }

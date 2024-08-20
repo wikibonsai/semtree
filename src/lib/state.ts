@@ -50,7 +50,7 @@ export const lintContent = (state: TreeBuilderState): TreeBuilderState => {
     indentSize: state.options.indentSize,
     mkdnList: state.options.mkdnList,
     wikitext: state.options.wikitext,
-    root: state.root ?? '',
+    root: state.virtualRoot ?? state.root ?? undefined,
   });
   if (lintError?.error) {
     throw new Error(lintError.warn + lintError.error);
@@ -58,47 +58,6 @@ export const lintContent = (state: TreeBuilderState): TreeBuilderState => {
   return {
     ...state,
     state: 'LINTING_CONTENT',
-  };
-};
-
-export const checkDuplicates = (state: TreeBuilderState): TreeBuilderState => {
-  const duplicates: string[] = [];
-  const seenTexts: Set<string> = new Set<string>();
-
-  // Iterate through all content
-  for (const [file, lines] of Object.entries(state.content)) {
-    for (const line of lines) {
-      const trimmedLine = line.trim();
-      if (!trimmedLine) continue;
-      const nodeText = rawText(trimmedLine, {
-        hasBullets: state.options.mkdnList,
-        hasWiki: state.options.wikitext,
-      });
-      if (seenTexts.has(nodeText)) {
-        duplicates.push(nodeText);
-      } else {
-        seenTexts.add(nodeText);
-      }
-      // cycle check
-      if ((nodeText === state.root)
-        || (state.virtualRoot && (nodeText === state.virtualRoot))
-      ) {
-        throw new Error(`semtree.checkDuplicates(): cycle detected involving node "${nodeText}"`);
-      }
-    }
-  }
-  const hasDup: boolean = duplicates.length > 0;
-  if (hasDup) {
-    // delete duplicate duplicates, convert to array
-    const dupNames: string[] = Array.from(new Set(duplicates));
-    let errorMsg: string = 'semtree.checkForDuplicates(): tree did not build, duplicate nodes found:\n\n';
-    errorMsg += dupNames.join(', ') + '\n\n';
-    throw new Error(errorMsg);
-  }
-
-  return {
-    ...state,
-    state: 'DUPLICATES_CHECK',
   };
 };
 

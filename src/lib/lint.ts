@@ -25,8 +25,10 @@ export const lint = (
   const badIndentations: { fname?: string, line: number; content: string; reason: string }[] = [];
   // Update the entities type
   const entities: Map<string, { occurrences: { fname?: string, line: number }[] }> = new Map();
+  if (options.root) {
+    entities.set(options.root, { occurrences: [{ fname: options.root, line: -1 }] });
+  }
   const lintOrphanTrunks: string[] = [];
-  const lintDuplicates: { fname?: string, line: number; content: string }[] = [];
   const lintMkdnBullets: { fname?: string, line: number; content: string }[] = [];
   const lintWikitext: { fname?: string, line: number; content: string }[] = [];
   // state
@@ -98,11 +100,6 @@ export const lint = (
       if (entities.has(entityName)) {
         const entityInfo = entities.get(entityName)!;
         entityInfo.occurrences.push({ fname, line: lineNumber });
-        lintDuplicates.push({
-          fname: fname ?? '',
-          line: lineNumber,
-          content: entityName,
-        });
       } else {
         entities.set(entityName, { occurrences: [{ fname, line: lineNumber }] });
       }
@@ -149,7 +146,9 @@ export const lint = (
       `- "${content}"\n` +
       info.occurrences.map(({ fname, line }) => 
         fname
-          ? `  - File "${fname}" Line ${line}\n`
+          ? line === -1
+            ? `  - Root file "${fname}"\n`
+            : `  - File "${fname}" Line ${line}\n`
           : `  - Line ${line}\n`
       ).join('')
     );

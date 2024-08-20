@@ -1052,7 +1052,11 @@ describe('create()', () => {
 `,
           };
           const actl: SemTree | string = create('root', content, opts);
-          const expd: string = 'semtree.checkDuplicates(): cycle detected involving node "root"';
+          const expd: string = 'semtree.lint(): duplicate entity names found:\n'
+                              + '\n'
+                              + '- "root"\n'
+                              + '  - Root file "root"\n'
+                              + '  - File "root" Line 1\n';
           assert.strictEqual(actl, expd);
         });
 
@@ -1068,7 +1072,11 @@ describe('create()', () => {
 `
           };
           const actl: SemTree | string = create('root', content, opts);
-          const expd: string = 'semtree.checkDuplicates(): cycle detected involving node "root"';
+          const expd: string = 'semtree.lint(): duplicate entity names found:\n'
+                              + '\n'
+                              + '- "root"\n'
+                              + '  - Root file "root"\n'
+                              + '  - File "branch" Line 1\n';
           assert.strictEqual(actl, expd);
         });
 
