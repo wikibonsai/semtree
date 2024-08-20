@@ -41,6 +41,77 @@ export const processRoot = (state: TreeBuilderState): TreeBuilderState => {
   };
 };
 
+export const lintContent = (state: TreeBuilderState): TreeBuilderState => {
+  const contentAsStrings = Object.fromEntries(
+    Object.entries(state.content).map(([key, value]) => [key, value.join('\n')])
+  );
+  const lintError: { warn: string, error: string } | void = lint(contentAsStrings, {
+    indentKind: state.options.indentKind,
+    indentSize: state.options.indentSize,
+    mkdnList: state.options.mkdnList,
+    wikitext: state.options.wikitext,
+    root: state.root ?? '',
+  });
+  if (lintError?.error) {
+    throw new Error(lintError.warn + lintError.error);
+  }
+  return {
+    ...state,
+    state: 'LINTING_CONTENT',
+  };
+};
+
+export const checkForDuplicates = (state: TreeBuilderState): TreeBuilderState => {
+  const duplicates: string[] = [];
+  const seenTexts: Set<string> = new Set<string>();
+
+  // Iterate through all content
+  for (const [file, lines] of Object.entries(state.content)) {
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) continue;
+      const nodeText = rawText(trimmedLine, {
+        hasBullets: state.options.mkdnList,
+        hasWiki: state.options.wikitext,
+      });
+      if (seenTexts.has(nodeText)) {
+        duplicates.push(nodeText);
+      } else {
+        seenTexts.add(nodeText);
+      }
+      // cycle check
+      if ((nodeText === state.root)
+        || (state.virtualRoot && (nodeText === state.virtualRoot))
+      ) {
+        throw new Error(`semtree.checkForDuplicates(): cycle detected involving node "${nodeText}"`);
+      }
+    }
+  }
+  const hasDup: boolean = duplicates.length > 0;
+  if (hasDup) {
+    // delete duplicate duplicates, convert to array
+    const dupNames: string[] = Array.from(new Set(duplicates));
+    let errorMsg: string = 'semtree.checkForDuplicates(): tree did not build, duplicate nodes found:\n\n';
+    errorMsg += dupNames.join(', ') + '\n\n';
+    throw new Error(errorMsg);
+  }
+
+  return state;
+};
+
+export const storeState = (state: TreeBuilderState): TreeBuilderState => ({
+  ...state,
+  originalState: {
+    root: state.root!,
+    nodes: state.nodes.map(node => ({ ...node })),
+    trunk: [...state.trunk],
+    petioleMap: { ...state.petioleMap },
+    orphans: [...state.orphans],
+  },
+});
+
+// process content
+
 export const processBranch = (state: TreeBuilderState, branchText: string): TreeBuilderState => {
   let branchNode = state.nodes.find(node => node.text === branchText);
   if (!branchNode) {
@@ -118,72 +189,6 @@ export const processLeaf = (state: TreeBuilderState, line: string, level: number
   };
 };
 
-export const finalize = (state: TreeBuilderState): TreeBuilderState => {
-  return {
-    ...state,
-    state: 'FINALIZING',
-    root: state.options.virtualTrunk ? state.virtualRoot! : state.root!,
-    trunk: state.options.virtualTrunk ? [] : state.trunk,
-    petioleMap: state.options.virtualTrunk ? {} : state.petioleMap,
-    orphans: state.options.virtualTrunk ? [] : [...Object.keys(state.content)],
-  };
-};
-
-export const lintContent = (state: TreeBuilderState): TreeBuilderState => {
-  const contentAsStrings = Object.fromEntries(
-    Object.entries(state.content).map(([key, value]) => [key, value.join('\n')])
-  );
-  const lintError: { warn: string, error: string } | void = lint(contentAsStrings, {
-    indentKind: state.options.indentKind,
-    indentSize: state.options.indentSize,
-    mkdnList: state.options.mkdnList,
-    wikitext: state.options.wikitext,
-    root: state.root ?? '',
-  });
-  if (lintError?.error) {
-    throw new Error(lintError.warn + lintError.error);
-  }
-  return state;
-};
-
-export const checkForDuplicates = (state: TreeBuilderState): TreeBuilderState => {
-  const duplicates: string[] = [];
-  const seenTexts: Set<string> = new Set<string>();
-  
-  // Iterate through all content
-  for (const [file, lines] of Object.entries(state.content)) {
-    for (const line of lines) {
-      const trimmedLine = line.trim();
-      if (!trimmedLine) continue;
-      const nodeText = rawText(trimmedLine, {
-        hasBullets: state.options.mkdnList,
-        hasWiki: state.options.wikitext,
-      });
-      if (seenTexts.has(nodeText)) {
-        duplicates.push(nodeText);
-      } else {
-        seenTexts.add(nodeText);
-      }
-      // cycle check
-      if ((nodeText === state.root)
-        || (state.virtualRoot && (nodeText === state.virtualRoot))
-      ) {
-        throw new Error(`semtree.checkForDuplicates(): cycle detected involving node "${nodeText}"`);
-      }
-    }
-  }
-  const hasDup: boolean = duplicates.length > 0;
-  if (hasDup) {
-    // delete duplicate duplicates, convert to array
-    const dupNames: string[] = Array.from(new Set(duplicates));
-    let errorMsg: string = 'semtree.checkForDuplicates(): tree did not build, duplicate nodes found:\n\n';
-    errorMsg += dupNames.join(', ') + '\n\n';
-    throw new Error(errorMsg);
-  }
-
-  return state;
-};
-
 export const pruneOrphanNodes = (state: TreeBuilderState): TreeBuilderState => {
   const pruned = pruneOrphans({
     root: state.root!,
@@ -205,16 +210,16 @@ export const pruneOrphanNodes = (state: TreeBuilderState): TreeBuilderState => {
   };
 };
 
-export const storeState = (state: TreeBuilderState): TreeBuilderState => ({
-  ...state,
-  originalState: {
-    root: state.root!,
-    nodes: state.nodes.map(node => ({ ...node })),
-    trunk: [...state.trunk],
-    petioleMap: { ...state.petioleMap },
-    orphans: [...state.orphans],
-  },
-});
+export const finalize = (state: TreeBuilderState): TreeBuilderState => {
+  return {
+    ...state,
+    state: 'FINALIZING',
+    root: state.options.virtualTrunk ? state.virtualRoot! : state.root!,
+    trunk: state.options.virtualTrunk ? [] : state.trunk,
+    petioleMap: state.options.virtualTrunk ? {} : state.petioleMap,
+    orphans: state.options.virtualTrunk ? [] : [...Object.keys(state.content)],
+  };
+};
 
 export const restoreState = (state: TreeBuilderState): TreeBuilderState => ({
   ...state,
