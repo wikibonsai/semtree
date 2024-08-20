@@ -21,10 +21,16 @@ export interface BuildTreeOpts extends SemTreeOpts {
 }
 
 export type TreeBuildingState = 'INITIAL'
+                              | 'EXTRACTING_CONTENT'
+                              | 'LINTING_CONTENT'
+                              | 'DUPLICATES_CHECK'
+                              | 'STORING_STATE'
                               | 'PROCESSING_ROOT'
                               | 'PROCESSING_BRANCH'
                               | 'PROCESSING_LEAF'
-                              | 'FINALIZING';
+                              | 'PRUNING_ORPHANS'
+                              | 'FINALIZING'
+                              | 'RESTORING_STATE';
 
 export type TreeBuilderState = {
   state: TreeBuildingState;

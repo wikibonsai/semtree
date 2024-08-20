@@ -96,11 +96,15 @@ export const checkDuplicates = (state: TreeBuilderState): TreeBuilderState => {
     throw new Error(errorMsg);
   }
 
-  return state;
+  return {
+    ...state,
+    state: 'DUPLICATES_CHECK',
+  };
 };
 
 export const storeState = (state: TreeBuilderState): TreeBuilderState => ({
   ...state,
+  state: 'STORING_STATE',
   originalState: {
     root: state.root!,
     nodes: state.nodes.map(node => ({ ...node })),
@@ -203,6 +207,7 @@ export const pruneOrphanNodes = (state: TreeBuilderState): TreeBuilderState => {
 
   return {
     ...state,
+    state: 'PRUNING_ORPHANS',
     nodes: pruned.nodes,
     trunk: pruned.trunk,
     petioleMap: pruned.petioleMap,
@@ -222,6 +227,7 @@ export const finalize = (state: TreeBuilderState): TreeBuilderState => {
 
 export const restoreState = (state: TreeBuilderState): TreeBuilderState => ({
   ...state,
+  state: 'RESTORING_STATE',
   root: state.originalState?.root || state.root!,
   nodes: state.originalState?.nodes || [],
   trunk: state.originalState?.trunk || [],
