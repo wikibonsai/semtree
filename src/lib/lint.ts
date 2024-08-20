@@ -6,6 +6,7 @@ import {
   RGX_MKDN_BLT,
   RGX_WIKI,
 } from './const';
+import { checkComment } from './text';
 
 
 export const lint = (
@@ -32,7 +33,7 @@ export const lint = (
   let previousIndent: number = 0;
   // linting per line
   const lintLine = (line: string, lineNumber: number, fname?: string) => {
-    if (line.trim().startsWith('<!--') && line.trim().endsWith('-->')) { return; }
+    if (checkComment(line)) { return; }
     if (line.length > 0) {
       // indentation check
       const RGX_INDENT: RegExp = (indentKind === 'space') ? RGX_INDENT_SPACE : RGX_INDENT_TAB;

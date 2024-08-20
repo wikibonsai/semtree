@@ -14,7 +14,7 @@ import {
   storeState,
   finalize,
 } from './state';
-import { getLevel, rawText } from './text';
+import { checkComment, getLevel, rawText } from './text';
 
 
 export const build = (
@@ -46,7 +46,7 @@ export const build = (
         updatedState.level += 1;
       }
       for (const line of updatedState.content[currentBranch]) {
-        if (line.trim().startsWith('<!--') && line.trim().endsWith('-->')) { continue; }
+        if (checkComment(line)) { continue; }
         const thisLvl: number = getLevel(line, updatedState.options.indentSize || 2);
         const leafText = rawText(line.trim(), {
           hasBullets: updatedState.options.mkdnList,
