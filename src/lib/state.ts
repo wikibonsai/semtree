@@ -1,9 +1,7 @@
 import type { SemTreeOpts, SemTree, TreeBuilderState, TreeNode } from './types';
 import { lint } from './lint';
 import { pruneOrphans } from './orphan';
-import { rawText, stripWikiAttrs } from './text';
-import matter from 'gray-matter';
-import * as caml from 'caml-mkdn';
+import { rawText, stripAttrs } from './text';
 
 
 export const createInitialState = (
@@ -28,35 +26,10 @@ export const createInitialState = (
 });
 
 export const extractContent = (state: TreeBuilderState): TreeBuilderState => {
-  const extractedContent: Record<string, string[]> = {};
-  for (const [key, text] of Object.entries(state.content)) {
-    let content = text.join('\n');
-    // first, check semtree markers
-    const semtreeRegex = new RegExp(`<!--<${state.options.delimiter}>-->([\\s\\S]*?)<!--</${state.options.delimiter}>-->`, 's');
-    const semtreeMatch = content.match(semtreeRegex);
-    if (semtreeMatch) {
-      // clean semtree markers
-      content = semtreeMatch[1].trim();
-    } else {
-      // second, if no semtree markers, strip CAML and YAML
-      const camlData: any = caml.load(content);
-      const cleanerContent: string = camlData.content ? camlData.content : content;
-      const cleanererContent: string = stripWikiAttrs(cleanerContent);
-      const yamlData: any = (content.substring(0,4) === '---\n') ? matter(cleanererContent) : { data: {}, content: cleanererContent };
-      const cleanContent: string = yamlData.content;
-      content = cleanContent;
-    }
-    // finally, remove any leading/trailing newlines
-    /* eslint-disable indent */
-    extractedContent[key] = content.split('\n')
-                                   .filter((line, index, array) => line.trim().length > 0);
-    /* eslint-enable indent */
-  }
-
   return {
     ...state,
     state: 'EXTRACTING_CONTENT',
-    content: extractedContent,
+    content: stripAttrs(state.content, state.options.delimiter),
   };
 };
 
