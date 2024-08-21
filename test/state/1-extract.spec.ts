@@ -20,7 +20,7 @@ describe('state 1; extractContent()', () => {
     };
     state = {
       state: 'INITIAL',
-      options: opts,
+      opts: opts,
       content: {},
       // tree
       root: null,

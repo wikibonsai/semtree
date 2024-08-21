@@ -20,7 +20,7 @@ describe('state 6; processBranch()', () => {
     };
     state = {
       state: 'INITIAL',
-      options: opts,
+      opts: opts,
       content: {},
       root: null,
       nodes: [],
@@ -147,7 +147,7 @@ describe('state 6; processBranch()', () => {
 
   it('virtual trunk; branches do not exist in virtual trunk mode', () => {
     // setup
-    state.options.virtualTrunk = true;
+    state.opts.virtualTrunk = true;
     // go
     const result: TreeBuilderState = processBranch(state, 'root');
     // assert

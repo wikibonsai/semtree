@@ -36,7 +36,7 @@ export type TreeBuilderState = {
   state: TreeBuildingState;
   // input
   content: Record<string, string[]>;
-  options: SemTreeOpts;
+  opts: SemTreeOpts;
   // tree
   root: string | null;
   nodes: TreeNode[];

@@ -20,7 +20,7 @@ describe('state 7; processLeaf()', () => {
     };
     state = {
       state: 'INITIAL',
-      options: opts,
+      opts: opts,
       content: {},
       // tree
       root: null,
@@ -64,7 +64,7 @@ describe('state 7; processLeaf()', () => {
 
   it('create; virtual trunk; root case', () => {
     // setup
-    state.options.virtualTrunk = true;
+    state.opts.virtualTrunk = true;
     state.nodes = [];
     state.currentAncestors = [];
     const line: string = '- [[leaf]]';
@@ -86,7 +86,7 @@ describe('state 7; processLeaf()', () => {
 
   it('create; virtual trunk; with ancestors', () => {
     // setup
-    state.options.virtualTrunk = true;
+    state.opts.virtualTrunk = true;
     state.nodes = [
       { text: 'root', ancestors: [], children: [] },
       { text: 'child', ancestors: ['root'], children: [] },
@@ -206,7 +206,7 @@ describe('state 7; processLeaf()', () => {
   it('update; virtual trunk; exists; root case', () => {
     // setup
     state.isUpdate = true;
-    state.options.virtualTrunk = true;
+    state.opts.virtualTrunk = true;
     state.nodes = [
       { text: 'leaf', ancestors: [], children: [] },
     ];
@@ -233,7 +233,7 @@ describe('state 7; processLeaf()', () => {
   it('update; virtual trunk; exists; with ancestors', () => {
     // setup
     state.isUpdate = true;
-    state.options.virtualTrunk = true;
+    state.opts.virtualTrunk = true;
     state.nodes = [
       { text: 'root', ancestors: [], children: [] },
       { text: 'child', ancestors: ['root'], children: [] },

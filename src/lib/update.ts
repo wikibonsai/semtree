@@ -7,9 +7,9 @@ export const update = (
   tree: SemTree,
   subroot: string,
   content: Record<string, string>,
-  options?: SemTreeOpts,
+  opts?: SemTreeOpts,
 ): TreeNode[] | string => {
-  if (options?.virtualTrunk) {
+  if (opts?.virtualTrunk) {
     return 'semtree.update(): cannot run updates on a virtual trunk';
   }
   const contentArray: Record<string, string[]> = Object.fromEntries(
@@ -29,7 +29,7 @@ export const update = (
   // go
   const updatedTree = build(subroot, contentArray, {
     ...defaultOpts,
-    ...options,
+    ...opts,
     subroot: subroot,
   }, tree);
   if (typeof updatedTree === 'string') {
@@ -62,22 +62,22 @@ export const update = (
   tree.orphans = updatedTree.orphans;
 
   // option function operations
-  if (options?.setRoot) {
-    options.setRoot(updatedTree.root);
+  if (opts?.setRoot) {
+    opts.setRoot(updatedTree.root);
   }
-  if (options?.graft) {
+  if (opts?.graft) {
     for (const connection of updatedConnections) {
       if (!originalConnections.has(connection)) {
         const [parent, child] = connection.split(':');
-        options.graft(parent, child);
+        opts.graft(parent, child);
       }
     }
   }
-  if (options?.prune) {
+  if (opts?.prune) {
     for (const connection of originalConnections) {
       if (!updatedConnections.has(connection)) {
         const [parent, child] = connection.split(':');
-        options.prune(parent, child);
+        opts.prune(parent, child);
       }
     }
   }

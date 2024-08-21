@@ -7,12 +7,12 @@ import { rawText, stripAttrs } from './text';
 export const createInitialState = (
   root: string,
   content: Record<string, string[]>,
-  options: SemTreeOpts,
+  opts: SemTreeOpts,
   existingTree?: SemTree,
 ): TreeBuilderState => ({
   state: 'INITIAL',
   content,
-  options,
+  opts: opts,
   root: existingTree ? existingTree.root : root,
   nodes: existingTree ? [...existingTree.nodes] : [],
   trunk: existingTree ? [...existingTree.trunk] : [],
@@ -21,7 +21,7 @@ export const createInitialState = (
   level: 0,
   currentAncestors: [],
   isUpdate: !!existingTree,
-  subroot: options.subroot,
+  subroot: opts.subroot,
   updatedNodes: [],
 });
 
@@ -29,7 +29,7 @@ export const extractContent = (state: TreeBuilderState): TreeBuilderState => {
   return {
     ...state,
     state: 'EXTRACTING_CONTENT',
-    content: stripAttrs(state.content, state.options.delimiter),
+    content: stripAttrs(state.content, state.opts.delimiter),
   };
 };
 
@@ -38,13 +38,13 @@ export const processRoot = (state: TreeBuilderState): TreeBuilderState => {
     ...state,
     state: 'PROCESSING_ROOT',
     root: state.root,
-    virtualRoot: state.options.virtualTrunk
+    virtualRoot: state.opts.virtualTrunk
       ? (state.isUpdate
         ? state.root!
-        : (state.subroot || state.options.subroot || Object.keys(state.content)[0]))
+        : (state.subroot || state.opts.subroot || Object.keys(state.content)[0]))
       : undefined,
     subroot: state.isUpdate
-      ? (state.subroot || state.options.subroot || Object.keys(state.content)[0])
+      ? (state.subroot || state.opts.subroot || Object.keys(state.content)[0])
       : undefined,
   };
 };
@@ -54,10 +54,10 @@ export const lintContent = (state: TreeBuilderState): TreeBuilderState => {
     Object.entries(state.content).map(([key, value]) => [key, value.join('\n')])
   );
   const lintError: { warn: string, error: string } | void = lint(contentAsStrings, {
-    indentKind: state.options.indentKind,
-    indentSize: state.options.indentSize,
-    mkdnList: state.options.mkdnList,
-    wikitext: state.options.wikitext,
+    indentKind: state.opts.indentKind,
+    indentSize: state.opts.indentSize,
+    mkdnList: state.opts.mkdnList,
+    wikitext: state.opts.wikitext,
     root: state.virtualRoot ?? state.root ?? undefined,
   });
   if (lintError?.error) {
@@ -84,7 +84,7 @@ export const storeState = (state: TreeBuilderState): TreeBuilderState => ({
 // process content
 
 export const processBranch = (state: TreeBuilderState, branchText: string): TreeBuilderState => {
-  if (state.options.virtualTrunk) { return state; }
+  if (state.opts.virtualTrunk) { return state; }
   // branch
   let branchNode: TreeNode | undefined = state.nodes.find(node => node.text === branchText);
   // create
@@ -124,8 +124,8 @@ export const processLeaf = (state: TreeBuilderState, line: string, level: number
   const trimmedLine: string = line.trim();
   if (!trimmedLine) return state;
   const leafText: string = rawText(trimmedLine, {
-    hasBullets: state.options.mkdnList,
-    hasWiki: state.options.wikitext,
+    hasBullets: state.opts.mkdnList,
+    hasWiki: state.opts.wikitext,
   });
   // ancestors
   state.currentAncestors = state.currentAncestors.slice(0, level + state.level);
@@ -154,7 +154,7 @@ export const processLeaf = (state: TreeBuilderState, line: string, level: number
     state.updatedNodes.push(leafNode);
   }
   // metadata
-  if (!state.options.virtualTrunk) {
+  if (!state.opts.virtualTrunk) {
     state.petioleMap[leafText] = branchText;
   }
   // return
@@ -189,10 +189,10 @@ export const finalize = (state: TreeBuilderState): TreeBuilderState => {
   return {
     ...state,
     state: 'FINALIZING',
-    root: state.options.virtualTrunk ? state.virtualRoot! : state.root!,
-    trunk: state.options.virtualTrunk ? [] : state.trunk,
-    petioleMap: state.options.virtualTrunk ? {} : state.petioleMap,
-    orphans: state.options.virtualTrunk ? [] : [...Object.keys(state.content)],
+    root: state.opts.virtualTrunk ? state.virtualRoot! : state.root!,
+    trunk: state.opts.virtualTrunk ? [] : state.trunk,
+    petioleMap: state.opts.virtualTrunk ? {} : state.petioleMap,
+    orphans: state.opts.virtualTrunk ? [] : [...Object.keys(state.content)],
   };
 };
 

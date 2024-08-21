@@ -25,7 +25,7 @@ describe('state 0; createInitialState()', () => {
     // assert
     assert.deepEqual(result, {
       state: 'INITIAL',
-      options: opts,
+      opts: opts,
       content: {},
       root: 'root',
       nodes: [],
@@ -48,7 +48,7 @@ describe('state 0; createInitialState()', () => {
     // assert
     assert.deepEqual(result, {
       state: 'INITIAL',
-      options: opts,
+      opts: opts,
       content: {},
       root: 'root', // this should be updated properly in processRoot()
       nodes: [],
@@ -77,7 +77,7 @@ describe('state 0; createInitialState()', () => {
     // assert
     assert.deepEqual(result, {
       state: 'INITIAL',
-      options: opts,
+      opts: opts,
       content: {},
       root: tree.root,
       nodes: tree.nodes,

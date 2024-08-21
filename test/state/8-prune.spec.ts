@@ -20,7 +20,7 @@ describe('state 8; pruneOrphanNodes()', () => {
     };
     state = {
       state: 'PROCESSING_LEAF',
-      options: opts,
+      opts: opts,
       content: {},
       // tree
       root: 'root',

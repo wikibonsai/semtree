@@ -11,22 +11,22 @@ import { checkComment } from './text';
 
 export const lint = (
   content: string | Record<string, string>,
-  options: LintOpts,
+  opts: LintOpts,
 ): void | { warn: string, error: string } => {
-  /* @ts-expect-error: options.indentSize is optional */
-  const indentKind: 'space' | 'tab' = options.indentKind ?? defaultOpts.indentKind;
-  /* @ts-expect-error: options.indentSize is optional */
-  const indentSize: number = options.indentSize ?? defaultOpts.indentSize;
-  /* @ts-expect-error: options.mkdnList is optional */
-  const mkdnList: boolean = options.mkdnList ?? defaultOpts.mkdnList;
-  /* @ts-expect-error: options.wikitext is optional */
-  const wikitext: boolean = options.wikitext ?? defaultOpts.wikitext;
+  /* @ts-expect-error: opts.indentSize is optional */
+  const indentKind: 'space' | 'tab' = opts.indentKind ?? defaultOpts.indentKind;
+  /* @ts-expect-error: opts.indentSize is optional */
+  const indentSize: number = opts.indentSize ?? defaultOpts.indentSize;
+  /* @ts-expect-error: opts.mkdnList is optional */
+  const mkdnList: boolean = opts.mkdnList ?? defaultOpts.mkdnList;
+  /* @ts-expect-error: opts.wikitext is optional */
+  const wikitext: boolean = opts.wikitext ?? defaultOpts.wikitext;
   // warnings
   const badIndentations: { fname?: string, line: number; content: string; reason: string }[] = [];
   // Update the entities type
   const entities: Map<string, { occurrences: { fname?: string, line: number }[] }> = new Map();
-  if (options.root) {
-    entities.set(options.root, { occurrences: [{ fname: options.root, line: -1 }] });
+  if (opts.root) {
+    entities.set(opts.root, { occurrences: [{ fname: opts.root, line: -1 }] });
   }
   const lintOrphanTrunks: string[] = [];
   const lintMkdnBullets: { fname?: string, line: number; content: string }[] = [];
@@ -122,11 +122,11 @@ export const lint = (
       }
     }
     // if a root is given we can check for unused trunk files
-    if (options.root) {
+    if (opts.root) {
       // track trunk/index usage
       const contentKeys: string[] = Object.keys(content);
       // remove root from contentKeys
-      const rootIndex: number = contentKeys.indexOf(options.root ?? '');
+      const rootIndex: number = contentKeys.indexOf(opts.root ?? '');
       if (rootIndex !== -1) {
         contentKeys.splice(rootIndex, 1);
       }

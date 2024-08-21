@@ -21,7 +21,7 @@ import { checkComment, getLevel, rawText } from './text';
 export const build = (
   root: string,
   content: Record<string, string[]>,
-  options: SemTreeOpts,
+  opts: SemTreeOpts,
   existingTree?: SemTree,
 ): SemTree | string => {
   let state: TreeBuilderState | undefined;
@@ -31,7 +31,7 @@ export const build = (
       return 'semtree.build(): no content provided';
     }
     // go
-    state = createInitialState(root, content, options, existingTree);
+    state = createInitialState(root, content, opts, existingTree);
     state = extractContent(state);
     state = processRoot(state);
     state = lintContent(state);
@@ -44,19 +44,19 @@ export const build = (
         return currentState;
       }
       let updatedState: TreeBuilderState = currentState;
-      if (!currentState.options.virtualTrunk) {
+      if (!currentState.opts.virtualTrunk) {
         updatedState = processBranch(updatedState, currentBranch);
         updatedState.level += 1;
       }
       for (const line of updatedState.content[currentBranch]) {
         if (checkComment(line)) { continue; }
-        const thisLvl: number = getLevel(line, updatedState.options.indentSize || 2);
+        const thisLvl: number = getLevel(line, updatedState.opts.indentSize || 2);
         const leafText: string = rawText(line.trim(), {
-          hasBullets: updatedState.options.mkdnList,
-          hasWiki: updatedState.options.wikitext,
+          hasBullets: updatedState.opts.mkdnList,
+          hasWiki: updatedState.opts.wikitext,
         });
         // Handle root setting for virtual trunk mode
-        if (updatedState.options.virtualTrunk
+        if (updatedState.opts.virtualTrunk
           && ((updatedState.level + thisLvl) === 0)
           && !updatedState.content[leafText]
         ) {
@@ -67,7 +67,7 @@ export const build = (
           }
         }
         // always process the leaf unless it's a trunk file in virtual trunk mode
-        if (!updatedState.options.virtualTrunk || !updatedState.content[leafText]) {
+        if (!updatedState.opts.virtualTrunk || !updatedState.content[leafText]) {
           updatedState = processLeaf(updatedState, line, thisLvl, currentBranch);
         }
         // branch handling
@@ -77,10 +77,10 @@ export const build = (
           updatedState.level -= thisLvl;
         }
       }
-      if (updatedState.options.virtualTrunk && isRootFile && updatedState.root === null) {
+      if (updatedState.opts.virtualTrunk && isRootFile && updatedState.root === null) {
         throw new Error('semtree.build(): no root-level entry found in virtual trunk mode');
       }
-      if (!currentState.options.virtualTrunk) {
+      if (!currentState.opts.virtualTrunk) {
         updatedState.level -= 1;
       }
       delete updatedState.content[currentBranch];

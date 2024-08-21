@@ -20,7 +20,7 @@ describe('state 9; finalize()', () => {
     };
     state = {
       state: 'PRUNING_ORPHANS',
-      options: opts,
+      opts: opts,
       content: {},
       // tree
       root: null,
@@ -80,7 +80,7 @@ describe('state 9; finalize()', () => {
   // trunk-related properties are empty in virtual trunk mode...
   it('virtual trunk', () => {
     // setup
-    state.options.virtualTrunk = true;
+    state.opts.virtualTrunk = true;
     state.virtualRoot = 'virtual-root';
     // go
     const result: TreeBuilderState = finalize(state);

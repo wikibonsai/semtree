@@ -18,7 +18,7 @@ describe('state 10; restoreState()', () => {
     };
     state = {
       state: 'PROCESSING_ROOT',
-      options: opts,
+      opts: opts,
       content: {},
       root: 'root',
       nodes: [

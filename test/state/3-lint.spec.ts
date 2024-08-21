@@ -20,7 +20,7 @@ describe('state 3; lintContent()', () => {
     };
     state = {
       state: 'PROCESSING_ROOT',
-      options: opts,
+      opts: opts,
       content: {},
       // tree
       root: null,

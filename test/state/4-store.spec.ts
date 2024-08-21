@@ -20,7 +20,7 @@ describe('state 4; storeState()', () => {
     };
     state = {
       state: 'PROCESSING_ROOT',
-      options: opts,
+      opts: opts,
       content: {},
       root: 'root',
       nodes: [

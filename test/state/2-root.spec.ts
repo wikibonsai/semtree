@@ -20,7 +20,7 @@ describe('state 2; processRoot()', () => {
     };
     state = {
       state: 'INITIAL',
-      options: opts,
+      opts: opts,
       content: {},
       root: 'root',
       nodes: [],
@@ -40,19 +40,19 @@ describe('state 2; processRoot()', () => {
     const result = processRoot(state);
     // assert
     assert.strictEqual(result.root, 'root');
-    assert.strictEqual(result.options.virtualTrunk, false);
+    assert.strictEqual(result.opts.virtualTrunk, false);
     assert.strictEqual(result.virtualRoot, undefined);
     assert.strictEqual(result.subroot, undefined);
   });
 
   it('create; virtual trunk', () => {
     // setup
-    state.options.virtualTrunk = true;
+    state.opts.virtualTrunk = true;
     // go
     const result = processRoot(state);
     // assert
     assert.strictEqual(result.root, 'root');
-    assert.strictEqual(result.options.virtualTrunk, true);
+    assert.strictEqual(result.opts.virtualTrunk, true);
     assert.strictEqual(result.virtualRoot, undefined);
     assert.strictEqual(result.subroot, undefined);
   });
@@ -60,12 +60,12 @@ describe('state 2; processRoot()', () => {
   it('update; concrete trunk', () => {
     // setup
     state.isUpdate = true;
-    state.options.subroot = 'root';
+    state.opts.subroot = 'root';
     // go
     const result = processRoot(state);
     // assert
     assert.strictEqual(result.root, 'root');
-    assert.strictEqual(result.options.virtualTrunk, false);
+    assert.strictEqual(result.opts.virtualTrunk, false);
     assert.strictEqual(result.virtualRoot, undefined);
     assert.strictEqual(result.subroot, 'root');
   });
@@ -73,13 +73,13 @@ describe('state 2; processRoot()', () => {
   it('update; virtual trunk', () => {
     // setup
     state.isUpdate = true;
-    state.options.virtualTrunk = true;
-    state.options.subroot = 'root';
+    state.opts.virtualTrunk = true;
+    state.opts.subroot = 'root';
     // go
     const result = processRoot(state);
     // assert
     assert.strictEqual(result.root, 'root');
-    assert.strictEqual(result.options.virtualTrunk, true);
+    assert.strictEqual(result.opts.virtualTrunk, true);
     assert.strictEqual(result.virtualRoot, 'root');
     assert.strictEqual(result.subroot, 'root');
   });
