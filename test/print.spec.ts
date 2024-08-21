@@ -27,21 +27,6 @@ describe('print()', () => {
 
       it('default', () => {
         // setup
-        // const content: Record<string, string> = {
-        //   'root':
-        // `- [[child]]
-        //   - [[branch1]]
-        //   - [[grandchild]]
-        //     - [[greatgrandchild]]
-        // `,
-        //   'branch1':
-        // `- [[child1b]]
-        // - [[branch2]]
-        // `,
-        //   'branch2':
-        // `- [[child2b]]
-        // `,
-        // };
         const tree: SemTree = {
           root: 'root',
           nodes: [
@@ -67,16 +52,14 @@ describe('print()', () => {
           },
           orphans: [],
         };
-        const expdTreeStr: string =
-`root
-└── child
-    ├── branch1
-    |   ├── child1b
-    |   └── branch2
-    |       └── child2b
-    └── grandchild
-        └── greatgrandchild
-`;
+        const expdTreeStr: string = 'root\n'
+                                  + '└── child\n'
+                                  + '    ├── branch1\n'
+                                  + '    |   ├── child1b\n'
+                                  + '    |   └── branch2\n'
+                                  + '    |       └── child2b\n'
+                                  + '    └── grandchild\n'
+                                  + '        └── greatgrandchild\n';
         // assert                           // go
         const actlRes: string | undefined = print(tree);
         assert.strictEqual(actlRes, expdTreeStr);
@@ -94,21 +77,6 @@ describe('print()', () => {
 
       it('default', () => {
         // setup
-        // const content: Record<string, string> = {
-        //   'root':
-        // `- [[child]]
-        //   - [[branch1]]
-        //   - [[grandchild]]
-        //     - [[greatgrandchild]]
-        // `,
-        //   'branch1':
-        // `- [[child1b]]
-        // - [[branch2]]
-        // `,
-        //   'branch2':
-        // `- [[child2b]]
-        // `,
-        // };
         const tree: SemTree = {
           root: 'child',
           nodes: [
@@ -128,13 +96,11 @@ describe('print()', () => {
           },
           orphans: [],
         };
-        const expdTreeStr: string =
-`child
-├── child1b
-├── child2b
-└── grandchild
-    └── greatgrandchild
-`;
+        const expdTreeStr: string = 'child\n'
+                                  + '├── child1b\n'
+                                  + '├── child2b\n'
+                                  + '└── grandchild\n'
+                                  + '    └── greatgrandchild\n';
         // assert                           // go
         const actlRes: string | undefined = print(tree);
         assert.strictEqual(actlRes, expdTreeStr);
@@ -163,11 +129,9 @@ describe('print()', () => {
         },
         orphans: [],
       };
-      const expdTreeStr: string =
-`root
-├── child1
-└── child2
-`;
+      const expdTreeStr: string = 'root\n'
+                                + '├── child1\n'
+                                + '└── child2\n';
       // assert                           // go
       const actlRes: string | undefined = print(tree, false);
       assert.strictEqual(actlRes, expdTreeStr);

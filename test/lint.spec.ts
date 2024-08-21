@@ -22,10 +22,9 @@ describe('lint()', () => {
     // setup
     const content: Record<string, string> = {
       'root':
-`- [[child]]
-  - [[grandchild]]
-    - [[greatgrandchild]]
-`,
+        '- [[child]]\n'
+      + '  - [[grandchild]]\n'
+      + '    - [[greatgrandchild]]\n',
     };
     // no error
     const expdResult: undefined = undefined;
@@ -41,21 +40,18 @@ describe('lint()', () => {
     // setup
     const content: Record<string, string> = {
       'root':
-`- [[child]]
-  - [[grandchild]]
-    - [[greatgrandchild]]
-`,
+        '- [[child]]\n'
+      + '  - [[grandchild]]\n'
+      + '    - [[greatgrandchild]]\n',
       'unused-trunk-file':
-`- [[another-child]]
-  - [[another-grandchild]]
-    - [[another-greatgrandchild]]
-`,
+        '- [[another-child]]\n'
+      + '  - [[another-grandchild]]\n'
+      + '    - [[another-greatgrandchild]]\n',
     };
     const expdResult = {
-      warn: `semtree.lint(): orphan trunk files found:
-
-- unused-trunk-file
-`,
+      warn: 'semtree.lint(): orphan trunk files found:\n'
+      + '\n'
+      + '- unused-trunk-file\n',
       error: '',
     };
     // go
@@ -68,21 +64,18 @@ describe('lint()', () => {
     // setup
     const content: Record<string, string> = {
       'root':
-`- [[child]]
-  - [[grandchild]]
-    - [[greatgrandchild]]
-`,
+        '- [[child]]\n'
+      + '  - [[grandchild]]\n'
+      + '    - [[greatgrandchild]]\n',
       'unused-trunk-file':
-`- [[another-child]]
-  - [[another-grandchild]]
-    - [[another-greatgrandchild]]
-`,
+        '- [[another-child]]\n'
+      + '  - [[another-grandchild]]\n'
+      + '    - [[another-greatgrandchild]]\n',
     };
     const expdResult = {
-      warn: `semtree.lint(): orphan trunk files found:
-
-- unused-trunk-file
-`,
+      warn: 'semtree.lint(): orphan trunk files found:\n'
+      + '\n'
+      + '- unused-trunk-file\n',
       error: '',
     };
     // go
@@ -97,19 +90,17 @@ describe('lint()', () => {
     // setup
     const content: Record<string, string> = {
       'root':
-`- [[child]]
-  - [[duplicategrandchild]]
-  - [[duplicategrandchild]]
-`,
+        '- [[child]]\n'
+      + '  - [[duplicategrandchild]]\n'
+      + '  - [[duplicategrandchild]]\n',
     };
     const expdResult = {
       warn: '',
-      error: `semtree.lint(): duplicate entity names found:
-
-- "duplicategrandchild"
-  - File "root" Line 2
-  - File "root" Line 3
-`,
+      error: 'semtree.lint(): duplicate entity names found:\n'
+      + '\n'
+      + '- "duplicategrandchild"\n'
+      + '  - File "root" Line 2\n'
+      + '  - File "root" Line 3\n',
     };
     // go
     const actlResult: void | { warn: string; error: string; } = lint(content, opts);
@@ -121,34 +112,29 @@ describe('lint()', () => {
     // setup
     const content: Record<string, string> = {
       'root':
-`- [[child]]
-  - [[duplicategrandchild]]
-`,
+        '- [[child]]\n'
+      + '  - [[duplicategrandchild]]\n',
       'another-file':
-`- [[anotherchild]]
-  - [[duplicategrandchild]]
-  - [[anotherduplicate]]
-`,
+        '- [[anotherchild]]\n'
+      + '  - [[duplicategrandchild]]\n'
+      + '  - [[anotherduplicate]]\n',
       'third-file':
-`- [[thirdchild]]
-  - [[anotherduplicate]]
-`,
+        '- [[thirdchild]]\n'
+      + '  - [[anotherduplicate]]\n',
     };
     const expdResult = {
-      warn: `semtree.lint(): orphan trunk files found:
-
-- another-file
-- third-file
-`,
-      error: `semtree.lint(): duplicate entity names found:
-
-- "duplicategrandchild"
-  - File "root" Line 2
-  - File "another-file" Line 2
-- "anotherduplicate"
-  - File "another-file" Line 3
-  - File "third-file" Line 2
-`,
+      warn: 'semtree.lint(): orphan trunk files found:\n'
+      + '\n'
+      + '- another-file\n'
+      + '- third-file\n',
+      error: 'semtree.lint(): duplicate entity names found:\n'
+      + '\n'
+      + '- "duplicategrandchild"\n'
+      + '  - File "root" Line 2\n'
+      + '  - File "another-file" Line 2\n'
+      + '- "anotherduplicate"\n'
+      + '  - File "another-file" Line 3\n'
+      + '  - File "third-file" Line 2\n',
     };
     // go
     const actlResult: void | { warn: string; error: string; } = lint(content, opts);
@@ -162,19 +148,17 @@ describe('lint()', () => {
     // setup
     const content: Record<string, string> = {
       'root':
-`- [[child]]
-  - [[grandchild]]
-   - [[greatgrandchild]]
- - [[badindentchild]]
-`,
+        '- [[child]]\n'
+      + '  - [[grandchild]]\n'
+      + '   - [[greatgrandchild]]\n'
+      + ' - [[badindentchild]]\n',
     };
     const expdResult = {
       warn: '',
-      error: `semtree.lint(): improper indentation found:
-
-- File "root" Line 3 (inconsistent indentation): "   - [[greatgrandchild]]"
-- File "root" Line 4 (inconsistent indentation): " - [[badindentchild]]"
-`,
+      error: 'semtree.lint(): improper indentation found:\n'
+      + '\n'
+      + '- File "root" Line 3 (inconsistent indentation): "   - [[greatgrandchild]]"\n'
+      + '- File "root" Line 4 (inconsistent indentation): " - [[badindentchild]]"\n',
     };
     // go
     const actlResult: void | { warn: string; error: string; } = lint(content, opts);
@@ -186,18 +170,17 @@ describe('lint()', () => {
     // setup
     const content: Record<string, string> = {
       'root':
-`- [[child]]
-  - [[grandchild]]
-      - [[overindentgreatgrandchild]]
-    - [[badindentchild]]
-`,
+        '- [[child]]\n'
+      + '  - [[grandchild]]\n'
+      + '      - [[overindentgreatgrandchild]]\n'
+      + ' - [[badindentchild]]\n',
     };
     const expdResult = {
       warn: '',
-      error: `semtree.lint(): improper indentation found:
-
-- File "root" Line 3 (over-indented): "      - [[overindentgreatgrandchild]]"
-`,
+      error: 'semtree.lint(): improper indentation found:\n'
+      + '\n'
+      + '- File "root" Line 3 (over-indented): "      - [[overindentgreatgrandchild]]"\n'
+      + '- File "root" Line 4 (inconsistent indentation): " - [[badindentchild]]"\n',
     };
     // go
     const actlResult: void | { warn: string; error: string; } = lint(content, opts);
@@ -213,10 +196,9 @@ describe('lint()', () => {
       // setup
       const content: Record<string, string> = {
         'root':
-`- [[child]]
-  - [[grandchild]]
-    - [[greatgrandchild]]
-`,
+          '- [[child]]\n'
+        + '  - [[grandchild]]\n'
+        + '    - [[greatgrandchild]]\n',
       };
       // no error
       const expdError: undefined = undefined;
@@ -230,19 +212,17 @@ describe('lint()', () => {
       // setup
       const content: Record<string, string> = {
         'root':
-`- [[child]]
-\t\t- [[grandchild]]
-\t\t\t\t- [[greatgrandchild]]
-`,
+          '- [[child]]\n'
+        + '\t\t- [[grandchild]]\n'
+        + '\t\t\t\t- [[greatgrandchild]]\n',
       };
       const expdError = {
         warn: '',
         error:
-`semtree.lint(): improper indentation found:
-
-- File "root" Line 2 (tabs found): "\t\t- [[grandchild]]"
-- File "root" Line 3 (tabs found): "\t\t\t\t- [[greatgrandchild]]"
-`,
+          'semtree.lint(): improper indentation found:\n'
+        + '\n'
+        + '- File "root" Line 2 (tabs found): "\t\t- [[grandchild]]"\n'
+        + '- File "root" Line 3 (tabs found): "\t\t\t\t- [[greatgrandchild]]"\n',
       };
       // go
       const actlError: void | { warn: string; error: string; } = lint(content, { ...opts, indentKind: 'space' });
@@ -254,10 +234,9 @@ describe('lint()', () => {
       // setup
       const content: Record<string, string> = {
         'root':
-`- [[child]]
-\t\t- [[grandchild]]
-\t\t\t\t- [[greatgrandchild]]
-`,
+          '- [[child]]\n'
+        + '\t\t- [[grandchild]]\n'
+        + '\t\t\t\t- [[greatgrandchild]]\n',
       };
       // no error
       const expdError: undefined = undefined;
@@ -271,19 +250,17 @@ describe('lint()', () => {
       // setup
       const content: Record<string, string> = {
         'root':
-`- [[child]]
-  - [[grandchild]]
-    - [[greatgrandchild]]
-`,
+          '- [[child]]\n'
+        + '  - [[grandchild]]\n'
+        + '    - [[greatgrandchild]]\n',
       };
       const expdError = {
         warn: '',
         error:
-`semtree.lint(): improper indentation found:
-
-- File "root" Line 2 (spaces found): "  - [[grandchild]]"
-- File "root" Line 3 (spaces found): "    - [[greatgrandchild]]"
-`,
+          'semtree.lint(): improper indentation found:\n'
+        + '\n'
+        + '- File "root" Line 2 (spaces found): "  - [[grandchild]]"\n'
+        + '- File "root" Line 3 (spaces found): "    - [[greatgrandchild]]"\n',
       };
       // go
       const actlError: void | { warn: string; error: string; } = lint(content, { ...opts, indentKind: 'tab' });
@@ -300,10 +277,9 @@ describe('lint()', () => {
     beforeEach(() => {
       content = {
         'root':
-`- [[child]]
-  - [[grandchild]]
-    - [[greatgrandchild]]
-`,
+          '- [[child]]\n'
+        + '  - [[grandchild]]\n'
+        + '    - [[greatgrandchild]]\n',
       };
     });
 
@@ -320,18 +296,16 @@ describe('lint()', () => {
       // setup
       const content: Record<string, string> = {
         'root':
-`- [[child]]
-   - [[grandchild]]
-      - [[greatgrandchild]]
-`,
+          '- [[child]]\n'
+        + '   - [[grandchild]]\n'
+        + '      - [[greatgrandchild]]\n',
       };
       const expdResult = {
         warn: '',
-        error: `semtree.lint(): improper indentation found:
-
-- File "root" Line 2 (inconsistent indentation): "   - [[grandchild]]"
-- File "root" Line 3 (over-indented): "      - [[greatgrandchild]]"
-`,
+        error: 'semtree.lint(): improper indentation found:\n'
+        + '\n'
+        + '- File "root" Line 2 (inconsistent indentation): "   - [[grandchild]]"\n'
+        + '- File "root" Line 3 (over-indented): "      - [[greatgrandchild]]"\n',
       };
       // go
       const actlResult: void | { warn: string; error: string; } = lint(content, opts);
@@ -343,10 +317,9 @@ describe('lint()', () => {
       // setup
       const content: Record<string, string> = {
         'root':
-`- [[child]]
-   - [[grandchild]]
-      - [[greatgrandchild]]
-`,
+          '- [[child]]\n'
+        + '   - [[grandchild]]\n'
+        + '      - [[greatgrandchild]]\n',
       };
       // no error
       const expdResult: undefined = undefined;
@@ -360,11 +333,10 @@ describe('lint()', () => {
       // setup
       const expdResult = {
         warn: '',
-        error: `semtree.lint(): improper indentation found:
-
-- File "root" Line 2 (inconsistent indentation): "  - [[grandchild]]"
-- File "root" Line 3 (inconsistent indentation): "    - [[greatgrandchild]]"
-`,
+        error: 'semtree.lint(): improper indentation found:\n'
+        + '\n'
+        + '- File "root" Line 2 (inconsistent indentation): "  - [[grandchild]]"\n'
+        + '- File "root" Line 3 (inconsistent indentation): "    - [[greatgrandchild]]"\n',
       };
       // go
       const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, indentSize: 3 });
@@ -379,11 +351,10 @@ describe('lint()', () => {
       // setup
       const content: Record<string, string> = {
         'root':
-`- [[child]]
-  - [[grandchild]]
-  + [[grandchild2]]
-  * [[grandchild3]]
-`,
+          '- [[child]]\n'
+        + '  - [[grandchild]]\n'
+        + '  + [[grandchild2]]\n'
+        + '  * [[grandchild3]]\n',
       };
       // no error
       const expdResult: undefined = undefined;
@@ -397,16 +368,14 @@ describe('lint()', () => {
       // setup
       const content: Record<string, string> = {
         'root':
-`- [[child]]
-  - [[grandchild]]
-  [[grandchild2]]
-`,
+          '- [[child]]\n'
+        + '  - [[grandchild]]\n'
+        + '  [[grandchild2]]\n',
       };
       const expdResult = {
-        warn: `semtree.lint(): missing markdown bullet found:
-
-- File "root" Line 3: "  [[grandchild2]]"
-`,
+        warn: 'semtree.lint(): missing markdown bullet found:\n'
+        + '\n'
+        + '- File "root" Line 3: "  [[grandchild2]]"\n',
         error: '',
       };
       // go
@@ -419,10 +388,9 @@ describe('lint()', () => {
       // setup
       const content: Record<string, string> = {
         'root':
-`[[child]]
-  [[grandchild]]
-    [[greatgrandchild]]
-`,
+          '[[child]]\n'
+        + '  [[grandchild]]\n'
+        + '    [[greatgrandchild]]\n',
       };
       // no error
       const expdResult: undefined = undefined;
@@ -436,16 +404,14 @@ describe('lint()', () => {
       // setup
       const content: Record<string, string> = {
         'root':
-`[[child]]
-  [[grandchild]]
-  - [[grandchild2]]
-`,
+          '[[child]]\n'
+        + '  [[grandchild]]\n'
+        + '  - [[grandchild2]]\n',
       };
       const expdResult = {
-        warn: `semtree.lint(): unexpected markdown bullet found:
-
-- File "root" Line 3: "  - [[grandchild2]]"
-`,
+        warn: 'semtree.lint(): unexpected markdown bullet found:\n'
+        + '\n'
+        + '- File "root" Line 3: "  - [[grandchild2]]"\n',
         error: '',
       };
       // go
@@ -462,10 +428,9 @@ describe('lint()', () => {
       // setup
       const content: Record<string, string> = {
         'root':
-`- [[child]]
-  - [[grandchild]]
-    - [[greatgrandchild]]
-`,
+          '- [[child]]\n'
+        + '  - [[grandchild]]\n'
+        + '    - [[greatgrandchild]]\n',
       };
       // no error
       const expdResult: undefined = undefined;
@@ -479,16 +444,14 @@ describe('lint()', () => {
       // setup
       const content: Record<string, string> = {
         'root':
-`- [[child]]
-  - [[grandchild]]
-  - grandchild2
-`,
+          '- [[child]]\n'
+        + '  - [[grandchild]]\n'
+        + '  - grandchild2\n',
       };
       const expdResult = {
-        warn: `semtree.lint(): missing wikitext found:
-
-- File "root" Line 3: "  - grandchild2"
-`,
+        warn: 'semtree.lint(): missing wikitext found:\n'
+        + '\n'
+        + '- File "root" Line 3: "  - grandchild2"\n',
         error: '',
       };
       // go
@@ -501,10 +464,9 @@ describe('lint()', () => {
       // setup
       const content: Record<string, string> = {
         'root':
-`- child
-  - grandchild
-    - greatgrandchild
-`,
+          '- child\n'
+        + '  - grandchild\n'
+        + '    - greatgrandchild\n',
       };
       // no error
       const expdResult: undefined = undefined;
@@ -518,16 +480,14 @@ describe('lint()', () => {
       // setup
       const content: Record<string, string> = {
         'root':
-`- child
-  - grandchild
-  - [[grandchild2]]
-`,
+          '- child\n'
+        + '  - grandchild\n'
+        + '  - [[grandchild2]]\n',
       };
       const expdResult = {
-        warn: `semtree.lint(): unexpected wikitext found:
-
-- File "root" Line 3: "  - [[grandchild2]]"
-`,
+        warn: 'semtree.lint(): unexpected wikitext found:\n'
+        + '\n'
+        + '- File "root" Line 3: "  - [[grandchild2]]"\n',
         error: '',
       };
       // go

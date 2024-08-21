@@ -14,20 +14,9 @@ describe('update()', () => {
   });
 
   describe('concrete trunk', () => {
+
     it('concrete trunk; single file; add leaf', () => {
       // setup
-      const content: Record<string,string> = {
-        'root':
-`- [[child1a]]
-  - [[branch1]]
-  - [[grandchild1a]]
-`,
-        'branch1':
-`- [[branch2]]
-`,
-        'branch2':
-`- [[child1c]]
-`};
       const tree: SemTree = {
         root: 'root',
         trunk: ['root', 'branch1', 'branch2'],
@@ -49,10 +38,8 @@ describe('update()', () => {
           { text: 'child1c', ancestors: ['root', 'child1a', 'branch1', 'branch2'], children: [] },
         ]
       };
-      const replacement: string = 
-`- [[child1c]]
-  - [[newChild]]
-`;
+      const replacement: string =  '- [[child1c]]\n'
+                                 + '  - [[newChild]]\n';
       // subtree
       const actlSubTree: TreeNode[] | string = update(tree, 'branch2', { 'branch2': replacement }, opts);
       const expdSubTree: TreeNode[] = [
@@ -97,10 +84,8 @@ describe('update()', () => {
           }
         ]
       };
-      const replacement: string = 
-`- [[child1]]
-  - [[newChild]]
-`;
+      const replacement: string =  '- [[child1]]\n'
+                                 + '  - [[newChild]]\n';
       const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, opts);
       const expdSubTree: TreeNode[] = [
         { text: 'root', ancestors: [], children: ['child1'] },
@@ -127,9 +112,7 @@ describe('update()', () => {
           { text: 'grandchild1', ancestors: ['root', 'child1'], children: [] },
         ]
       };
-      const replacement: string = 
-`- [[child1]]
-`;
+      const replacement: string =  '- [[child1]]\n';
       const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, opts);
       const expdSubTree: TreeNode[] = [
         { text: 'root', ancestors: [], children: ['child1'] },
@@ -152,11 +135,9 @@ describe('update()', () => {
           { text: 'child1', ancestors: ['root'], children: [] },
         ]
       };
-      const replacement: string = 
-`- [[child1]]
-  - [[newChild1]]
-  - [[newChild2]]
-`;
+      const replacement: string =  '- [[child1]]\n'
+                                 + '  - [[newChild1]]\n'
+                                 + '  - [[newChild2]]\n';
       const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, indentSize: 2 });
       const expdSubTree: TreeNode[] = [
         { text: 'root', ancestors: [], children: ['child1'] },
@@ -181,10 +162,8 @@ describe('update()', () => {
           { text: 'child1', ancestors: ['root'], children: [] },
         ],
       };
-      const replacement: string = 
-`* [[child1]]
-  + [[newChild]]
-`;
+      const replacement: string =  '* [[child1]]\n'
+                                 + '  + [[newChild]]\n';
       const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, mkdnList: true });
       const expdSubTree: TreeNode[] = [
         { text: 'root', ancestors: [], children: ['child1'] },
@@ -208,10 +187,8 @@ describe('update()', () => {
           { text: 'child1', ancestors: ['root'], children: [] },
         ],
       };
-      const replacement: string = 
-`- child1
-  - newChild
-`;
+      const replacement: string =  '- child1\n'
+                                 + '  - newChild\n';
       const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, wikitext: false });
       const expdSubTree: TreeNode[] = [
         { text: 'root', ancestors: [], children: ['child1'] },
@@ -260,12 +237,11 @@ describe('update()', () => {
         // setup
         const updatedContent: Record<string, string> = {
           'root':
-`- [[child1]]
-  - [[grandchild1]]
-  - [[grandchild2]]
-- [[child2]]
-- [[newChild]]
-`
+            '- [[child1]]\n'
+          + '  - [[grandchild1]]\n'
+          + '  - [[grandchild2]]\n'
+          + '- [[child2]]\n'
+          + '- [[newChild]]\n'
         };
         // go
         const result: TreeNode[] | string = update(initialTree, 'root', updatedContent, opts);
@@ -280,10 +256,9 @@ describe('update()', () => {
         // setup
         const updatedContent: Record<string, string> = {
           'root':
-`- [[child1]]
-  - [[grandchild1]]
-  - [[grandchild2]]
-`
+            '- [[child1]]\n'
+          + '  - [[grandchild1]]\n'
+          + '  - [[grandchild2]]\n'
         };
         // go
         const result: TreeNode[] | string = update(initialTree, 'root', updatedContent, opts);
@@ -298,15 +273,13 @@ describe('update()', () => {
         // setup
         const updatedContent: Record<string, string> = {
           'root':
-`- [[child1]]
-  - [[grandchild1]]
-  - [[grandchild2]]
-- [[child2]]
-- [[newbranch]]
-`,
+            '- [[child1]]\n'
+          + '  - [[grandchild1]]\n'
+          + '  - [[grandchild2]]\n'
+          + '- [[child2]]\n'
+          + '- [[newbranch]]\n',
           'newbranch':
-`- [[newchild]]
-`
+            '- [[newchild]]\n'
         };
         // go
         const result: TreeNode[] | string = update(initialTree, 'root', updatedContent, opts);
@@ -322,9 +295,8 @@ describe('update()', () => {
         // setup
         const updatedContent: Record<string, string> = {
           'root':
-`- [[child1]]
-  - [[grandchild1]]
-`
+            '- [[child1]]\n'
+          + '  - [[grandchild1]]\n'
         };
         // go
         const result: TreeNode[] | string = update(initialTree, 'root', updatedContent, opts);
@@ -340,11 +312,10 @@ describe('update()', () => {
         // setup
         const updatedContent: Record<string, string> = {
           'root':
-`- [[child1]]
-  - [[grandchild1]]
-  - [[grandchild2]]
-- [[child2]]
-`
+            '- [[child1]]\n'
+          + '  - [[grandchild1]]\n'
+          + '  - [[grandchild2]]\n'
+          + '- [[child2]]\n'
         };
         // go
         const result: TreeNode[] | string = update(initialTree, 'root', updatedContent, opts);
@@ -358,11 +329,10 @@ describe('update()', () => {
         // setup
         const updatedContent: Record<string, string> = {
           'root':
-`- [[child2]]
-  - [[child1]]
-    - [[grandchild1]]
-    - [[grandchild2]]
-`
+            '- [[child2]]\n'
+          + '  - [[child1]]\n'
+          + '    - [[grandchild1]]\n'
+          + '    - [[grandchild2]]\n'
         };
         // go
         const result: TreeNode[] | string = update(initialTree, 'root', updatedContent, opts);
@@ -378,13 +348,12 @@ describe('update()', () => {
         // setup
         const updatedContent: Record<string, string> = {
           'root':
-`- [[child1]]
-  - [[grandchild1]]
-    - [[newGreatGrandchild]]
-  - [[grandchild2]]
-- [[child2]]
-  - [[newGrandchild]]
-`
+            '- [[child1]]\n'
+          + '  - [[grandchild1]]\n'
+          + '    - [[newGreatGrandchild]]\n'
+          + '  - [[grandchild2]]\n'
+          + '- [[child2]]\n'
+          + '  - [[newGrandchild]]\n'
         };
         // go
         const result = update(initialTree, 'root', updatedContent, opts);
@@ -402,18 +371,6 @@ describe('update()', () => {
 
     it('concrete trunk; single file; error handling; missing subtree', () => {
       // setup
-      const content: Record<string,string> = {
-        'root':
-`- [[child1a]]
-  - [[branch1]]
-  - [[grandchild1a]]
-`,
-        'branch1':
-`- [[branch2]]
-`,
-        'branch2':
-`- [[child1c]]
-`};
       const tree: SemTree = {
         root: 'root',
         trunk: ['root', 'branch1', 'branch2'],
@@ -459,10 +416,9 @@ describe('update()', () => {
         ],
       };
       const initialTreeClone: SemTree = JSON.parse(JSON.stringify(initialTree));
-      const replacement: string = 
-`- [[child1]]
-    - [[grandchild1]]
-  - [[invalidlyIndentedChild]]`;
+      const replacement: string = '- [[child1]]\n'
+                                + '    - [[grandchild1]]\n'
+                                + '  - [[invalidlyIndentedChild]]\n';
       // go
       const result = update(initialTree, 'root', { 'root': replacement }, opts);
       // assert
@@ -477,18 +433,6 @@ describe('update()', () => {
 
     it('concrete trunk; multi file; remove trunk; clean (only removing a single branch)', () => {
       // setup
-      const content: Record<string,string> = {
-        'root':
-`- [[child1a]]
-  - [[branch1]]
-  - [[grandchild1a]]
-`,
-        'branch1':
-`- [[branch2]]
-`,
-        'branch2':
-`- [[child1c]]
-`};
       const tree: SemTree = {
         root: 'root',
         trunk: ['root', 'branch1', 'branch2'],
@@ -510,10 +454,8 @@ describe('update()', () => {
           { text: 'child1c', ancestors: ['root', 'child1a', 'branch1', 'branch2'], children: [] },
         ],
       };
-      const replacement: string = 
-`- [[child1a]]
-  - [[grandchild1a]]
-`;
+      const replacement: string = '- [[child1a]]\n'
+                                + '  - [[grandchild1a]]\n';
       // subtree
       const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, opts);
       const expdSubTree: TreeNode[] = [
@@ -544,18 +486,6 @@ describe('update()', () => {
 
     it('concrete trunk; multi file; remove trunk; with remaining dead branch (not mentioned explicitly in update but is effected); (this is also the root case)', () => {
       // setup
-      const content: Record<string,string> = {
-        'root':
-`- [[child1a]]
-  - [[branch1]]
-  - [[grandchild1a]]
-`,
-        'branch1':
-`- [[branch2]]
-`,
-        'branch2':
-`- [[child1c]]
-`};
       const tree: SemTree = {
         root: 'root',
         trunk: ['root', 'branch1', 'branch2'],
@@ -577,10 +507,8 @@ describe('update()', () => {
           { text: 'child1c', ancestors: ['root', 'child1a', 'branch1', 'branch2'], children: [] },
         ],
       };
-      const replacement: string = 
-`- [[child1a]]
-  - [[grandchild1a]]
-`;
+      const replacement: string = '- [[child1a]]\n'
+                                + '  - [[grandchild1a]]\n';
       // subtree
       const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, opts);
       const expdSubTree: TreeNode[] = [

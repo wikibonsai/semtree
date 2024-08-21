@@ -74,11 +74,10 @@ describe('create()', () => {
         it(`${trunkType} trunk; single file; indentation; 2 spaces (default)`, () => {
           const content: Record<string,string> = {
             'root':
-`- [[child1]]
-  - [[grandchild1]]
-  - [[grandchild2]]
-    - [[greatgrandchild1]]
-`
+              '- [[child1]]\n'
+            + '  - [[grandchild1]]\n'
+            + '  - [[grandchild2]]\n'
+            + '    - [[greatgrandchild1]]\n'
           };
           const actl: SemTree | string = create('root', content, opts);
           const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
@@ -88,11 +87,10 @@ describe('create()', () => {
         it(`${trunkType} trunk; single file; indentation; 3 spaces`, () => {
           const content: Record<string,string> = {
             'root':
-`- [[child1]]
-   - [[grandchild1]]
-   - [[grandchild2]]
-      - [[greatgrandchild1]]
-`
+              '- [[child1]]\n'
+            + '   - [[grandchild1]]\n'
+            + '   - [[grandchild2]]\n'
+            + '      - [[greatgrandchild1]]\n'
           };
           const actl: SemTree | string = create('root', content, { ...opts, indentSize: 3 });
           const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
@@ -102,11 +100,11 @@ describe('create()', () => {
         it(`${trunkType} trunk; single file; indentation; 4 spaces`, () => {
           const content: Record<string,string> = {
             'root':
-`- [[child1]]
-    - [[grandchild1]]
-    - [[grandchild2]]
-        - [[greatgrandchild1]]
-`
+              '- [[child1]]\n'
+            + '    - [[grandchild1]]\n'
+            + '    - [[grandchild2]]\n'
+            + '        - [[greatgrandchild1]]\n'
+            + '\n'
           };
           const actl: SemTree | string = create('root', content, { ...opts, indentSize: 4 });
           const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
@@ -116,11 +114,10 @@ describe('create()', () => {
         it(`${trunkType} trunk; single file; indentation; 1 tab`, () => {
           const content: Record<string,string> = {
             'root':
-`- [[child1]]
-\t- [[grandchild1]]
-\t- [[grandchild2]]
-\t\t- [[greatgrandchild1]]
-`
+              '- [[child1]]\n'
+            + '\t- [[grandchild1]]\n'
+            + '\t- [[grandchild2]]\n'
+            + '\t\t- [[greatgrandchild1]]\n'
           };
           const actl: SemTree | string = create('root', content, { ...opts, indentKind: 'tab', indentSize: 1 });
           const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
@@ -130,11 +127,10 @@ describe('create()', () => {
         it(`${trunkType} trunk; single file; indentation; 2 tabs`, () => {
           const content: Record<string,string> = {
             'root':
-`- [[child1]]
-\t\t- [[grandchild1]]
-\t\t- [[grandchild2]]
-\t\t\t\t- [[greatgrandchild1]]
-`
+              '- [[child1]]\n'
+            + '\t\t- [[grandchild1]]\n'
+            + '\t\t- [[grandchild2]]\n'
+            + '\t\t\t\t- [[greatgrandchild1]]\n'
           };
           const actl: SemTree | string = create('root', content, { ...opts, indentKind: 'tab', indentSize: 2 });
           const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
@@ -144,14 +140,13 @@ describe('create()', () => {
         it(`${trunkType} trunk; single file; extra newlines; strip leading newlines`, () => {
           const content: Record<string,string> = {
             'root':
-`
-
-
-- [[child1]]
-  - [[grandchild1]]
-  - [[grandchild2]]
-    - [[greatgrandchild1]]
-`
+              '\n'
+            + '\n'
+            + '\n'
+            + '- [[child1]]\n'
+            + '  - [[grandchild1]]\n'
+            + '  - [[grandchild2]]\n'
+            + '    - [[greatgrandchild1]]\n'
           };
           const actl: SemTree | string = create('root', content, opts);
           const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
@@ -161,13 +156,13 @@ describe('create()', () => {
         it(`${trunkType} trunk; single file; extra newlines; strip trailing newlines`, () => {
           const content: Record<string,string> = {
             'root':
-`- [[child1]]
-  - [[grandchild1]]
-  - [[grandchild2]]
-    - [[greatgrandchild1]]
-
-
-`
+                '- [[child1]]\n'
+            + '  - [[grandchild1]]\n'
+            + '  - [[grandchild2]]\n'
+            + '    - [[greatgrandchild1]]\n'
+            + '\n'
+            + '\n'
+            + '\n'
           };
           const actl: SemTree | string = create('root', content, opts);
           const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
@@ -177,11 +172,10 @@ describe('create()', () => {
         it(`${trunkType} trunk; single file; accept different markdown list styles`, () => {
           const content: Record<string,string> = {
             'root':
-`- [[child1]]
-  * [[grandchild1]]
-  * [[grandchild2]]
-    + [[greatgrandchild1]]
-`
+              '- [[child1]]\n'
+            + '  * [[grandchild1]]\n'
+            + '  * [[grandchild2]]\n'
+            + '    - [[greatgrandchild1]]\n'
           };
           const actl: SemTree | string = create('root', content, opts);
           const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
@@ -191,11 +185,10 @@ describe('create()', () => {
         it(`${trunkType} trunk; single file; options; mkdnList: false`, () => {
           const content: Record<string,string> = {
             'root':
-`[[child1]]
-  [[grandchild1]]
-  [[grandchild2]]
-    [[greatgrandchild1]]
-`
+              '[[child1]]\n'
+            + '  [[grandchild1]]\n'
+            + '  [[grandchild2]]\n'
+            + '    [[greatgrandchild1]]\n'
           };
           const actl: SemTree | string = create('root', content, { ...opts, mkdnList: false });
           const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
@@ -205,11 +198,10 @@ describe('create()', () => {
         it(`${trunkType} trunk; single file; options; wikitext: false`, () => {
           const content: Record<string,string> = {
             'root':
-`- child1
-  - grandchild1
-  - grandchild2
-    - greatgrandchild1
-`
+              '- child1\n'
+            + '  - grandchild1\n'
+            + '  - grandchild2\n'
+            + '    - greatgrandchild1\n'
           };
           const actl: SemTree | string = create('root', content, { ...opts, wikitext: false });
           const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
@@ -219,12 +211,11 @@ describe('create()', () => {
         it(`${trunkType} trunk; single file; skips HTML comments`, () => {
           const content: Record<string,string> = {
             'root':
-`<!-- this is a comment and should be ignored -->
-- [[child1]]
-  <!-- nested comment -->
-                                    <!-- deeply nested comment -->
-  - [[grandchild1]]
-`
+              '<!-- this is a comment and should be ignored -->\n'
+            + '- [[child1]]\n'
+            + '  <!-- nested comment -->\n'
+            + '                                    <!-- deeply nested comment -->\n'
+            + '  - [[grandchild1]]'
           };
           const actlData: SemTree | string = create('root', content, opts);
           const expdData: SemTree = (trunkType === 'concrete') ? {
@@ -292,12 +283,11 @@ describe('create()', () => {
           it(`${trunkType} trunk; single file; options; graft`, () => {
             // setup
             const content = {
-              'root': `
-- [[child1]]
-  - [[grandchild1]]
-  - [[grandchild2]]
-- [[child2]]
-`
+              'root':
+                '- [[child1]]\n'
+              + '  - [[grandchild1]]\n'
+              + '  - [[grandchild2]]\n'
+              + '- [[child2]]\n'
             };
             // go
             const result: SemTree | string = create('root', content, opts);
@@ -314,9 +304,8 @@ describe('create()', () => {
           it(`${trunkType} trunk; single file; options; graft; should not call for root node`, () => {
             // setup
             const content = {
-              'root': `
-- [[child1]]
-`
+              'root':
+                '- [[child1]]\n'
             };
             // go
             const result: SemTree | string = create('root', content, opts);
@@ -334,11 +323,10 @@ describe('create()', () => {
       it(`${trunkType} trunk; single file; error handling; inconsistent indentation`, () => {
         const content: Record<string,string> = {
           'root':
-`- [[child1]]
-  - [[grandchild1]]
-  - [[grandchild2]]
-     - [[greatgrandchild1]]
-`
+              '- [[child1]]\n'
+            + '  - [[grandchild1]]\n'
+            + '  - [[grandchild2]]\n'
+            + '     - [[greatgrandchild1]]\n'
         };
         const actl: SemTree | string = create('root', content, opts);
         const expd: string = 'semtree.lint(): improper indentation found:\n\n- File "root" Line 4 (inconsistent indentation): "     - [[greatgrandchild1]]"\n';
@@ -348,21 +336,19 @@ describe('create()', () => {
       it(`${trunkType} trunk; single file; error handling; duplicate text`, () => {
         const content: Record<string,string> = {
           'root':
-`- [[child1]]
-  - [[grandchild1]]
-  - [[grandchild2]]
-  - [[grandchild2]]
-    - [[greatgrandchild1]]
-`
+              '- [[child1]]\n'
+            + '  - [[grandchild1]]\n'
+            + '  - [[grandchild2]]\n'
+            + '  - [[grandchild2]]\n'
+            + '    - [[greatgrandchild1]]\n'
         };
         const actl: SemTree | string = create('root', content, opts);
         const expd: string =
-`semtree.lint(): duplicate entity names found:
-
-- "grandchild2"
-  - File "root" Line 3
-  - File "root" Line 4
-`;
+              'semtree.lint(): duplicate entity names found:\n'
+            + '\n'
+            + '- "grandchild2"\n'
+            + '  - File "root" Line 3\n'
+            + '  - File "root" Line 4\n';
         assert.strictEqual(actl, expd);
       });
 
@@ -404,13 +390,11 @@ describe('create()', () => {
         it(`${trunkType} trunk; multi file; two files`, () => {
           const content: Record<string,string> = {
             'root':
-`- [[child1a]]
-  - [[grandchild1a]]
-  - [[branch]]
-`,
+                '- [[child1a]]\n'
+              + '  - [[grandchild1a]]\n'
+              + '  - [[branch]]\n',
             'branch':
-`- [[child1b]]
-`,
+              '- [[child1b]]\n',
           };
           const actlData: SemTree | string = create('root', content, opts);
           const expdData: SemTree = trunkType === 'concrete' ? concreteData : virtualData;
@@ -420,16 +404,13 @@ describe('create()', () => {
         it(`${trunkType} trunk; multi file; three files`, () => {
           const content: Record<string,string> = {
             'root':
-`- [[child1a]]
-  - [[branch1]]
-  - [[branch2]]
-`,
+              '- [[child1a]]\n'
+            + '  - [[branch1]]\n'
+            + '  - [[branch2]]\n',
             'branch1':
-`- [[child1b]]
-`,
+              '- [[child1b]]\n',
             'branch2':
-`- [[child1c]]
-`
+              '- [[child1c]]\n',
           };
           const actlData: SemTree | string = create('root', content, opts);
           const expdData: SemTree = trunkType === 'concrete' ? {
@@ -469,17 +450,13 @@ describe('create()', () => {
         it(`${trunkType} trunk; multi file; unprocessed trunk files added to 'orphans'`, () => {
           const content: Record<string, string> = {
             'root':
-`- [[child1]]
-`,
+              '- [[child1]]\n',
             'child1':
-`- [[grandchild1]]
-`,
+              '- [[grandchild1]]\n',
             'unused-file1':
-`- [[unused-child1]]
-`,
+              '- [[unused-child1]]\n',
             'unused-file2':
-`- [[unused-child2]]
-`,
+              '- [[unused-child2]]\n',
           };
           
           const actlData: SemTree | string = create('root', content, opts);
@@ -517,17 +494,15 @@ describe('create()', () => {
         it(`${trunkType} trunk; multi file; deep backtracking`, () => {
           const content: Record<string,string> = {
             'root':
-`- [[childa]]
-  - [[grandchild]]
-    - [[greatgrandchild1]]
-      - [[greatgreatgrandchild]]
-        - [[greatgreatgreatgrandchild]]
-  - [[branch]]
-    - [[greatgrandchild2]]
-`,
+              '- [[childa]]\n'
+            + '  - [[grandchild]]\n'
+            + '    - [[greatgrandchild1]]\n'
+            + '      - [[greatgreatgrandchild]]\n'
+            + '        - [[greatgreatgreatgrandchild]]\n'
+            + '  - [[branch]]\n'
+            + '    - [[greatgrandchild2]]\n',
             'branch':
-`- [[childb]]
-`,
+              '- [[childb]]\n',
           };
           const actlData: SemTree | string = create('root', content, opts);
           const expdData: SemTree = trunkType === 'concrete' ? {
@@ -577,16 +552,14 @@ describe('create()', () => {
         it(`${trunkType} trunk; multi file; deep backtracking to 0-level`, () => {
           const content: Record<string,string> = {
             'root':
-`- [[childa]]
-  - [[grandchild]]
-    - [[greatgrandchild]]
-      - [[greatgreatgrandchild]]
-        - [[greatgreatgreatgrandchild]]
-- [[branch]]
-`,
+              '- [[childa]]\n'
+            + '  - [[grandchild]]\n'
+            + '    - [[greatgrandchild]]\n'
+            + '      - [[greatgreatgrandchild]]\n'
+            + '        - [[greatgreatgreatgrandchild]]\n'
+            + '- [[branch]]\n',
             'branch':
-`- [[childb]]
-`,
+              '- [[childb]]\n',
           };
           const actlData: SemTree | string = create('root', content, opts);
           const expdData: SemTree | string = trunkType === 'concrete' ? {
@@ -620,12 +593,10 @@ describe('create()', () => {
         it(`${trunkType} trunk; multi file; indentation not on root file`, () => {
           const content: Record<string,string> = {
             'root':
-`- [[branch1]]
-`,
+              '- [[branch1]]\n',
             'branch1':
-`- [[child1b]]
-  - [[child2b]]
-`,
+              '- [[child1b]]\n'
+            + '  - [[child2b]]\n',
           };
           const actlData: SemTree | string = create('root', content, opts);
           const expdData: SemTree = trunkType === 'concrete' ? {
@@ -660,12 +631,10 @@ describe('create()', () => {
         it(`${trunkType} trunk; multi file; root file's root node is a branch file`, () => {
           const content: Record<string,string> = {
             'root':
-`- [[branch1]]
-`,
+              '- [[branch1]]\n',
             'branch1':
-`- [[child1b]]
-- [[child2b]]
-`,
+              '- [[child1b]]\n'
+            + '- [[child2b]]\n',
           };
           const actlData: SemTree | string = create('root', content, opts);
           const expdData: SemTree | string = trunkType === 'concrete' ? {
@@ -691,14 +660,11 @@ describe('create()', () => {
         it(`${trunkType} trunk; multi file; path only contains branch index files`, () => {
           const content: Record<string,string> = {
             'root':
-`- [[branch1]]
-`,
+              '- [[branch1]]\n',
             'branch1':
-`- [[branch2]]
-`,
+              '- [[branch2]]\n',
             'branch2':
-`- [[child1c]]
-`
+              '- [[child1c]]\n',
           };
           const actlData: SemTree | string = create('root', content, opts);
           const expdData: SemTree = trunkType === 'concrete' ? {
@@ -735,14 +701,11 @@ describe('create()', () => {
           // setup
           const content: Record<string, string> = {
             'root':
-`- [[child1]]
-`,
+              '- [[child1]]\n',
             'child1':
-`- [[grandchild1]]
-`,
+              '- [[grandchild1]]\n',
             'unused-file':
-`- [[unused-child]]
-`,
+              '- [[unused-child]]\n',
           };
           const actlResult: SemTree | string = create('root', content, opts);
           const expdResult: SemTree = trunkType === 'concrete' ? {
@@ -776,14 +739,12 @@ describe('create()', () => {
         it(`${trunkType} trunk; multi file; error handling; cycle; self; root`, () => {
           const content: Record<string, string> = {
             'root':
-`- [[root]]
-- [[child1a]]
-- [[grandchild1a]]
-- [[branch]]
-`,
+              '- [[root]]\n'
+            + '- [[child1a]]\n'
+            + '- [[grandchild1a]]\n'
+            + '- [[branch]]\n',
             'branch':
-`- [[child1b]]
-`,
+              '- [[child1b]]\n'
           };
           const actl: SemTree | string = create('root', content, opts);
           const expd: string = 'semtree.lint(): duplicate entity names found:\n'
@@ -797,13 +758,11 @@ describe('create()', () => {
         it(`${trunkType} trunk; multi file; error handling; cycle; cross-file; root`, () => {
           const content: Record<string, string> = {
             'root':
-`- [[child1a]]
-  - [[grandchild1a]]
-- [[branch]]
-`,
+              '- [[child1a]]\n'
+            + '  - [[grandchild1a]]\n'
+            + '- [[branch]]\n',
             'branch':
-`- [[root]]
-`
+              '- [[root]]\n'
           };
           const actl: SemTree | string = create('root', content, opts);
           const expd: string = 'semtree.lint(): duplicate entity names found:\n'
@@ -817,35 +776,30 @@ describe('create()', () => {
         it(`${trunkType} trunk; multi file; error handling; cycle; cross-file; branch`, () => {
           const content: Record<string, string> = {
             'root':
-`- [[child1a]]
-  - [[grandchild1a]]
-- [[branch1]]
-`,
+              '- [[child1a]]\n'
+            + '  - [[grandchild1a]]\n'
+            + '- [[branch1]]\n',
             'branch1':
-`- [[branch2]]
-`,
+              '- [[branch2]]\n',
             'branch2':
-`- [[branch1]]
-`
+              '- [[branch1]]\n',
           };
           const actl: SemTree | string = create('root', content, opts);
-          const expd: string = `semtree.lint(): duplicate entity names found:
-
-- "branch1"
-  - File "root" Line 3
-  - File "branch2" Line 1
-`;
+          const expd: string = 'semtree.lint(): duplicate entity names found:\n'
+                              + '\n'
+                              + '- "branch1"\n'
+                              + '  - File "root" Line 3\n'
+                              + '  - File "branch2" Line 1\n';
           assert.strictEqual(actl, expd);
         });
 
         it(`${trunkType} trunk; multi file; error handling; inconsistent indentation`, () => {
           const content: Record<string,string> = {
             'root':
-`- [[child1]]
-  - [[grandchild1]]
-  - [[grandchild2]]
-     - [[greatgrandchild1]]
-`
+              '- [[child1]]\n'
+            + '  - [[grandchild1]]\n'
+            + '  - [[grandchild2]]\n'
+            + '     - [[greatgrandchild1]]\n',
           };
           const actl: SemTree | string = create('root', content, opts);
           const expd: string = 'semtree.lint(): improper indentation found:\n\n- File "root" Line 4 (inconsistent indentation): "     - [[greatgrandchild1]]"\n';
@@ -855,20 +809,18 @@ describe('create()', () => {
         it(`${trunkType} trunk; multi file; error handling; duplicate text`, () => {
           const content: Record<string,string> = {
             'root':
-`- [[child1]]
-  - [[grandchild1]]
-  - [[grandchild2]]
-  - [[grandchild2]]
-    - [[greatgrandchild1]]
-`
+              '- [[child1]]\n'
+            + '  - [[grandchild1]]\n'
+            + '  - [[grandchild2]]\n'
+            + '  - [[grandchild2]]\n'
+            + '    - [[greatgrandchild1]]\n',
           };
           const actl: SemTree | string = create('root', content, opts);
-          const expd: string = `semtree.lint(): duplicate entity names found:
-
-- "grandchild2"
-  - File "root" Line 3
-  - File "root" Line 4
-`;
+          const expd: string = 'semtree.lint(): duplicate entity names found:\n'
+                              + '\n'
+                              + '- "grandchild2"\n'
+                              + '  - File "root" Line 3\n'
+                              + '  - File "root" Line 4\n';
           assert.strictEqual(actl, expd);
         });
 
@@ -876,9 +828,8 @@ describe('create()', () => {
           if (trunkType === 'virtual') {
             const content: Record<string,string> = {
               'root':
-`- [[child1]]
-- [[child2]]
-`
+                '- [[child1]]\n'
+              + '- [[child2]]\n'
             };
             const actl: SemTree | string = create('root', content, opts);
             const expd: string = 'semtree.build(): cannot have multiple root nodes, node "child2" at same level as root node "child1"';
