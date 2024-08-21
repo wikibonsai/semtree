@@ -40,50 +40,25 @@ describe('create()', () => {
             'greatgrandchild1': 'root',
           },
           orphans: [],
-          nodes: [{
-            text: 'root',
-            ancestors: [],
-            children: ['child1'],
-          },{
-            text: 'child1',
-            ancestors: ['root'],
-            children: ['grandchild1', 'grandchild2'],
-          },{
-            text: 'grandchild1',
-            ancestors: ['root', 'child1'],
-            children: [],
-          },{
-            text: 'grandchild2',
-            ancestors: ['root', 'child1'],
-            children: ['greatgrandchild1'],
-          },{
-            text: 'greatgrandchild1',
-            ancestors: ['root', 'child1', 'grandchild2'],
-            children: [],
-          }]
+          nodes: [
+            { text: 'root', ancestors: [], children: ['child1'] },
+            { text: 'child1', ancestors: ['root'], children: ['grandchild1', 'grandchild2'] },
+            { text: 'grandchild1', ancestors: ['root', 'child1'], children: [] },
+            { text: 'grandchild2', ancestors: ['root', 'child1'], children: ['greatgrandchild1'] },
+            { text: 'greatgrandchild1', ancestors: ['root', 'child1', 'grandchild2'], children: [] },
+          ],
         };
         virtualData = {
           root: 'child1',
           trunk: [],
           petioleMap: {},
           orphans: [],
-          nodes: [{
-            text: 'child1',
-            ancestors: [],
-            children: ['grandchild1', 'grandchild2'],
-          },{
-            text: 'grandchild1',
-            ancestors: ['child1'],
-            children: [],
-          },{
-            text: 'grandchild2',
-            ancestors: ['child1'],
-            children: ['greatgrandchild1'],
-          },{
-            text: 'greatgrandchild1',
-            ancestors: ['child1', 'grandchild2'],
-            children: [],
-          }]
+          nodes: [
+            { text: 'child1', ancestors: [], children: ['grandchild1', 'grandchild2'] },
+            { text: 'grandchild1', ancestors: ['child1'], children: [] },
+            { text: 'grandchild2', ancestors: ['child1'], children: ['greatgrandchild1'] },
+            { text: 'greatgrandchild1', ancestors: ['child1', 'grandchild2'], children: [] },
+          ],
         };
       });
 
@@ -262,19 +237,9 @@ describe('create()', () => {
             },
             orphans: [],
             nodes: [
-              {
-                text: 'root',
-                ancestors: [],
-                children: ['child1'],
-              },{
-                text: 'child1',
-                ancestors: ['root'],
-                children: ['grandchild1'],
-              },{
-                text: 'grandchild1',
-                ancestors: ['root', 'child1'],
-                children: [],
-              },
+              { text: 'root', ancestors: [], children: ['child1'] },
+              { text: 'child1', ancestors: ['root'], children: ['grandchild1'] },
+              { text: 'grandchild1', ancestors: ['root', 'child1'], children: [] },
             ]
           } : {
             root: 'child1',
@@ -282,15 +247,8 @@ describe('create()', () => {
             petioleMap: {},
             orphans: [],
             nodes: [
-              {
-                text: 'child1',
-                ancestors: [],
-                children: ['grandchild1'],
-              },{
-                text: 'grandchild1',
-                ancestors: ['child1'],
-                children: [],
-              },
+              { text: 'child1', ancestors: [], children: ['grandchild1'] },
+              { text: 'grandchild1', ancestors: ['child1'], children: [] },
             ]
           };
           assert.deepStrictEqual(actlData, expdData);
@@ -322,31 +280,11 @@ describe('create()', () => {
               },
               orphans: [],
               nodes: [
-                {
-                  text: 'root',
-                  ancestors: [],
-                  children: ['child1', 'child2'],
-                },
-                {
-                  text: 'child1',
-                  ancestors: ['root'],
-                  children: ['grandchild1', 'grandchild2'],
-                },
-                {
-                  text: 'grandchild1',
-                  ancestors: ['root', 'child1'],
-                  children: [],
-                },
-                {
-                  text: 'grandchild2',
-                  ancestors: ['root', 'child1'],
-                  children: [],
-                },
-                {
-                  text: 'child2',
-                  ancestors: ['root'],
-                  children: [],
-                },
+                { text: 'root', ancestors: [], children: ['child1', 'child2'] },
+                { text: 'child1', ancestors: ['root'], children: ['grandchild1', 'grandchild2'] },
+                { text: 'grandchild1', ancestors: ['root', 'child1'], children: [] },
+                { text: 'grandchild2', ancestors: ['root', 'child1'], children: [] },
+                { text: 'child2', ancestors: ['root'], children: [] },
               ],
             };
           });
@@ -442,46 +380,24 @@ describe('create()', () => {
               'child1b': 'branch',
             },
             orphans: [],
-            nodes: [{
-              text: 'root',
-              ancestors: [],
-              children: ['child1a'],
-            },{
-              text: 'child1a',
-              ancestors: ['root'],
-              children: ['grandchild1a', 'branch'],
-            },{
-              text: 'grandchild1a',
-              ancestors: ['root', 'child1a'],
-              children: [],
-            },{
-              text: 'branch',
-              ancestors: ['root', 'child1a'],
-              children: ['child1b'],
-            },{
-              text: 'child1b',
-              ancestors: ['root', 'child1a', 'branch'],
-              children: [],
-            }]
+            nodes: [
+              { text: 'root', ancestors: [], children: ['child1a'] },
+              { text: 'child1a', ancestors: ['root'], children: ['grandchild1a', 'branch'] },
+              { text: 'grandchild1a', ancestors: ['root', 'child1a'], children: [] },
+              { text: 'branch', ancestors: ['root', 'child1a'], children: ['child1b'] },
+              { text: 'child1b', ancestors: ['root', 'child1a', 'branch'], children: [] },
+            ]
           };
           virtualData = {
             root: 'child1a',
             trunk: [],
             petioleMap: {},
             orphans: [],
-            nodes: [{
-              text: 'child1a',
-              ancestors: [],
-              children: ['grandchild1a', 'child1b'],
-            },{
-              text: 'grandchild1a',
-              ancestors: ['child1a'],
-              children: [],
-            },{
-              text: 'child1b',
-              ancestors: ['child1a'],
-              children: [],
-            }]
+            nodes: [
+              { text: 'child1a', ancestors: [], children: ['grandchild1a', 'child1b'] },
+              { text: 'grandchild1a', ancestors: ['child1a'], children: [] },
+              { text: 'child1b', ancestors: ['child1a'], children: [] },
+            ]
           };
         });
 
@@ -529,31 +445,12 @@ describe('create()', () => {
             },
             orphans: [],
             nodes: [
-              {
-                text: 'root',
-                ancestors: [],
-                children: ['child1a'],
-              },{
-                text: 'child1a',
-                ancestors: ['root'],
-                children: ['branch1', 'branch2'],
-              },{
-                text: 'branch1',
-                ancestors: ['root', 'child1a'],
-                children: ['child1b'],
-              },{
-                text: 'child1b',
-                ancestors: ['root', 'child1a', 'branch1'],
-                children: [],
-              },{
-                text: 'branch2',
-                ancestors: ['root', 'child1a'],
-                children: ['child1c'],
-              },{
-                text: 'child1c',
-                ancestors: ['root', 'child1a', 'branch2'],
-                children: [],
-              }
+              { text: 'root', ancestors: [], children: ['child1a'] },
+              { text: 'child1a', ancestors: ['root'], children: ['branch1', 'branch2'] },
+              { text: 'branch1', ancestors: ['root', 'child1a'], children: ['child1b'] },
+              { text: 'child1b', ancestors: ['root', 'child1a', 'branch1'], children: [] },
+              { text: 'branch2', ancestors: ['root', 'child1a'], children: ['child1c'] },
+              { text: 'child1c', ancestors: ['root', 'child1a', 'branch2'], children: [] },
             ]
           } : {
             root: 'child1a',
@@ -561,19 +458,9 @@ describe('create()', () => {
             petioleMap: {},
             orphans: [],
             nodes: [
-              {
-                text: 'child1a',
-                ancestors: [],
-                children: ['child1b', 'child1c'],
-              },{
-                text: 'child1b',
-                ancestors: ['child1a'],
-                children: [],
-              },{
-                text: 'child1c',
-                ancestors: ['child1a'],
-                children: [],
-              }
+              { text: 'child1a', ancestors: [], children: ['child1b', 'child1c'] },
+              { text: 'child1b', ancestors: ['child1a'], children: [] },
+              { text: 'child1c', ancestors: ['child1a'], children: [] },
             ]
           };
           assert.deepStrictEqual(actlData, expdData);
@@ -606,19 +493,9 @@ describe('create()', () => {
             },
             orphans: ['unused-file1', 'unused-file2'],
             nodes: [
-              {
-                text: 'root',
-                ancestors: [],
-                children: ['child1'],
-              },{
-                text: 'child1',
-                ancestors: ['root'],
-                children: ['grandchild1'],
-              },{
-                text: 'grandchild1',
-                ancestors: ['root', 'child1'],
-                children: [],
-              }
+              { text: 'root', ancestors: [], children: ['child1'] },
+              { text: 'child1', ancestors: ['root'], children: ['grandchild1'] },
+              { text: 'grandchild1', ancestors: ['root', 'child1'], children: [] },
             ]
           } : {
             root: 'grandchild1',
@@ -626,11 +503,7 @@ describe('create()', () => {
             petioleMap: {},
             orphans: [],
             nodes: [
-              {
-                text: 'grandchild1',
-                ancestors: [],
-                children: [],
-              }
+              { text: 'grandchild1', ancestors: [], children: [] },
             ]
           };
           
@@ -673,43 +546,15 @@ describe('create()', () => {
             },
             orphans: [],
             nodes: [
-              {
-                text: 'root',
-                ancestors: [],
-                children: ['childa'],
-              },{
-                text: 'childa',
-                ancestors: ['root'],
-                children: ['grandchild', 'branch'],
-              },{
-                text: 'grandchild',
-                ancestors: ['root', 'childa'],
-                children: ['greatgrandchild1'],
-              },{
-                text: 'greatgrandchild1',
-                ancestors: ['root', 'childa', 'grandchild'],
-                children: ['greatgreatgrandchild'],
-              },{
-                text: 'greatgreatgrandchild',
-                ancestors: ['root', 'childa', 'grandchild', 'greatgrandchild1'],
-                children: ['greatgreatgreatgrandchild'],
-              },{
-                text: 'greatgreatgreatgrandchild',
-                ancestors: ['root', 'childa', 'grandchild', 'greatgrandchild1', 'greatgreatgrandchild'],
-                children: [],
-              },{
-                text: 'branch',
-                ancestors: ['root', 'childa'],
-                children: ['childb', 'greatgrandchild2'],
-              },{
-                text: 'childb',
-                ancestors: ['root', 'childa', 'branch'],
-                children: [],
-              },{
-                text: 'greatgrandchild2',
-                ancestors: ['root', 'childa', 'branch'],
-                children: [],
-              },
+              { text: 'root', ancestors: [], children: ['childa'] },
+              { text: 'childa', ancestors: ['root'], children: ['grandchild', 'branch'] },
+              { text: 'grandchild', ancestors: ['root', 'childa'], children: ['greatgrandchild1'] },
+              { text: 'greatgrandchild1', ancestors: ['root', 'childa', 'grandchild'], children: ['greatgreatgrandchild'] },
+              { text: 'greatgreatgrandchild', ancestors: ['root', 'childa', 'grandchild', 'greatgrandchild1'], children: ['greatgreatgreatgrandchild'] },
+              { text: 'greatgreatgreatgrandchild', ancestors: ['root', 'childa', 'grandchild', 'greatgrandchild1', 'greatgreatgrandchild'], children: [] },
+              { text: 'branch', ancestors: ['root', 'childa'], children: ['childb', 'greatgrandchild2'] },
+              { text: 'childb', ancestors: ['root', 'childa', 'branch'], children: [] },
+              { text: 'greatgrandchild2', ancestors: ['root', 'childa', 'branch'], children: [] },
             ]
           } : {
             root: 'childa',
@@ -717,35 +562,13 @@ describe('create()', () => {
             petioleMap: {},
             orphans: [],
             nodes: [
-              {
-                text: 'childa',
-                ancestors: [],
-                children: ['grandchild', 'childb'],
-              },{
-                text: 'grandchild',
-                ancestors: ['childa'],
-                children: ['greatgrandchild1'],
-              },{
-                text: 'greatgrandchild1',
-                ancestors: ['childa', 'grandchild'],
-                children: ['greatgreatgrandchild'],
-              },{
-                text: 'greatgreatgrandchild',
-                ancestors: ['childa', 'grandchild', 'greatgrandchild1'],
-                children: ['greatgreatgreatgrandchild'],
-              },{
-                text: 'greatgreatgreatgrandchild',
-                ancestors: ['childa', 'grandchild', 'greatgrandchild1', 'greatgreatgrandchild'],
-                children: [],
-              },{
-                text: 'childb',
-                ancestors: ['childa'],
-                children: ['greatgrandchild2'],
-              },{
-                text: 'greatgrandchild2',
-                ancestors: ['childa', 'childb'],
-                children: [],
-              },
+              { text: 'childa', ancestors: [], children: ['grandchild', 'childb'] },
+              { text: 'grandchild', ancestors: ['childa'], children: ['greatgrandchild1'] },
+              { text: 'greatgrandchild1', ancestors: ['childa', 'grandchild'], children: ['greatgreatgrandchild'] },
+              { text: 'greatgreatgrandchild', ancestors: ['childa', 'grandchild', 'greatgrandchild1'], children: ['greatgreatgreatgrandchild'] },
+              { text: 'greatgreatgreatgrandchild', ancestors: ['childa', 'grandchild', 'greatgrandchild1', 'greatgreatgrandchild'], children: [] },
+              { text: 'childb', ancestors: ['childa'], children: ['greatgrandchild2'] },
+              { text: 'greatgrandchild2', ancestors: ['childa', 'childb'], children: [] },
             ]
           };
           assert.deepStrictEqual(actlData, expdData);
@@ -781,39 +604,14 @@ describe('create()', () => {
             },
             orphans: [],
             nodes: [
-              {
-                text: 'root',
-                ancestors: [],
-                children: ['childa', 'branch'],
-              },{
-                text: 'childa',
-                ancestors: ['root'],
-                children: ['grandchild'],
-              },{
-                text: 'grandchild',
-                ancestors: ['root', 'childa'],
-                children: ['greatgrandchild'],
-              },{
-                text: 'greatgrandchild',
-                ancestors: ['root', 'childa', 'grandchild'],
-                children: ['greatgreatgrandchild'],
-              },{
-                text: 'greatgreatgrandchild',
-                ancestors: ['root', 'childa', 'grandchild', 'greatgrandchild'],
-                children: ['greatgreatgreatgrandchild'],
-              },{
-                text: 'greatgreatgreatgrandchild',
-                ancestors: ['root', 'childa', 'grandchild', 'greatgrandchild', 'greatgreatgrandchild'],
-                children: [],
-              },{
-                text: 'branch',
-                ancestors: ['root'],
-                children: ['childb'],
-              },{
-                text: 'childb',
-                ancestors: ['root', 'branch'],
-                children: [],
-              }
+              { text: 'root', ancestors: [], children: ['childa', 'branch'] },
+              { text: 'childa', ancestors: ['root'], children: ['grandchild'] },
+              { text: 'grandchild', ancestors: ['root', 'childa'], children: ['greatgrandchild'] },
+              { text: 'greatgrandchild', ancestors: ['root', 'childa', 'grandchild'], children: ['greatgreatgrandchild'] },
+              { text: 'greatgreatgrandchild', ancestors: ['root', 'childa', 'grandchild', 'greatgrandchild'], children: ['greatgreatgreatgrandchild'] },
+              { text: 'greatgreatgreatgrandchild', ancestors: ['root', 'childa', 'grandchild', 'greatgrandchild', 'greatgreatgrandchild'], children: [] },
+              { text: 'branch', ancestors: ['root'], children: ['childb'] },
+              { text: 'childb', ancestors: ['root', 'branch'], children: [] },
             ]
           } : 'semtree.build(): cannot have multiple root nodes, node "childb" at same level as root node "childa"';
           assert.deepStrictEqual(actlData, expdData);
@@ -841,23 +639,10 @@ describe('create()', () => {
             },
             orphans: [],
             nodes: [
-              {
-                text: 'root',
-                ancestors: [],
-                children: ['branch1'],
-              },{
-                text: 'branch1',
-                ancestors: ['root'],
-                children: ['child1b'],
-              },{
-                text: 'child1b',
-                ancestors: ['root', 'branch1'],
-                children: ['child2b'],
-              },{
-                text: 'child2b',
-                ancestors: ['root', 'branch1', 'child1b'],
-                children: [],
-              }
+              { text: 'root', ancestors: [], children: ['branch1'] },
+              { text: 'branch1', ancestors: ['root'], children: ['child1b'] },
+              { text: 'child1b', ancestors: ['root', 'branch1'], children: ['child2b'] },
+              { text: 'child2b', ancestors: ['root', 'branch1', 'child1b'], children: [] },
             ]
           } : {
             root: 'child1b',
@@ -865,15 +650,8 @@ describe('create()', () => {
             petioleMap: {},
             orphans: [],
             nodes: [
-              {
-                text: 'child1b',
-                ancestors: [],
-                children: ['child2b'],
-              },{
-                text: 'child2b',
-                ancestors: ['child1b'],
-                children: [],
-              }
+              { text: 'child1b', ancestors: [], children: ['child2b'] },
+              { text: 'child2b', ancestors: ['child1b'], children: [] },
             ]
           };
           assert.deepStrictEqual(actlData, expdData);
@@ -901,23 +679,10 @@ describe('create()', () => {
             },
             orphans: [],
             nodes: [
-              {
-                text: 'root',
-                ancestors: [],
-                children: ['branch1'],
-              },{
-                text: 'branch1',
-                ancestors: ['root'],
-                children: ['child1b', 'child2b'],
-              },{
-                text: 'child1b',
-                ancestors: ['root', 'branch1'],
-                children: [],
-              },{
-                text: 'child2b',
-                ancestors: ['root', 'branch1'],
-                children: [],
-              },
+              { text: 'root', ancestors: [], children: ['branch1'] },
+              { text: 'branch1', ancestors: ['root'], children: ['child1b', 'child2b'] },
+              { text: 'child1b', ancestors: ['root', 'branch1'], children: [] },
+              { text: 'child2b', ancestors: ['root', 'branch1'], children: [] },
             ]
           } : 'semtree.build(): cannot have multiple root nodes, node "child2b" at same level as root node "child1b"';
           assert.deepStrictEqual(actlData, expdData);
@@ -947,23 +712,10 @@ describe('create()', () => {
             },
             orphans: [],
             nodes: [
-              {
-                text: 'root',
-                ancestors: [],
-                children: ['branch1'],
-              },{
-                text: 'branch1',
-                ancestors: ['root'],
-                children: ['branch2'],
-              },{
-                text: 'branch2',
-                ancestors: ['root', 'branch1'],
-                children: ['child1c'],
-              },{
-                text: 'child1c',
-                ancestors: ['root', 'branch1', 'branch2'],
-                children: [],
-              }
+              { text: 'root', ancestors: [], children: ['branch1'] },
+              { text: 'branch1', ancestors: ['root'], children: ['branch2'] },
+              { text: 'branch2', ancestors: ['root', 'branch1'], children: ['child1c'] },
+              { text: 'child1c', ancestors: ['root', 'branch1', 'branch2'], children: [] },
             ]
           } : {
             root: 'child1c',
@@ -971,11 +723,7 @@ describe('create()', () => {
             petioleMap: {},
             orphans: [],
             nodes: [
-              {
-                text: 'child1c',
-                ancestors: [],
-                children: [],
-              }
+              { text: 'child1c', ancestors: [], children: [] },
             ]
           };
           assert.deepStrictEqual(actlData, expdData);
@@ -1007,19 +755,9 @@ describe('create()', () => {
             },
             orphans: ['unused-file'],
             nodes: [
-              {
-                text: 'root',
-                ancestors: [],
-                children: ['child1'],
-              },{
-                text: 'child1',
-                ancestors: ['root'],
-                children: ['grandchild1'],
-              },{
-                text: 'grandchild1',
-                ancestors: ['root', 'child1'],
-                children: [],
-              }
+              { text: 'root', ancestors: [], children: ['child1'] },
+              { text: 'child1', ancestors: ['root'], children: ['grandchild1'] },
+              { text: 'grandchild1', ancestors: ['root', 'child1'], children: [] },
             ]
           } : {
             root: 'grandchild1',
@@ -1027,11 +765,7 @@ describe('create()', () => {
             petioleMap: {},
             orphans: [],
             nodes: [
-              {
-                text: 'grandchild1',
-                ancestors: [],
-                children: [],
-              }
+              { text: 'grandchild1', ancestors: [], children: [] },
             ]
           };
           assert.deepStrictEqual(actlResult, expdResult);

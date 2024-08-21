@@ -41,31 +41,12 @@ describe('update()', () => {
         },
         orphans: [],
         nodes: [
-          {
-            text: 'root',
-            ancestors: [],
-            children: ['child1a'],
-          },{
-            text: 'child1a',
-            ancestors: ['root'],
-            children: ['branch1', 'grandchild1a'],
-          },{
-            text: 'branch1',
-            ancestors: ['root', 'child1a'],
-            children: ['branch2'],
-          },{
-            text: 'branch2',
-            ancestors: ['root', 'child1a', 'branch1'],
-            children: ['child1c'],
-          },{
-            text: 'grandchild1a',
-            ancestors: ['root', 'child1a'],
-            children: [],
-          },{
-            text: 'child1c',
-            ancestors: ['root', 'child1a', 'branch1', 'branch2'],
-            children: [],
-          }
+          { text: 'root', ancestors: [], children: ['child1a'] },
+          { text: 'child1a', ancestors: ['root'], children: ['branch1', 'grandchild1a'] },
+          { text: 'branch1', ancestors: ['root', 'child1a'], children: ['branch2'] },
+          { text: 'branch2', ancestors: ['root', 'child1a', 'branch1'], children: ['child1c'] },
+          { text: 'grandchild1a', ancestors: ['root', 'child1a'], children: [] },
+          { text: 'child1c', ancestors: ['root', 'child1a', 'branch1', 'branch2'], children: [] },
         ]
       };
       const replacement: string = 
@@ -75,53 +56,21 @@ describe('update()', () => {
       // subtree
       const actlSubTree: TreeNode[] | string = update(tree, 'branch2', { 'branch2': replacement }, opts);
       const expdSubTree: TreeNode[] = [
-        {
-          text: 'branch2',
-          ancestors: ['root', 'child1a', 'branch1'],
-          children: ['child1c'],
-        },{
-          text: 'child1c',
-          ancestors: ['root', 'child1a', 'branch1', 'branch2'],
-          children: ['newChild'],
-        },{
-          text: 'newChild',
-          ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
-          children: [],
-        }
+        { text: 'branch2', ancestors: ['root', 'child1a', 'branch1'], children: ['child1c'] },
+        { text: 'child1c', ancestors: ['root', 'child1a', 'branch1', 'branch2'], children: ['newChild'] },
+        { text: 'newChild', ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'], children: [] },
       ];
       assert.deepEqual(actlSubTree, expdSubTree);
       // final updated tree
       const actlTree: TreeNode[] = tree.nodes;
       const expdTree: TreeNode[] = [
-        {
-          text: 'root',
-          ancestors: [],
-          children: ['child1a'],
-        },{
-          text: 'child1a',
-          ancestors: ['root'],
-          children: ['branch1', 'grandchild1a'],
-        },{
-          text: 'branch1',
-          ancestors: ['root', 'child1a'],
-          children: ['branch2'],
-        },{
-          text: 'branch2',
-          ancestors: ['root', 'child1a', 'branch1'],
-          children: ['child1c'],
-        },{
-          text: 'grandchild1a',
-          ancestors: ['root', 'child1a'],
-          children: [],
-        },{
-          text: 'child1c',
-          ancestors: ['root', 'child1a', 'branch1', 'branch2'],
-          children: ['newChild'],
-        },{
-          text: 'newChild',
-          ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
-          children: [],
-        }
+        { text: 'root', ancestors: [], children: ['child1a'] },
+        { text: 'child1a', ancestors: ['root'], children: ['branch1', 'grandchild1a'] },
+        { text: 'branch1', ancestors: ['root', 'child1a'], children: ['branch2'] },
+        { text: 'branch2', ancestors: ['root', 'child1a', 'branch1'], children: ['child1c'] },
+        { text: 'grandchild1a', ancestors: ['root', 'child1a'], children: [] },
+        { text: 'child1c', ancestors: ['root', 'child1a', 'branch1', 'branch2'], children: ['newChild'] },
+        { text: 'newChild', ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'], children: [] },
       ];
       assert.deepEqual(actlTree, expdTree);
     });
@@ -154,19 +103,9 @@ describe('update()', () => {
 `;
       const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, opts);
       const expdSubTree: TreeNode[] = [
-        {
-          text: 'root',
-          ancestors: [],
-          children: ['child1'],
-        },{
-          text: 'child1',
-          ancestors: ['root'],
-          children: ['newChild'],
-        },{
-          text: 'newChild',
-          ancestors: ['root', 'child1'],
-          children: [],
-        }
+        { text: 'root', ancestors: [], children: ['child1'] },
+        { text: 'child1', ancestors: ['root'], children: ['newChild'] },
+        { text: 'newChild', ancestors: ['root', 'child1'], children: [] },
       ];
       assert.deepEqual(actlSubTree, expdSubTree);
     });
@@ -183,19 +122,9 @@ describe('update()', () => {
         },
         orphans: [],
         nodes: [
-          {
-            text: 'root',
-            ancestors: [],
-            children: ['child1'],
-          },{
-            text: 'child1',
-            ancestors: ['root'],
-            children: ['grandchild1'],
-          },{
-            text: 'grandchild1',
-            ancestors: ['root', 'child1'],
-            children: [],
-          }
+          { text: 'root', ancestors: [], children: ['child1'] },
+          { text: 'child1', ancestors: ['root'], children: ['grandchild1'] },
+          { text: 'grandchild1', ancestors: ['root', 'child1'], children: [] },
         ]
       };
       const replacement: string = 
@@ -203,15 +132,8 @@ describe('update()', () => {
 `;
       const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, opts);
       const expdSubTree: TreeNode[] = [
-        {
-          text: 'root',
-          ancestors: [],
-          children: ['child1'],
-        },{
-          text: 'child1',
-          ancestors: ['root'],
-          children: [],
-        }
+        { text: 'root', ancestors: [], children: ['child1'] },
+        { text: 'child1', ancestors: ['root'], children: [] },
       ];
       assert.deepEqual(actlSubTree, expdSubTree);
     });
@@ -226,15 +148,8 @@ describe('update()', () => {
         },
         orphans: [],
         nodes: [
-          {
-            text: 'root',
-            ancestors: [],
-            children: ['child1'],
-          },{
-            text: 'child1',
-            ancestors: ['root'],
-            children: [],
-          }
+          { text: 'root', ancestors: [], children: ['child1'] },
+          { text: 'child1', ancestors: ['root'], children: [] },
         ]
       };
       const replacement: string = 
@@ -244,23 +159,10 @@ describe('update()', () => {
 `;
       const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, indentSize: 2 });
       const expdSubTree: TreeNode[] = [
-        {
-          text: 'root',
-          ancestors: [],
-          children: ['child1'],
-        },{
-          text: 'child1',
-          ancestors: ['root'],
-          children: ['newChild1', 'newChild2'],
-        },{
-          text: 'newChild1',
-          ancestors: ['root', 'child1'],
-          children: [],
-        },{
-          text: 'newChild2',
-          ancestors: ['root', 'child1'],
-          children: [],
-        }
+        { text: 'root', ancestors: [], children: ['child1'] },
+        { text: 'child1', ancestors: ['root'], children: ['newChild1', 'newChild2'] },
+        { text: 'newChild1', ancestors: ['root', 'child1'], children: [] },
+        { text: 'newChild2', ancestors: ['root', 'child1'], children: [] },
       ];
       assert.deepEqual(actlSubTree, expdSubTree);
     });
@@ -275,16 +177,9 @@ describe('update()', () => {
         },
         orphans: [],
         nodes: [
-          {
-            text: 'root',
-            ancestors: [],
-            children: ['child1'],
-          },{
-            text: 'child1',
-            ancestors: ['root'],
-            children: [],
-          }
-        ]
+          { text: 'root', ancestors: [], children: ['child1'] },
+          { text: 'child1', ancestors: ['root'], children: [] },
+        ],
       };
       const replacement: string = 
 `* [[child1]]
@@ -292,19 +187,9 @@ describe('update()', () => {
 `;
       const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, mkdnList: true });
       const expdSubTree: TreeNode[] = [
-        {
-          text: 'root',
-          ancestors: [],
-          children: ['child1'],
-        },{
-          text: 'child1',
-          ancestors: ['root'],
-          children: ['newChild'],
-        },{
-          text: 'newChild',
-          ancestors: ['root', 'child1'],
-          children: [],
-        }
+        { text: 'root', ancestors: [], children: ['child1'] },
+        { text: 'child1', ancestors: ['root'], children: ['newChild'] },
+        { text: 'newChild', ancestors: ['root', 'child1'], children: [] },
       ];
       assert.deepEqual(actlSubTree, expdSubTree);
     });
@@ -319,16 +204,9 @@ describe('update()', () => {
         },
         orphans: [],
         nodes: [
-          {
-            text: 'root',
-            ancestors: [],
-            children: ['child1'],
-          },{
-            text: 'child1',
-            ancestors: ['root'],
-            children: [],
-          }
-        ]
+          { text: 'root', ancestors: [], children: ['child1'] },
+          { text: 'child1', ancestors: ['root'], children: [] },
+        ],
       };
       const replacement: string = 
 `- child1
@@ -336,19 +214,9 @@ describe('update()', () => {
 `;
       const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, wikitext: false });
       const expdSubTree: TreeNode[] = [
-        {
-          text: 'root',
-          ancestors: [],
-          children: ['child1'],
-        },{
-          text: 'child1',
-          ancestors: ['root'],
-          children: ['newChild'],
-        },{
-          text: 'newChild',
-          ancestors: ['root', 'child1'],
-          children: [],
-        }
+        { text: 'root', ancestors: [], children: ['child1'] },
+        { text: 'child1', ancestors: ['root'], children: ['newChild'] },
+        { text: 'newChild', ancestors: ['root', 'child1'], children: [] },
       ];
       assert.deepEqual(actlSubTree, expdSubTree);
     });
@@ -379,31 +247,11 @@ describe('update()', () => {
           },
           orphans: [],
           nodes: [
-            {
-              text: 'root',
-              ancestors: [],
-              children: ['child1', 'child2'],
-            },
-            {
-              text: 'child1',
-              ancestors: ['root'],
-              children: ['grandchild1', 'grandchild2'],
-            },
-            {
-              text: 'grandchild1',
-              ancestors: ['root', 'child1'],
-              children: [],
-            },
-            {
-              text: 'grandchild2',
-              ancestors: ['root', 'child1'],
-              children: [],
-            },
-            {
-              text: 'child2',
-              ancestors: ['root'],
-              children: [],
-            },
+            { text: 'root', ancestors: [], children: ['child1', 'child2'] },
+            { text: 'child1', ancestors: ['root'], children: ['grandchild1', 'grandchild2'] },
+            { text: 'grandchild1', ancestors: ['root', 'child1'], children: [] },
+            { text: 'grandchild2', ancestors: ['root', 'child1'], children: [] },
+            { text: 'child2', ancestors: ['root'], children: [] },
           ],
         };
       });
@@ -578,36 +426,13 @@ describe('update()', () => {
         },
         orphans: [],
         nodes: [
-          {
-            text: 'root',
-            ancestors: [],
-            children: ['child1a'],
-          },{
-            text: 'child1a',
-            ancestors: ['root'],
-            children: ['branch1', 'grandchild1a'],
-          },{
-            text: 'branch1',
-            ancestors: ['root', 'child1a'],
-            children: ['branch2'],
-          },{
-            text: 'branch2',
-            ancestors: ['root', 'child1a', 'branch1'],
-            children: ['child1c'],
-          },{
-            text: 'grandchild1a',
-            ancestors: ['root', 'child1a'],
-            children: [],
-          },{
-            text: 'child1c',
-            ancestors: ['root', 'child1a', 'branch1', 'branch2'],
-            children: [],
-          },{
-            text: 'removeThisChild',
-            ancestors: ['root', 'child1a', 'branch1', 'branch2', 'child1c'],
-            children: [],
-          }
-        ]
+          { text: 'root', ancestors: [], children: ['child1a'] },
+          { text: 'child1a', ancestors: ['root'], children: ['branch1', 'grandchild1a'] },
+          { text: 'branch1', ancestors: ['root', 'child1a'], children: ['branch2'] },
+          { text: 'branch2', ancestors: ['root', 'child1a', 'branch1'], children: ['child1c'] },
+          { text: 'grandchild1a', ancestors: ['root', 'child1a'], children: [] },
+          { text: 'child1c', ancestors: ['root', 'child1a', 'branch1', 'branch2'], children: [] },
+        ],
       };
       // go
       assert.strictEqual(
@@ -628,22 +453,10 @@ describe('update()', () => {
         },
         orphans: [],
         nodes: [
-          {
-            text: 'root',
-            ancestors: [],
-            children: ['child1'],
-          },
-          {
-            text: 'child1',
-            ancestors: ['root'],
-            children: ['grandchild1'],
-          },
-          {
-            text: 'grandchild1',
-            ancestors: ['root', 'child1'],
-            children: [],
-          }
-        ]
+          { text: 'root', ancestors: [], children: ['child1'] },
+          { text: 'child1', ancestors: ['root'], children: ['grandchild1'] },
+          { text: 'grandchild1', ancestors: ['root', 'child1'], children: [] },
+        ],
       };
       const initialTreeClone: SemTree = JSON.parse(JSON.stringify(initialTree));
       const replacement: string = 
@@ -689,32 +502,13 @@ describe('update()', () => {
         },
         orphans: [],
         nodes: [
-          {
-            text: 'root',
-            ancestors: [],
-            children: ['child1a'],
-          },{
-            text: 'child1a',
-            ancestors: ['root'],
-            children: ['branch1', 'grandchild1a'],
-          },{
-            text: 'branch1',
-            ancestors: ['root', 'child1a'],
-            children: ['branch2'],
-          },{
-            text: 'branch2',
-            ancestors: ['root', 'child1a', 'branch1'],
-            children: ['child1c'],
-          },{
-            text: 'grandchild1a',
-            ancestors: ['root', 'child1a'],
-            children: [],
-          },{
-            text: 'child1c',
-            ancestors: ['root', 'child1a', 'branch1', 'branch2'],
-            children: [],
-          }
-        ]
+          { text: 'root', ancestors: [], children: ['child1a'] },
+          { text: 'child1a', ancestors: ['root'], children: ['branch1', 'grandchild1a'] },
+          { text: 'branch1', ancestors: ['root', 'child1a'], children: ['branch2'] },
+          { text: 'branch2', ancestors: ['root', 'child1a', 'branch1'], children: ['child1c'] },
+          { text: 'grandchild1a', ancestors: ['root', 'child1a'], children: [] },
+          { text: 'child1c', ancestors: ['root', 'child1a', 'branch1', 'branch2'], children: [] },
+        ],
       };
       const replacement: string = 
 `- [[child1a]]
@@ -741,19 +535,9 @@ describe('update()', () => {
       // final updated tree
       const actlTree: TreeNode[] = tree.nodes;
       const expdTree: TreeNode[] = [
-        {
-          text: 'root',
-          ancestors: [],
-          children: ['child1a'],
-        },{
-          text: 'child1a',
-          ancestors: ['root'],
-          children: ['grandchild1a'],
-        },{
-          text: 'grandchild1a',
-          ancestors: ['root', 'child1a'],
-          children: [],
-        }
+        { text: 'root', ancestors: [], children: ['child1a'] },
+        { text: 'child1a', ancestors: ['root'], children: ['grandchild1a'] },
+        { text: 'grandchild1a', ancestors: ['root', 'child1a'], children: [] },
       ];
       assert.deepEqual(actlTree, expdTree);
     });
@@ -785,32 +569,13 @@ describe('update()', () => {
         },
         orphans: [],
         nodes: [
-          {
-            text: 'root',
-            ancestors: [],
-            children: ['child1a'],
-          },{
-            text: 'child1a',
-            ancestors: ['root'],
-            children: ['branch1', 'grandchild1a'],
-          },{
-            text: 'branch1',
-            ancestors: ['root', 'child1a'],
-            children: ['branch2'],
-          },{
-            text: 'branch2',
-            ancestors: ['root', 'child1a', 'branch1'],
-            children: ['child1c'],
-          },{
-            text: 'grandchild1a',
-            ancestors: ['root', 'child1a'],
-            children: [],
-          },{
-            text: 'child1c',
-            ancestors: ['root', 'child1a', 'branch1', 'branch2'],
-            children: [],
-          }
-        ]
+          { text: 'root', ancestors: [], children: ['child1a'] },
+          { text: 'child1a', ancestors: ['root'], children: ['branch1', 'grandchild1a'] },
+          { text: 'branch1', ancestors: ['root', 'child1a'], children: ['branch2'] },
+          { text: 'branch2', ancestors: ['root', 'child1a', 'branch1'], children: ['child1c'] },
+          { text: 'grandchild1a', ancestors: ['root', 'child1a'], children: [] },
+          { text: 'child1c', ancestors: ['root', 'child1a', 'branch1', 'branch2'], children: [] },
+        ],
       };
       const replacement: string = 
 `- [[child1a]]
@@ -819,37 +584,17 @@ describe('update()', () => {
       // subtree
       const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, opts);
       const expdSubTree: TreeNode[] = [
-        {
-          text: 'root',
-          ancestors: [],
-          children: ['child1a'],
-        },{
-          text: 'child1a',
-          ancestors: ['root'],
-          children: ['grandchild1a'],
-        },{
-          text: 'grandchild1a',
-          ancestors: ['root', 'child1a'],
-          children: [],
-        }
+        { text: 'root', ancestors: [], children: ['child1a'] },
+        { text: 'child1a', ancestors: ['root'], children: ['grandchild1a'] },
+        { text: 'grandchild1a', ancestors: ['root', 'child1a'], children: [] },
       ];
       assert.deepEqual(actlSubTree, expdSubTree);
       // final updated tree
       const actlTree: TreeNode[] = tree.nodes;
       const expdTree: TreeNode[] = [
-        {
-          text: 'root',
-          ancestors: [],
-          children: ['child1a'],
-        },{
-          text: 'child1a',
-          ancestors: ['root'],
-          children: ['grandchild1a'],
-        },{
-          text: 'grandchild1a',
-          ancestors: ['root', 'child1a'],
-          children: [],
-        }
+        { text: 'root', ancestors: [], children: ['child1a'] },
+        { text: 'child1a', ancestors: ['root'], children: ['grandchild1a'] },
+        { text: 'grandchild1a', ancestors: ['root', 'child1a'], children: [] },
       ];
       assert.deepEqual(actlTree, expdTree);
     });
