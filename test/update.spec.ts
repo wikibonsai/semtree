@@ -410,7 +410,7 @@ describe('update()', () => {
     
       it('concrete trunk; single file; options; graft/prune; add leaf', () => {
         // setup
-        const updatedContent = {
+        const updatedContent: Record<string, string> = {
           'root':
 `- [[child1]]
   - [[grandchild1]]
@@ -420,7 +420,7 @@ describe('update()', () => {
 `
         };
         // go
-        const result = update(initialTree, 'root', updatedContent, opts);
+        const result: TreeNode[] | string = update(initialTree, 'root', updatedContent, opts);
         // assert
         assert(Array.isArray(result));
         assert.equal(spyGraft.callCount, 1);
@@ -430,7 +430,7 @@ describe('update()', () => {
   
       it('concrete trunk; single file; options; graft/prune; remove leaf', () => {
         // setup
-        const updatedContent = {
+        const updatedContent: Record<string, string> = {
           'root':
 `- [[child1]]
   - [[grandchild1]]
@@ -438,7 +438,7 @@ describe('update()', () => {
 `
         };
         // go
-        const result = update(initialTree, 'root', updatedContent, opts);
+        const result: TreeNode[] | string = update(initialTree, 'root', updatedContent, opts);
         // assert
         assert(Array.isArray(result));
         assert.equal(spyGraft.callCount, 0);
@@ -448,7 +448,7 @@ describe('update()', () => {
   
       it('concrete trunk; single file; options; graft/prune; add trunk', () => {
         // setup
-        const updatedContent = {
+        const updatedContent: Record<string, string> = {
           'root':
 `- [[child1]]
   - [[grandchild1]]
@@ -461,7 +461,7 @@ describe('update()', () => {
 `
         };
         // go
-        const result = update(initialTree, 'root', updatedContent, opts);
+        const result: TreeNode[] | string = update(initialTree, 'root', updatedContent, opts);
         // assert
         assert(Array.isArray(result));
         assert.equal(spyGraft.callCount, 2);
@@ -472,14 +472,14 @@ describe('update()', () => {
   
       it('concrete trunk; single file; options; graft/prune; remove trunk', () => {
         // setup
-        const updatedContent = {
+        const updatedContent: Record<string, string> = {
           'root':
 `- [[child1]]
   - [[grandchild1]]
 `
         };
         // go
-        const result = update(initialTree, 'root', updatedContent, opts);
+        const result: TreeNode[] | string = update(initialTree, 'root', updatedContent, opts);
         // assert
         assert(Array.isArray(result));
         assert.equal(spyGraft.callCount, 0);
@@ -490,7 +490,7 @@ describe('update()', () => {
   
       it('concrete trunk; single file; options; graft/prune; no change; no graft or prune', () => {
         // setup
-        const updatedContent = {
+        const updatedContent: Record<string, string> = {
           'root':
 `- [[child1]]
   - [[grandchild1]]
@@ -499,7 +499,7 @@ describe('update()', () => {
 `
         };
         // go
-        const result = update(initialTree, 'root', updatedContent, opts);
+        const result: TreeNode[] | string = update(initialTree, 'root', updatedContent, opts);
         // assert
         assert(Array.isArray(result));
         assert.equal(spyGraft.callCount, 0);
@@ -508,7 +508,7 @@ describe('update()', () => {
   
       it('concrete trunk; single file; options; graft/prune; reorganized only (no additions or removals)', () => {
         // setup
-        const updatedContent = {
+        const updatedContent: Record<string, string> = {
           'root':
 `- [[child2]]
   - [[child1]]
@@ -517,7 +517,7 @@ describe('update()', () => {
 `
         };
         // go
-        const result = update(initialTree, 'root', updatedContent, opts);
+        const result: TreeNode[] | string = update(initialTree, 'root', updatedContent, opts);
         // assert
         assert(Array.isArray(result));
         assert.equal(spyGraft.callCount, 1);
@@ -528,7 +528,7 @@ describe('update()', () => {
   
       it('concrete trunk; single file; options; graft/prune; nested structures', () => {
         // setup
-        const updatedContent = {
+        const updatedContent: Record<string, string> = {
           'root':
 `- [[child1]]
   - [[grandchild1]]
@@ -645,7 +645,7 @@ describe('update()', () => {
           }
         ]
       };
-      const initialTreeClone = JSON.parse(JSON.stringify(initialTree));
+      const initialTreeClone: SemTree = JSON.parse(JSON.stringify(initialTree));
       const replacement: string = 
 `- [[child1]]
     - [[grandchild1]]
@@ -900,7 +900,7 @@ describe('update()', () => {
           { text: 'child1', ancestors: ['root'], children: [] },
         ]
       };
-      const replacement = { root: '- [[child1]]\n  - [[newChild]]\n', branch1: '- [[branch2]]\n', branch2: '- [[unused-child]]\n' };
+      const replacement: Record<string, string> = { root: '- [[child1]]\n  - [[newChild]]\n', branch1: '- [[branch2]]\n', branch2: '- [[unused-child]]\n' };
       // act
       const result: TreeNode[] | string = update(tree, 'root', replacement, opts);
       // assert
@@ -934,9 +934,9 @@ describe('update()', () => {
         ]
       };
       // here
-      const replacement = { root: '- [[child1]]\n', 'unused-branch': '- [[unused-child]]\n' };
+      const replacement: Record<string, string> = { root: '- [[child1]]\n', 'unused-branch': '- [[unused-child]]\n' };
       // act
-      const result = update(tree, 'root', replacement, opts);
+      const result: TreeNode[] | string = update(tree, 'root', replacement, opts);
       // assert
       assert.deepStrictEqual(tree.orphans, ['unused-branch']);
       assert.deepStrictEqual(tree.nodes, [
@@ -988,7 +988,7 @@ describe('update()', () => {
           { text: 'child1', ancestors: ['root'], children: [] },
         ]
       };
-      const replacement = { root: '- [[child1]]\n  - [[branch1]]\n  - [[branch2]]\n', branch1: '', branch2: '', branch3: '' };
+      const replacement: Record<string, string> = { root: '- [[child1]]\n  - [[branch1]]\n  - [[branch2]]\n', branch1: '', branch2: '', branch3: '' };
       // act
       const result: TreeNode[] | string = update(tree, 'root', replacement, opts);
       // assert

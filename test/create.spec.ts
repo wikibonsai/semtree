@@ -362,7 +362,7 @@ describe('create()', () => {
 `
             };
             // go
-            const result = create('root', content, opts);
+            const result: SemTree | string = create('root', content, opts);
             // assert
             assert(result instanceof Object);
             assert.equal(spyGraft.callCount, 4);
@@ -381,7 +381,7 @@ describe('create()', () => {
 `
             };
             // go
-            const result = create('root', content, opts);
+            const result: SemTree | string = create('root', content, opts);
             // assert
             assert(result instanceof Object);
             assert.equal(spyGraft.callCount, 1);

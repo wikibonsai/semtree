@@ -50,7 +50,7 @@ export const processRoot = (state: TreeBuilderState): TreeBuilderState => {
 };
 
 export const lintContent = (state: TreeBuilderState): TreeBuilderState => {
-  const contentAsStrings = Object.fromEntries(
+  const contentAsStrings: Record<string, string> = Object.fromEntries(
     Object.entries(state.content).map(([key, value]) => [key, value.join('\n')])
   );
   const lintError: { warn: string, error: string } | void = lint(contentAsStrings, {
@@ -85,7 +85,9 @@ export const storeState = (state: TreeBuilderState): TreeBuilderState => ({
 
 export const processBranch = (state: TreeBuilderState, branchText: string): TreeBuilderState => {
   if (state.options.virtualTrunk) { return state; }
-  let branchNode = state.nodes.find(node => node.text === branchText);
+  // branch
+  let branchNode: TreeNode | undefined = state.nodes.find(node => node.text === branchText);
+  // create
   if (!branchNode) {
     branchNode = {
       text: branchText,
@@ -94,7 +96,7 @@ export const processBranch = (state: TreeBuilderState, branchText: string): Tree
     };
     state.nodes.push(branchNode);
   }
-
+  // update
   if (state.isUpdate) {
     if (state.subroot === branchText) {
       state.currentAncestors = [...branchNode.ancestors];
@@ -103,14 +105,13 @@ export const processBranch = (state: TreeBuilderState, branchText: string): Tree
     branchNode.children = [];
     state.updatedNodes.push(branchNode);
   }
-
+  // metadata
   if (state.root === branchText) {
     state.petioleMap[branchText] = state.root;
   }
   if (!state.trunk.includes(branchText)) {
     state.trunk.push(branchText);
   }
-
   return {
     ...state,
     state: 'PROCESSING_BRANCH',
@@ -119,22 +120,25 @@ export const processBranch = (state: TreeBuilderState, branchText: string): Tree
 };
 
 export const processLeaf = (state: TreeBuilderState, line: string, level: number, branchText: string): TreeBuilderState => {
-  const trimmedLine = line.trim();
+  // line text
+  const trimmedLine: string = line.trim();
   if (!trimmedLine) return state;
-  const leafText = rawText(trimmedLine, {
+  const leafText: string = rawText(trimmedLine, {
     hasBullets: state.options.mkdnList,
     hasWiki: state.options.wikitext,
   });
-
+  // ancestors
   state.currentAncestors = state.currentAncestors.slice(0, level + state.level);
-
-  const parent = state.currentAncestors[state.currentAncestors.length - 1];
-  const parentNode = state.nodes.find(node => node.text === parent);
+  // parent
+  const parent: string | undefined = state.currentAncestors[state.currentAncestors.length - 1];
+  const parentNode: TreeNode | undefined = state.nodes.find(node => node.text === parent);
   if (parentNode && !parentNode.children.includes(leafText)) {
+    // todo: is there an easy way to guarantee the correct order?
     parentNode.children.push(leafText);
   }
-
-  let leafNode = state.nodes.find(node => node.text === leafText);
+  // leaf
+  let leafNode: TreeNode | undefined = state.nodes.find(node => node.text === leafText);
+  // create
   if (!leafNode) {
     leafNode = {
       text: leafText,
@@ -143,15 +147,17 @@ export const processLeaf = (state: TreeBuilderState, line: string, level: number
     };
     state.nodes.push(leafNode);
   }
+  // update
   if (state.isUpdate) {
     leafNode.ancestors = [...state.currentAncestors];
     leafNode.children = [];
     state.updatedNodes.push(leafNode);
   }
+  // metadata
   if (!state.options.virtualTrunk) {
     state.petioleMap[leafText] = branchText;
   }
-
+  // return
   return {
     ...state,
     state: 'PROCESSING_LEAF',
@@ -160,18 +166,16 @@ export const processLeaf = (state: TreeBuilderState, line: string, level: number
 };
 
 export const pruneOrphanNodes = (state: TreeBuilderState): TreeBuilderState => {
-  const pruned = pruneOrphans({
+  const pruned: SemTree | string = pruneOrphans({
     root: state.root!,
     trunk: state.trunk,
     petioleMap: state.petioleMap,
     nodes: state.nodes,
     orphans: state.orphans,
   });
-
   if (typeof pruned === 'string') {
     throw new Error(pruned);
   }
-
   return {
     ...state,
     state: 'PRUNING_ORPHANS',

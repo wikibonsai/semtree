@@ -30,7 +30,7 @@ describe('lint()', () => {
     // no error
     const expdResult: undefined = undefined;
     // go
-    const actlResult = lint(content, opts);
+    const actlResult: void | { warn: string; error: string; } = lint(content, opts);
     // assert
     assert.strictEqual(actlResult, expdResult);
   });
@@ -59,7 +59,7 @@ describe('lint()', () => {
       error: '',
     };
     // go
-    const actlResult = lint(content, opts);
+    const actlResult: void | { warn: string; error: string; } = lint(content, opts);
     // assert
     assert.deepStrictEqual(actlResult, expdResult);
   });
@@ -86,7 +86,7 @@ describe('lint()', () => {
       error: '',
     };
     // go
-    const actlResult = lint(content, opts);
+    const actlResult: void | { warn: string; error: string; } = lint(content, opts);
     // assert
     assert.deepStrictEqual(actlResult, expdResult);
   });
@@ -112,7 +112,7 @@ describe('lint()', () => {
 `,
     };
     // go
-    const actlResult = lint(content, opts);
+    const actlResult: void | { warn: string; error: string; } = lint(content, opts);
     // assert
     assert.deepStrictEqual(actlResult, expdResult);
   });
@@ -151,7 +151,7 @@ describe('lint()', () => {
 `,
     };
     // go
-    const actlResult = lint(content, opts);
+    const actlResult: void | { warn: string; error: string; } = lint(content, opts);
     // assert
     assert.deepStrictEqual(actlResult, expdResult);
   });
@@ -177,7 +177,7 @@ describe('lint()', () => {
 `,
     };
     // go
-    const actlResult = lint(content, opts);
+    const actlResult: void | { warn: string; error: string; } = lint(content, opts);
     // assert
     assert.deepStrictEqual(actlResult, expdResult);
   });
@@ -200,7 +200,7 @@ describe('lint()', () => {
 `,
     };
     // go
-    const actlResult = lint(content, opts);
+    const actlResult: void | { warn: string; error: string; } = lint(content, opts);
     // assert
     assert.deepStrictEqual(actlResult, expdResult);
   });
@@ -221,7 +221,7 @@ describe('lint()', () => {
       // no error
       const expdError: undefined = undefined;
       // go
-      const actlError = lint(content, { ...opts, indentKind: 'space' });
+      const actlError: void | { warn: string; error: string; } = lint(content, { ...opts, indentKind: 'space' });
       // assert
       assert.strictEqual(actlError, expdError);
     });
@@ -245,7 +245,7 @@ describe('lint()', () => {
 `,
       };
       // go
-      const actlError = lint(content, { ...opts, indentKind: 'space' });
+      const actlError: void | { warn: string; error: string; } = lint(content, { ...opts, indentKind: 'space' });
       // assert
       assert.deepStrictEqual(actlError, expdError);
     });
@@ -262,7 +262,7 @@ describe('lint()', () => {
       // no error
       const expdError: undefined = undefined;
       // go
-      const actlError = lint(content, { ...opts, indentKind: 'tab' });
+      const actlError: void | { warn: string; error: string; } = lint(content, { ...opts, indentKind: 'tab' });
       // assert
       assert.strictEqual(actlError, expdError);
     });
@@ -286,7 +286,7 @@ describe('lint()', () => {
 `,
       };
       // go
-      const actlError = lint(content, { ...opts, indentKind: 'tab' });
+      const actlError: void | { warn: string; error: string; } = lint(content, { ...opts, indentKind: 'tab' });
       // assert
       assert.deepStrictEqual(actlError, expdError);
     });
@@ -311,7 +311,7 @@ describe('lint()', () => {
       // setup
       const expdResult: undefined = undefined;
       // go
-      const actlResult = lint(content, opts);
+      const actlResult: void | { warn: string; error: string; } = lint(content, opts);
       // assert
       assert.strictEqual(actlResult, expdResult);
     });
@@ -334,7 +334,7 @@ describe('lint()', () => {
 `,
       };
       // go
-      const actlResult = lint(content, opts);
+      const actlResult: void | { warn: string; error: string; } = lint(content, opts);
       // assert
       assert.deepStrictEqual(actlResult, expdResult);
     });
@@ -351,7 +351,7 @@ describe('lint()', () => {
       // no error
       const expdResult: undefined = undefined;
       // go
-      const actlResult = lint(content, { ...opts, indentSize: 3 });
+      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, indentSize: 3 });
       // assert
       assert.strictEqual(actlResult, expdResult);
     });
@@ -367,7 +367,7 @@ describe('lint()', () => {
 `,
       };
       // go
-      const actlResult = lint(content, { ...opts, indentSize: 3 });
+      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, indentSize: 3 });
       // assert
       assert.deepStrictEqual(actlResult, expdResult);
     });
@@ -388,7 +388,7 @@ describe('lint()', () => {
       // no error
       const expdResult: undefined = undefined;
       // go
-      const actlResult = lint(content, opts);
+      const actlResult: void | { warn: string; error: string; } = lint(content, opts);
       // assert
       assert.strictEqual(actlResult, expdResult);
     });
@@ -410,7 +410,7 @@ describe('lint()', () => {
         error: '',
       };
       // go
-      const actlResult = lint(content, opts);
+      const actlResult: void | { warn: string; error: string; } = lint(content, opts);
       // assert
       assert.deepStrictEqual(actlResult, expdResult);
     });
@@ -427,7 +427,7 @@ describe('lint()', () => {
       // no error
       const expdResult: undefined = undefined;
       // go
-      const actlResult = lint(content, { ...opts, mkdnList: false });
+      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, mkdnList: false });
       // assert
       assert.strictEqual(actlResult, expdResult);
     });
@@ -449,7 +449,7 @@ describe('lint()', () => {
         error: '',
       };
       // go
-      const actlResult = lint(content, { ...opts, mkdnList: false });
+      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, mkdnList: false });
       // assert
       assert.deepStrictEqual(actlResult, expdResult);
     });
@@ -470,7 +470,7 @@ describe('lint()', () => {
       // no error
       const expdResult: undefined = undefined;
       // go
-      const actlResult = lint(content, opts);
+      const actlResult: void | { warn: string; error: string; } = lint(content, opts);
       // assert
       assert.strictEqual(actlResult, expdResult);
     });
@@ -492,7 +492,7 @@ describe('lint()', () => {
         error: '',
       };
       // go
-      const actlResult = lint(content, opts);
+      const actlResult: void | { warn: string; error: string; } = lint(content, opts);
       // assert
       assert.deepStrictEqual(actlResult, expdResult);
     });
@@ -509,7 +509,7 @@ describe('lint()', () => {
       // no error
       const expdResult: undefined = undefined;
       // go
-      const actlResult = lint(content, { ...opts, wikitext: false });
+      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, wikitext: false });
       // assert
       assert.strictEqual(actlResult, expdResult);
     });
@@ -531,7 +531,7 @@ describe('lint()', () => {
         error: '',
       };
       // go
-      const actlResult = lint(content, { ...opts, wikitext: false });
+      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, wikitext: false });
       // assert
       assert.deepStrictEqual(actlResult, expdResult);
     });

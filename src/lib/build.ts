@@ -43,7 +43,7 @@ export const build = (
       if (!currentState.content[currentBranch]) {
         return currentState;
       }
-      let updatedState = currentState;
+      let updatedState: TreeBuilderState = currentState;
       if (!currentState.options.virtualTrunk) {
         updatedState = processBranch(updatedState, currentBranch);
         updatedState.level += 1;
@@ -51,7 +51,7 @@ export const build = (
       for (const line of updatedState.content[currentBranch]) {
         if (checkComment(line)) { continue; }
         const thisLvl: number = getLevel(line, updatedState.options.indentSize || 2);
-        const leafText = rawText(line.trim(), {
+        const leafText: string = rawText(line.trim(), {
           hasBullets: updatedState.options.mkdnList,
           hasWiki: updatedState.options.wikitext,
         });
