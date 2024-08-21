@@ -13,7 +13,7 @@ export const pruneOrphans = (tree: SemTree): SemTree | string => {
   };
   // go
   const root: TreeNode | undefined = tree.nodes.find((n: TreeNode) => tree.root === n.text);
-  if (root == undefined) { return 'semtree.pruneDangling: could not find root node'; }
+  if (root == undefined) { return 'semtree.pruneOrphans: could not find root node'; }
   traverseTree(root.text);
   const orphans = tree.nodes.filter((n: TreeNode) => !connectedNodes.has(n.text)).map((n: TreeNode) => n.text);
   if (orphans.length > 0) {
