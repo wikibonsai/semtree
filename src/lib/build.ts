@@ -5,6 +5,7 @@ import type {
 } from './types';
 import {
   createInitialState,
+  extractContent,
   lintContent,
   processRoot,
   processBranch,
@@ -23,11 +24,13 @@ export const build = (
   existingTree?: SemTree,
 ): SemTree | string => {
   try {
+    // check
     if (!content || Object.keys(content).length === 0) {
       return 'semtree.build(): no content provided';
     }
     // go
     let state = createInitialState(root, content, options, existingTree);
+    state = extractContent(state);
     state = processRoot(state);
     state = lintContent(state);
     if (state.isUpdate) {

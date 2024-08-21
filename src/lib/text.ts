@@ -1,3 +1,4 @@
+import * as wikirefs from 'wikirefs';
 import { RGX_INDENT } from './const';
 
 
@@ -30,4 +31,15 @@ export const rawText = (
     : fullText;
   // strip linebreaks (see: https://stackoverflow.com/a/10805292)
   return fullText.replace(/\r?\n|\r/g, '');
+};
+
+// todo: remove when caml supports wikiattrs
+export const stripWikiAttrs = (text: string): string => {
+  const results: any[] = wikirefs.scan(text, { kind: 'wikiattr' });
+  results.sort((a, b) => b.start - a.start);
+  let strippedText: string = text;
+  for (const result of results) {
+    strippedText = strippedText.slice(0, result.start) + strippedText.slice(result.start + result.text.length);
+  }
+  return strippedText;
 };

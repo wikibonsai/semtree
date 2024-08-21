@@ -1,6 +1,7 @@
 export interface SemTreeOpts {
   // params
   // tree
+  delimiter?: string;                                  // the keyword to use for semtree section markers
   virtualTrunk?: boolean;                              // whether or not to include the semtree/index files themselves as nodes in the tree
   // text / lint
   indentKind?: 'space' | 'tab';                        // the type of indentation (space or tab)
@@ -20,16 +21,16 @@ export interface BuildTreeOpts extends SemTreeOpts {
   level?: number;                                      // the level of the tree to be updated
 }
 
-export type TreeBuildingState = 'INITIAL'
-                              | 'EXTRACTING_CONTENT'
+export type TreeBuildingState = 'EXTRACTING_CONTENT'
+                              | 'FINALIZING'
+                              | 'INITIAL'
                               | 'LINTING_CONTENT'
-                              | 'STORING_STATE'
-                              | 'PROCESSING_ROOT'
                               | 'PROCESSING_BRANCH'
                               | 'PROCESSING_LEAF'
+                              | 'PROCESSING_ROOT'
                               | 'PRUNING_ORPHANS'
-                              | 'FINALIZING'
-                              | 'RESTORING_STATE';
+                              | 'RESTORING_STATE'
+                              | 'STORING_STATE';
 
 export type TreeBuilderState = {
   state: TreeBuildingState;
