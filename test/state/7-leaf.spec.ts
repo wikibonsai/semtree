@@ -40,6 +40,11 @@ describe('state 7; processLeaf()', () => {
 
   it('create; concrete trunk', () => {
     // setup
+    state.content = {
+      'root': [
+        '- [[leaf]]',
+      ],
+    };
     state.nodes = [
       { text: 'root', ancestors: [], children: [] },
     ];
@@ -57,14 +62,19 @@ describe('state 7; processLeaf()', () => {
       ancestors: ['root'],
       children: [],
     });
-    assert.strictEqual(result.nodes[0].children.includes('leaf'), true);
+    assert.deepStrictEqual(result.nodes[0].children, ['leaf']);
     assert.strictEqual(result.petioleMap['leaf'], 'root');
-    assert.strictEqual(result.currentAncestors.includes('leaf'), true);
+    assert.strictEqual(result.currentAncestors[1], 'leaf');
   });
 
   it('create; virtual trunk; root case', () => {
     // setup
     state.opts.virtualTrunk = true;
+    state.content = {
+      'root': [
+        '- [[leaf]]',
+      ],
+    };
     state.nodes = [];
     state.currentAncestors = [];
     const line: string = '- [[leaf]]';
@@ -81,12 +91,19 @@ describe('state 7; processLeaf()', () => {
       children: [],
     });
     assert.strictEqual(result.petioleMap['leaf'], undefined);
-    assert.strictEqual(result.currentAncestors.includes('leaf'), true);
+    assert.strictEqual(result.currentAncestors[0], 'leaf');
   });
 
   it('create; virtual trunk; with ancestors', () => {
     // setup
     state.opts.virtualTrunk = true;
+    state.content = {
+      'root': [
+        '  - [[child]]',
+        '    - [[grandchild]]',
+        '      - [[leaf]]',
+      ],
+    };
     state.nodes = [
       { text: 'root', ancestors: [], children: [] },
       { text: 'child', ancestors: ['root'], children: [] },
@@ -106,9 +123,9 @@ describe('state 7; processLeaf()', () => {
       ancestors: ['root', 'child', 'grandchild'],
       children: [],
     });
-    assert.strictEqual(result.nodes[2].children.includes('leaf'), true);
+    assert.deepStrictEqual(result.nodes[2].children, ['leaf']);
     assert.strictEqual(result.petioleMap['leaf'], undefined);
-    assert.strictEqual(result.currentAncestors.includes('leaf'), true);
+    assert.strictEqual(result.currentAncestors[3], 'leaf');
   });
 
   // update
@@ -116,6 +133,11 @@ describe('state 7; processLeaf()', () => {
   it('update; concrete trunk; exists; no change', () => {
     // setup
     state.isUpdate = true;
+    state.content = {
+      'root': [
+        '- [[leaf]]',
+      ],
+    };
     state.nodes = [
       { text: 'root', ancestors: [], children: [] },
       { text: 'leaf', ancestors: ['root'], children: [] },
@@ -135,15 +157,21 @@ describe('state 7; processLeaf()', () => {
     assert.strictEqual(result.state, 'PROCESSING_LEAF');
     assert.strictEqual(result.nodes.length, 2);
     assert.deepStrictEqual(result.nodes[1], expdLeafNode);
-    assert.strictEqual(result.nodes[0].children.includes('leaf'), true);
+    assert.deepStrictEqual(result.nodes[0].children, ['leaf']);
     assert.strictEqual(result.petioleMap['leaf'], 'root');
-    assert.strictEqual(result.currentAncestors.includes('leaf'), true);
+    assert.strictEqual(result.currentAncestors[1], 'leaf');
     assert.deepStrictEqual(result.updatedNodes, [expdLeafNode]);
   });
 
   it('update; concrete trunk; exists; ancestors change', () => {
     // setup
     state.isUpdate = true;
+    state.content = {
+      'root': [
+        '  - [[branch]]',
+        '    - [[leaf]]',
+      ],
+    };
     state.nodes = [
       { text: 'root', ancestors: [], children: [] },
       { text: 'leaf', ancestors: ['root', 'branch'], children: [] },
@@ -163,15 +191,21 @@ describe('state 7; processLeaf()', () => {
     assert.strictEqual(result.state, 'PROCESSING_LEAF');
     assert.strictEqual(result.nodes.length, 2);
     assert.deepStrictEqual(result.nodes[1], expdLeafNode);
-    assert.strictEqual(result.nodes[0].children.includes('leaf'), true);
+    assert.deepStrictEqual(result.nodes[0].children, ['leaf']);
     assert.strictEqual(result.petioleMap['leaf'], 'root');
-    assert.strictEqual(result.currentAncestors.includes('leaf'), true);
+    assert.strictEqual(result.currentAncestors[1], 'leaf');
     assert.deepStrictEqual(result.updatedNodes, [expdLeafNode]);
   });
 
   it('update; concrete trunk; exists; children change', () => {
     // setup
     state.isUpdate = true;
+    state.content = {
+      'root': [
+        '- [[leaf]]',
+        '  - [[child-leaf]]',
+      ],
+    };
     state.nodes = [
       { text: 'root', ancestors: [], children: [] },
       { text: 'leaf', ancestors: ['root', 'branch'], children: [] },
@@ -193,9 +227,9 @@ describe('state 7; processLeaf()', () => {
     assert.strictEqual(result.state, 'PROCESSING_LEAF');
     assert.strictEqual(result.nodes.length, 3);
     assert.deepStrictEqual(result.nodes[1], expdLeafNode);
-    assert.strictEqual(result.nodes[0].children.includes('leaf'), true);
+    assert.deepStrictEqual(result.nodes[0].children, ['leaf']);
     assert.strictEqual(result.petioleMap['leaf'], 'root');
-    assert.strictEqual(result.currentAncestors.includes('leaf'), true);
+    assert.strictEqual(result.currentAncestors[1], 'leaf');
     assert.deepStrictEqual(result.updatedNodes, [expdLeafNode, {
       text: 'child-leaf',
       ancestors: ['root', 'leaf'],
@@ -207,6 +241,11 @@ describe('state 7; processLeaf()', () => {
     // setup
     state.isUpdate = true;
     state.opts.virtualTrunk = true;
+    state.content = {
+      'root': [
+        '- [[leaf]]',
+      ],
+    };
     state.nodes = [
       { text: 'leaf', ancestors: [], children: [] },
     ];
@@ -225,8 +264,9 @@ describe('state 7; processLeaf()', () => {
     assert.strictEqual(result.state, 'PROCESSING_LEAF');
     assert.strictEqual(result.nodes.length, 1);
     assert.deepStrictEqual(result.nodes[0], expdLeafNode);
+    assert.deepStrictEqual(result.nodes[0].children, []);
     assert.strictEqual(result.petioleMap['leaf'], undefined);
-    assert.strictEqual(result.currentAncestors.includes('leaf'), true);
+    assert.strictEqual(result.currentAncestors[0], 'leaf');
     assert.deepStrictEqual(result.updatedNodes, [expdLeafNode]);
   });
 
@@ -234,6 +274,13 @@ describe('state 7; processLeaf()', () => {
     // setup
     state.isUpdate = true;
     state.opts.virtualTrunk = true;
+    state.content = {
+      'root': [
+        '  - [[child]]',
+        '    - [[grandchild]]',
+        '      - [[leaf]]',
+      ],
+    };
     state.nodes = [
       { text: 'root', ancestors: [], children: [] },
       { text: 'child', ancestors: ['root'], children: [] },
@@ -255,9 +302,9 @@ describe('state 7; processLeaf()', () => {
     assert.strictEqual(result.state, 'PROCESSING_LEAF');
     assert.strictEqual(result.nodes.length, 4);
     assert.deepStrictEqual(result.nodes[3], expdLeafNode);
-    assert.strictEqual(result.nodes[2].children.includes('leaf'), true);
+    assert.deepStrictEqual(result.nodes[2].children, ['leaf']);
     assert.strictEqual(result.petioleMap['leaf'], undefined);
-    assert.strictEqual(result.currentAncestors.includes('leaf'), true);
+    assert.strictEqual(result.currentAncestors[3], 'leaf');
     assert.deepStrictEqual(result.updatedNodes, [expdLeafNode]);
   });
 

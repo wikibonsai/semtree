@@ -132,9 +132,28 @@ export const processLeaf = (state: TreeBuilderState, line: string, level: number
   // parent
   const parent: string | undefined = state.currentAncestors[state.currentAncestors.length - 1];
   const parentNode: TreeNode | undefined = state.nodes.find(node => node.text === parent);
-  if (parentNode && !parentNode.children.includes(leafText)) {
-    // todo: is there an easy way to guarantee the correct order?
-    parentNode.children.push(leafText);
+  if (parentNode) {
+    if (!parentNode.children.includes(leafText)) {
+      // calculate insertion index
+      const contentArray: string[] = state.content[branchText];
+      const currentIndex: number = contentArray.findIndex(l => rawText(l.trim(), {
+        hasBullets: state.opts.mkdnList,
+        hasWiki: state.opts.wikitext,
+      }) === leafText);
+      const insertIndex: number = parentNode.children.findIndex(child => {
+        const childIndex: number = contentArray.findIndex(l => rawText(l.trim(), {
+          hasBullets: state.opts.mkdnList,
+          hasWiki: state.opts.wikitext,
+        }) === child);
+        return childIndex > currentIndex;
+      });
+      // add
+      if (insertIndex === -1) {
+        parentNode.children.push(leafText);
+      } else {
+        parentNode.children.splice(insertIndex, 0, leafText);
+      }
+    }
   }
   // leaf
   let leafNode: TreeNode | undefined = state.nodes.find(node => node.text === leafText);
