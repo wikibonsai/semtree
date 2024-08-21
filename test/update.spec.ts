@@ -616,6 +616,52 @@ describe('update()', () => {
       );
     });
 
+    it('concrete trunk; single file; error handling; should restore original tree state on error', () => {
+      // setup
+      const initialTree: SemTree = {
+        root: 'root',
+        trunk: ['root'],
+        petioleMap: {
+          'root': 'root',
+          'child1': 'root',
+          'grandchild1': 'root',
+        },
+        orphans: [],
+        nodes: [
+          {
+            text: 'root',
+            ancestors: [],
+            children: ['child1'],
+          },
+          {
+            text: 'child1',
+            ancestors: ['root'],
+            children: ['grandchild1'],
+          },
+          {
+            text: 'grandchild1',
+            ancestors: ['root', 'child1'],
+            children: [],
+          }
+        ]
+      };
+      const initialTreeClone = JSON.parse(JSON.stringify(initialTree));
+      const replacement: string = 
+`- [[child1]]
+    - [[grandchild1]]
+  - [[invalidlyIndentedChild]]`;
+      // go
+      const result = update(initialTree, 'root', { 'root': replacement }, opts);
+      // assert
+      const error: string = 'semtree.lint(): improper indentation found:\n'
+                          + '\n'
+                          + '- File "root" Line 2 (over-indented): "    - [[grandchild1]]"\n';
+      assert.strictEqual(result, error);
+      assert.deepStrictEqual(initialTree, initialTreeClone);
+    });
+
+    // multi file
+
     it('concrete trunk; multi file; remove trunk; clean (only removing a single branch)', () => {
       // setup
       const content: Record<string,string> = {

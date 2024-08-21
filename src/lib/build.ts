@@ -13,6 +13,7 @@ import {
   pruneOrphanNodes,
   storeState,
   finalize,
+  restoreState,
 } from './state';
 import { checkComment, getLevel, rawText } from './text';
 
@@ -23,13 +24,14 @@ export const build = (
   options: SemTreeOpts,
   existingTree?: SemTree,
 ): SemTree | string => {
+  let state: TreeBuilderState | undefined;
   try {
     // check
     if (!content || Object.keys(content).length === 0) {
       return 'semtree.build(): no content provided';
     }
     // go
-    let state = createInitialState(root, content, options, existingTree);
+    state = createInitialState(root, content, options, existingTree);
     state = extractContent(state);
     state = processRoot(state);
     state = lintContent(state);
@@ -99,6 +101,9 @@ export const build = (
       orphans: state.orphans,
     };
   } catch (error) {
+    if (state && state.isUpdate) {
+      state = restoreState(state);
+    }
     if (error instanceof Error) {
       return error.message;
     }
