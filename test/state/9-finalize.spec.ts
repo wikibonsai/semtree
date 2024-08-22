@@ -15,8 +15,8 @@ describe('state 9; finalize()', () => {
       delimiter: 'semtree',
       indentKind: 'space',
       indentSize: 2,
-      mkdnList: true,
-      wikitext: true,
+      mkdnBullet: true,
+      wikiLink: true,
     };
     state = {
       state: 'PRUNING_ORPHANS',

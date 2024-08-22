@@ -12,8 +12,8 @@ describe('lint()', () => {
     opts = {
       indentKind: 'space',
       indentSize: 2,
-      mkdnList: true,
-      wikitext: true,
+      mkdnBullet: true,
+      wikiLink: true,
       root: 'root',
     };
   });
@@ -395,7 +395,7 @@ describe('lint()', () => {
       // no error
       const expdResult: undefined = undefined;
       // go
-      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, mkdnList: false });
+      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, mkdnBullet: false });
       // assert
       assert.strictEqual(actlResult, expdResult);
     });
@@ -415,16 +415,16 @@ describe('lint()', () => {
         error: '',
       };
       // go
-      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, mkdnList: false });
+      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, mkdnBullet: false });
       // assert
       assert.deepStrictEqual(actlResult, expdResult);
     });
 
   });
 
-  describe('opt; wikitext', () => {
+  describe('opt; wikilink', () => {
 
-    it('success; expect has wikitext', () => {
+    it('success; expect has wikilink', () => {
       // setup
       const content: Record<string, string> = {
         'root':
@@ -440,7 +440,7 @@ describe('lint()', () => {
       assert.strictEqual(actlResult, expdResult);
     });
 
-    it('error; expect has wikitext', () => {
+    it('error; expect has wikilink', () => {
       // setup
       const content: Record<string, string> = {
         'root':
@@ -449,7 +449,7 @@ describe('lint()', () => {
         + '  - grandchild2\n',
       };
       const expdResult = {
-        warn: 'semtree.lint(): missing wikitext found:\n'
+        warn: 'semtree.lint(): missing wikilink found:\n'
         + '\n'
         + '- File "root" Line 3: "  - grandchild2"\n',
         error: '',
@@ -460,7 +460,7 @@ describe('lint()', () => {
       assert.deepStrictEqual(actlResult, expdResult);
     });
 
-    it('success; expect no wikitext', () => {
+    it('success; expect no wikilink', () => {
       // setup
       const content: Record<string, string> = {
         'root':
@@ -471,12 +471,12 @@ describe('lint()', () => {
       // no error
       const expdResult: undefined = undefined;
       // go
-      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, wikitext: false });
+      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, wikiLink: false });
       // assert
       assert.strictEqual(actlResult, expdResult);
     });
 
-    it('error; expect no wikitext', () => {
+    it('error; expect no wikilink', () => {
       // setup
       const content: Record<string, string> = {
         'root':
@@ -485,13 +485,13 @@ describe('lint()', () => {
         + '  - [[grandchild2]]\n',
       };
       const expdResult = {
-        warn: 'semtree.lint(): unexpected wikitext found:\n'
+        warn: 'semtree.lint(): unexpected wikilink found:\n'
         + '\n'
         + '- File "root" Line 3: "  - [[grandchild2]]"\n',
         error: '',
       };
       // go
-      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, wikitext: false });
+      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, wikiLink: false });
       // assert
       assert.deepStrictEqual(actlResult, expdResult);
     });

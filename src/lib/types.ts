@@ -7,11 +7,11 @@ export interface SemTreeOpts {
   indentKind?: 'space' | 'tab';                        // the type of indentation (space or tab)
   indentSize?: number;                                 // the number of indentations per tree level
   subroot?: string;                                    // the root of the subtree to be updated
-  mkdnList?: boolean;                                  // whether or not to expect markdown bullets ('- ', '* ', '+ ') for each node
-  wikitext?: boolean;                                  // whether or not to expect [[wikilink square brackets]] so they may be ignored when processing tree text
+  mkdnBullet?: boolean;                                // whether or not to expect markdown bullets ('- ', '* ', '+ ') in node text
+  wikiLink?: boolean;                                  // whether or not to expect wikilinks ([[square brackets]]) in node text
   // functions
-  graft?: (parentID: string, childID: string) => void; // a function to execute when each node is added to the tree
-  prune?: (parentID: string, childID: string) => void; // a function to execute when each node is removed from the tree
+  graft?: (parentText: string, childText: string) => void; // a function to execute when each node is added to the tree
+  prune?: (parentText: string, childText: string) => void; // a function to execute when each node is removed from the tree
   setRoot?: (name: string) => void;                    // a function that can return/handle the root name of the tree
 }
 
@@ -76,8 +76,8 @@ export interface LintOpts {
   // syntax
   indentKind?: 'space' | 'tab';                        // the type of indentation (space or tab)
   indentSize?: number;                                 // the number of indentations per tree level
-  mkdnList?: boolean;                                  // whether or not to expect markdown bullets ('- ', '* ', '+ ') for each node
-  wikitext?: boolean;                                  // whether or not to expect [[wikilink square brackets]] so they may be ignored when processing tree text
+  mkdnBullet?: boolean;                                // whether or not to expect markdown bullets ('- ', '* ', '+ ') for each node
+  wikiLink?: boolean;                                  // whether or not to expect [[wikilink square brackets]] so they may be ignored when processing tree text
   // tree
   root?: string;                                       // for linting duplicates (cycles) and unused turnk files
 }

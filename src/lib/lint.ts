@@ -17,10 +17,10 @@ export const lint = (
   const indentKind: 'space' | 'tab' = opts.indentKind ?? defaultOpts.indentKind;
   /* @ts-expect-error: opts.indentSize is optional */
   const indentSize: number = opts.indentSize ?? defaultOpts.indentSize;
-  /* @ts-expect-error: opts.mkdnList is optional */
-  const mkdnList: boolean = opts.mkdnList ?? defaultOpts.mkdnList;
-  /* @ts-expect-error: opts.wikitext is optional */
-  const wikitext: boolean = opts.wikitext ?? defaultOpts.wikitext;
+  /* @ts-expect-error: opts.mkdnBullet is optional */
+  const mkdnBullet: boolean = opts.mkdnBullet ?? defaultOpts.mkdnBullet;
+  /* @ts-expect-error: opts.wikiLink is optional */
+  const wikiLink: boolean = opts.wikiLink ?? defaultOpts.wikiLink;
   // warnings
   const badIndentations: { fname?: string, line: number; content: string; reason: string }[] = [];
   // Update the entities type
@@ -30,7 +30,7 @@ export const lint = (
   }
   const lintOrphanTrunks: string[] = [];
   const lintMkdnBullets: { fname?: string, line: number; content: string }[] = [];
-  const lintWikitext: { fname?: string, line: number; content: string }[] = [];
+  const lintWikiLink: { fname?: string, line: number; content: string }[] = [];
   // state
   let previousIndent: number = 0;
   // linting per line
@@ -70,17 +70,17 @@ export const lint = (
       const trimmedLine: string = line.trim();
       // markdown bullet check
       const hasBullet: boolean = RGX_MKDN_BLT.test(trimmedLine);
-      if ((currentIndent > 0) && (hasBullet !== mkdnList)) {
+      if ((currentIndent > 0) && (hasBullet !== mkdnBullet)) {
         lintMkdnBullets.push({
           fname: fname ? fname : '',
           line: lineNumber,
           content: line,
         });
       }
-      // wikitext check
-      const hasWikitext: boolean = RGX_WIKI.test(trimmedLine);
-      if ((currentIndent > 0) && (hasWikitext !== wikitext)) {
-        lintWikitext.push({
+      // wikiLink check
+      const hasWikiLink: boolean = RGX_WIKI.test(trimmedLine);
+      if ((currentIndent > 0) && (hasWikiLink !== wikiLink)) {
+        lintWikiLink.push({
           fname: fname ? fname : '',
           line: lineNumber,
           content: line,
@@ -175,16 +175,16 @@ export const lint = (
     }
   }
   if (lintMkdnBullets.length > 0) {
-    warnMsg += 'semtree.lint(): ' + (mkdnList ? 'missing' : 'unexpected') + ' markdown bullet found:\n\n';
+    warnMsg += 'semtree.lint(): ' + (mkdnBullet ? 'missing' : 'unexpected') + ' markdown bullet found:\n\n';
     lintMkdnBullets.forEach(({ fname, line, content }) => {
       warnMsg += fname
         ? `- File "${fname}" Line ${line}: "${content}"\n`
         : `- Line ${line}: "${content}"\n`;
     });
   }
-  if (lintWikitext.length > 0) {
-    warnMsg += 'semtree.lint(): ' + (wikitext ? 'missing' : 'unexpected') + ' wikitext found:\n\n';
-    lintWikitext.forEach(({ fname, line, content }) => {
+  if (lintWikiLink.length > 0) {
+    warnMsg += 'semtree.lint(): ' + (wikiLink ? 'missing' : 'unexpected') + ' wikilink found:\n\n';
+    lintWikiLink.forEach(({ fname, line, content }) => {
       warnMsg += fname
         ? `- File "${fname}" Line ${line}: "${content}"\n`
         : `- Line ${line}: "${content}"\n`;

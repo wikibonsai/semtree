@@ -182,7 +182,7 @@ describe('create()', () => {
           assert.deepStrictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; single file; options; mkdnList: false`, () => {
+        it(`${trunkType} trunk; single file; options; mkdnBullet: false`, () => {
           const content: Record<string,string> = {
             'root':
               '[[child1]]\n'
@@ -190,12 +190,12 @@ describe('create()', () => {
             + '  [[grandchild2]]\n'
             + '    [[greatgrandchild1]]\n'
           };
-          const actl: SemTree | string = create('root', content, { ...opts, mkdnList: false });
+          const actl: SemTree | string = create('root', content, { ...opts, mkdnBullet: false });
           const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
           assert.deepStrictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; single file; options; wikitext: false`, () => {
+        it(`${trunkType} trunk; single file; options; wikiLink: false`, () => {
           const content: Record<string,string> = {
             'root':
               '- child1\n'
@@ -203,7 +203,7 @@ describe('create()', () => {
             + '  - grandchild2\n'
             + '    - greatgrandchild1\n'
           };
-          const actl: SemTree | string = create('root', content, { ...opts, wikitext: false });
+          const actl: SemTree | string = create('root', content, { ...opts, wikiLink: false });
           const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
           assert.deepStrictEqual(actl, expd);
         });

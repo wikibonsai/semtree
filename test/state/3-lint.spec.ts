@@ -15,8 +15,8 @@ describe('state 3; lintContent()', () => {
       delimiter: 'semtree',
       indentKind: 'space',
       indentSize: 2,
-      mkdnList: true,
-      wikitext: true,
+      mkdnBullet: true,
+      wikiLink: true,
     };
     state = {
       state: 'PROCESSING_ROOT',

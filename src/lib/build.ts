@@ -52,8 +52,8 @@ export const build = (
         if (checkComment(line)) { continue; }
         const thisLvl: number = getLevel(line, updatedState.opts.indentSize || 2);
         const leafText: string = rawText(line.trim(), {
-          hasBullets: updatedState.opts.mkdnList,
-          hasWiki: updatedState.opts.wikitext,
+          hasBullets: updatedState.opts.mkdnBullet,
+          hasWiki: updatedState.opts.wikiLink,
         });
         // Handle root setting for virtual trunk mode
         if (updatedState.opts.virtualTrunk

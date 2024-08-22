@@ -148,7 +148,7 @@ describe('update()', () => {
       assert.deepEqual(actlSubTree, expdSubTree);
     });
 
-    it('concrete trunk; single file; options; mkdnList: false', () => {
+    it('concrete trunk; single file; options; mkdnBullet: false', () => {
       const tree: SemTree = {
         root: 'root',
         trunk: ['root'],
@@ -164,7 +164,7 @@ describe('update()', () => {
       };
       const replacement: string =  '* [[child1]]\n'
                                  + '  + [[newChild]]\n';
-      const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, mkdnList: true });
+      const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, mkdnBullet: true });
       const expdSubTree: TreeNode[] = [
         { text: 'root', ancestors: [], children: ['child1'] },
         { text: 'child1', ancestors: ['root'], children: ['newChild'] },
@@ -173,7 +173,7 @@ describe('update()', () => {
       assert.deepEqual(actlSubTree, expdSubTree);
     });
 
-    it('concrete trunk; single file; options; wikitext: false', () => {
+    it('concrete trunk; single file; options; wikilink: false', () => {
       const tree: SemTree = {
         root: 'root',
         trunk: ['root'],
@@ -189,7 +189,7 @@ describe('update()', () => {
       };
       const replacement: string =  '- child1\n'
                                  + '  - newChild\n';
-      const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, wikitext: false });
+      const actlSubTree: TreeNode[] | string = update(tree, 'root', { 'root': replacement }, { ...opts, wikiLink: false });
       const expdSubTree: TreeNode[] = [
         { text: 'root', ancestors: [], children: ['child1'] },
         { text: 'child1', ancestors: ['root'], children: ['newChild'] },

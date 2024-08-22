@@ -15,8 +15,8 @@ describe('state 5; processContent()', () => {
 //       delimiter: 'semtree',
 //       indentKind: 'space',
 //       indentSize: 2,
-//       mkdnList: true,
-//       wikitext: true,
+//       mkdnBullet: true,
+//       wikilink: true,
 //     };
 //     state = {
 //       state: 'INITIAL',

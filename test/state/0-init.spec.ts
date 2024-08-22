@@ -14,8 +14,8 @@ describe('state 0; createInitialState()', () => {
       delimiter: 'semtree',
       indentKind: 'space',
       indentSize: 2,
-      mkdnList: true,
-      wikitext: true,
+      mkdnBullet: true,
+      wikiLink: true,
     };
   });
 

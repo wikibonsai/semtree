@@ -56,8 +56,8 @@ export const lintContent = (state: TreeBuilderState): TreeBuilderState => {
   const lintError: { warn: string, error: string } | void = lint(contentAsStrings, {
     indentKind: state.opts.indentKind,
     indentSize: state.opts.indentSize,
-    mkdnList: state.opts.mkdnList,
-    wikitext: state.opts.wikitext,
+    mkdnBullet: state.opts.mkdnBullet,
+    wikiLink: state.opts.wikiLink,
     root: state.virtualRoot ?? state.root ?? undefined,
   });
   if (lintError?.error) {
@@ -124,8 +124,8 @@ export const processLeaf = (state: TreeBuilderState, line: string, level: number
   const trimmedLine: string = line.trim();
   if (!trimmedLine) return state;
   const leafText: string = rawText(trimmedLine, {
-    hasBullets: state.opts.mkdnList,
-    hasWiki: state.opts.wikitext,
+    hasBullets: state.opts.mkdnBullet,
+    hasWiki: state.opts.wikiLink,
   });
   // ancestors
   state.currentAncestors = state.currentAncestors.slice(0, level + state.level);
@@ -137,13 +137,13 @@ export const processLeaf = (state: TreeBuilderState, line: string, level: number
       // calculate insertion index
       const contentArray: string[] = state.content[branchText];
       const currentIndex: number = contentArray.findIndex(l => rawText(l.trim(), {
-        hasBullets: state.opts.mkdnList,
-        hasWiki: state.opts.wikitext,
+        hasBullets: state.opts.mkdnBullet,
+        hasWiki: state.opts.wikiLink,
       }) === leafText);
       const insertIndex: number = parentNode.children.findIndex(child => {
         const childIndex: number = contentArray.findIndex(l => rawText(l.trim(), {
-          hasBullets: state.opts.mkdnList,
-          hasWiki: state.opts.wikitext,
+          hasBullets: state.opts.mkdnBullet,
+          hasWiki: state.opts.wikiLink,
         }) === child);
         return childIndex > currentIndex;
       });

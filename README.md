@@ -47,7 +47,7 @@ If we wanted to create a single tree from both of these files, we can use `semtr
 import * as semtree from 'semtree';
 
 let opts = {
-  wikitext: true, // defaults to 'true'
+  wikiLink: true, // defaults to 'true'
 };
 const rootName: string | undefined = 'fname-a';
 // read in files and create a record where
@@ -88,7 +88,7 @@ graph TD;
 Parsing:
 - The number of spaces that make up each level will be determined by the first indentation size -- this can be a number of spaces or a single tab. (Consider using a linter to help keep spacing sizes uniform).
 - Bullets (`-*+`) are optional (see [options](#Options)).
-- `[[wikitext]]` is optional (see `wikitext` option).
+- `[[wikilink]]` is optional (see [`wikiLink`](#wikilink-boolean) option).
 
 Valid Trees:
 - Every node in the tree should be unique; e.g. each list-item's text should be unique.
@@ -175,8 +175,8 @@ Checks for:
 - Spaces / tabs
 - Inconsistent indentation
 - Over-indentation
-- [Markdown bullets](#mkdnlist-boolean)
-- [Wikitext](#wikitext-boolean)
+- [Markdown bullets](#mkdnbullet-boolean)
+- [WikiLink](#wikilink-boolean)
 - Lists files that weren't linked in the tree
 
 #### Parameters
@@ -197,13 +197,13 @@ Kind of indentation -- either 'space's or 'tab's.
 
 Number of indentations (spaces or tabs) which represent each level in the tree.
 
-###### `mkdnList?: boolean`
+###### `mkdnBullet?: boolean`
 
 Whether the linter should check for markdown bullets (`-`, `*`, `+`)  and print a warning if any nodes are missing them.
 
-###### `wikitext?: boolean`
+###### `wikiLink?: boolean`
 
-Whether the linter should check for `[[wikitext]]` and print a warning if any nodes are missing them.
+Whether the linter should check for `[[wikilink]]` and print a warning if any nodes are missing them.
 
 ###### `root?: string`
 
@@ -278,13 +278,13 @@ The kind of whitespace expected for indentation of each level of the tree. The d
 
 The size of each indentation level in the tree -- corresponds to number of spaces or tabs. The default is 2.
 
-#### `mkdnList: boolean`
+#### `mkdnBullet: boolean`
 
 Whether or not to expect markdown bullets (`- `, `* `, `+ `).
 
-#### `wikitext: boolean`
+#### `wikiLink: boolean`
 
-Whether or not to expect `[[wikiref square brackets]]`. Default is `true`.
+Whether or not to expect `[[wikilink square brackets]]`. Default is `true`.
 
 ### Functions
 

@@ -6,8 +6,8 @@ export const defaultOpts: SemTreeOpts = {
   virtualTrunk: false,
   indentSize: 2,
   indentKind: 'space',
-  mkdnList: true,
-  wikitext: true,
+  mkdnBullet: true,
+  wikiLink: true,
 };
 
 export const RGX_INDENT       = /^[ \t]*/;

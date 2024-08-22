@@ -13,8 +13,8 @@ describe('state 10; restoreState()', () => {
       delimiter: 'semtree',
       indentKind: 'space',
       indentSize: 2,
-      mkdnList: true,
-      wikitext: true,
+      mkdnBullet: true,
+      wikiLink: true,
     };
     state = {
       state: 'PROCESSING_ROOT',
