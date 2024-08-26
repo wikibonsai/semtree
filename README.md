@@ -11,7 +11,7 @@
 > 
 > ~ [Elon Musk](https://www.reddit.com/r/IAmA/comments/2rgsan/comment/cnfre0a/?utm_source=share&utm_medium=web2x&context=3)
 
-`SemTree` is a utility to construct a semantic tree from  (word) lists/indexes which may span multiple objects, such as files. Can be used in conjunction with [[[wikirefs]]](https://github.com/wikibonsai/wikirefs) and [treehouze](https://github.com/wikibonsai/treehouze). See the [context](#context) for more details.
+`semtree` is a utility to construct a semantic tree from (word) lists/indexes which may span multiple objects -- the most likely setup being filenames which map to file content. Can be used in conjunction with [[[wikirefs]]](https://github.com/wikibonsai/wikirefs) and [treehouze](https://github.com/wikibonsai/treehouze). See [context](#context) for more details.
 
 🌳 Cultivate a "semantic tree" or "knowledge bonsai" in your [🎋 WikiBonsai](https://github.com/wikibonsai/wikibonsai) digital garden.
 
@@ -87,19 +87,59 @@ graph TD;
   fname-b-->node-4;
 ```
 
-## Syntax and Validity
+## Parsing, Syntax, and Validity
+
+Tree requirements are sparse because the idea is to allow the end-user to determine the shape and structure of their tree in their markdown files. This package merely creates a single, virtual tree so as to better present that unified structure to the end-user.
 
 Parsing:
-- The number of spaces that make up each level will be determined by the first indentation size -- this can be a number of spaces or a single tab. (Consider using a linter to help keep spacing sizes uniform).
-- Bullets (`-*+`) are optional (see [options](#Options)).
-- `[[wikilink]]` is optional (see [`wikiLink`](#wikilink-boolean) option).
 
-Valid Trees:
+- Semtree will check for delimiters delineating where the index content is:
+  ```markdown
+  : title : index file
+
+  This is some markdown text.
+
+  <!--semtree-->
+  - [[node-a]]
+    - [[node-b]]
+    - [[node-c]]
+  <!--/semtree-->
+  ```
+  - This content would return the following as the file content relevant for tree-building:
+  ```markdown
+  - [[node-a]]
+    - [[node-b]]
+    - [[node-c]]
+  ```
+- If delimiters do not exist any attribute metadata in [`caml`](https://github.com/wikibonsai/caml-mkdn) or [`yaml`]() format will be stripped.
+  ```markdown
+  ---
+  subject: semantic tree
+  ---
+  : title : index file
+
+  - [[node-a]]
+    - [[node-b]]
+    - [[node-c]]
+  ```
+  - Here, the same content would be identified as the tree content since `caml` and `yaml` attrs would be stripped:
+  ```markdown
+  - [[node-a]]
+    - [[node-b]]
+    - [[node-c]]
+  ```
+
+Syntax:
+
+- Indentation size defaults to `2` `'space'`s. (see options [`indentKind`](#indentkind-space--tab-1) and [`indentSize`](#indentsize-number-1)).
+- Markdown bullets (`-*+`) are optional (see option [`mkdnBullet`](#mkdnbullet-boolean-1)).
+- `[[wikilink]]` syntax is optional (see option [`wikiLink`](#wikilink-boolean-1)).
+
+Validity:
+
 - Every node in the tree should be unique; e.g. each list-item's text should be unique.
-- Must be a directed-acyclic-graph (DAG) (this happens naturally if you follow the former point).
+- Must be a directed-acyclic-graph (DAG).
 - Each level can have any number of nodes.
-
-Tree requirements are sparse because the idea is to allow the end-user to determine the shape of their tree in their markdown files. This package merely creates a single, virtual tree so as to better present that unified structure to the end-user.
 
 ### API
 
@@ -182,6 +222,8 @@ Checks for:
 - [Markdown bullets](#mkdnbullet-boolean)
 - [WikiLink](#wikilink-boolean)
 - Lists files that weren't linked in the tree
+
+(Note: Lint line numbers returned will be offset by wherever the target semtree content started within the file. If the content starts at line 5 and the linter says an error occurred on line 1, then the error probably occurs on line 6 of the file.)
 
 #### Parameters
 
@@ -274,19 +316,23 @@ Note: If `virtualTrunk` is set to `true`, the resulting tree will not be updatab
 
 ### Text / Lint
 
-#### `indentKind: 'space' | 'tab'`
+#### `delimiter: string = 'semtree'`
+
+The delimiter string to look for when identifying semtree indexes within a markdown file. Defaults to `'semtree'`.
+
+#### `indentKind: 'space' | 'tab' = 'space'`
 
 The kind of whitespace expected for indentation of each level of the tree. The default is `'space'`.
 
-#### `indentSize: number`
+#### `indentSize: number = 2`
 
 The size of each indentation level in the tree -- corresponds to number of spaces or tabs. The default is 2.
 
-#### `mkdnBullet: boolean`
+#### `mkdnBullet: boolean = true`
 
 Whether or not to expect markdown bullets (`- `, `* `, `+ `).
 
-#### `wikiLink: boolean`
+#### `wikiLink: boolean = true`
 
 Whether or not to expect `[[wikilink square brackets]]`. Default is `true`.
 
@@ -310,9 +356,9 @@ A function that can return/operate on the text of the root of the tree when it i
 
 > A semantic tree wends through concepts in semantic space, like a melody winds through harmonies in music.
 
-In [personal knowledge management (pkm)](https://en.wikipedia.org/wiki/Personal_knowledge_management) systems, there are sometimes mechanisms to facilitate the creation and management of hierarchical structures: [Tag hierarchies](https://orgmode.org/manual/Tag-Hierarchy.html) are fairly popular. Stitching together modular notes [together](https://tiddlywiki.com/static/Table-of-Contents%2520Macros.html) via [metadata](https://github.com/SkepticMystic/breadcrumbs) references is another solution. Some places are trying out [namespacing](https://github.com/wikibonsai/jekyll-namespaces). Even using the [directory system itself](https://github.com/xpgo/obsidian-folder-note-plugin) is being tried...And all the while, a [folgezettel debate](https://zettelkasten.de/folgezettel/) rages in the [zettelkasten](https://zettelkasten.de/) world.
+In [personal knowledge management (pkm)](https://en.wikipedia.org/wiki/Personal_knowledge_management) systems, there are sometimes mechanisms to facilitate the creation and management of hierarchical structures: [Tag hierarchies](https://orgmode.org/manual/Tag-Hierarchy.html), [dynamic tables of contents](https://tiddlywiki.com/static/Table-of-Contents%2520Macros.html), note [metadata](https://github.com/SkepticMystic/breadcrumbs), [namespacing](https://github.com/wikibonsai/jekyll-namespaces), even using the [directory system itself](https://github.com/xpgo/obsidian-folder-note-plugin), adding a [folgezettel](https://zettelkasten.de/folgezettel/) to a [zettelkasten](https://zettelkasten.de/), are all attempts to create one unified hierarchy from one's atomic notes.
 
-But none of these solutions accommodate the specific aim of trying to build a single "semantic tree" very well: Tag hierarchies and namespacing both suffer from branch length problems -- namespaces generally require the entire branch be spelled out to represent a node accurately, which restricts branch size and thus the size of the whole tree. Metadata pointers was better, but because relationships are built one by one between notes, making large changes to the tree itself is burdensome. Using the file directory itself runs into The Folder Problem, where using paths to represent branches would contain needless duplicates since directories stored no note information or clash with notes at the same level with the same name.
+But none of these solutions accommodate the specific aim of trying to build a single "semantic tree" very well: Tag hierarchies and namespacing both suffer from branch length problems -- namespaces generally require the entire branch be spelled out to represent a node accurately, which restricts branch size and thus the size of the whole tree. Metadata pointers is better, but because relationships are built one by one between notes, making large changes to the tree itself is burdensome and visualizing the entire tree at once requires imagination. Using the file directory itself runs into The Duplicate Folder Problem, where using paths to represent branches would contain needless duplicates which correspond to a file of the same name at the same level.
 
 This implementation attempts to ameliorate these issues with the primary focus on facilitating semantic tree cultivation.
 
