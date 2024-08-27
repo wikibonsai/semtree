@@ -11,7 +11,13 @@
 > 
 > ~ [Elon Musk](https://www.reddit.com/r/IAmA/comments/2rgsan/comment/cnfre0a/?utm_source=share&utm_medium=web2x&context=3)
 
-`semtree` is a utility to construct a semantic tree from (word) lists/indexes which may span multiple objects -- the most likely setup being filenames which map to file content. Can be used in conjunction with [[[wikirefs]]](https://github.com/wikibonsai/wikirefs) and [treehouze](https://github.com/wikibonsai/treehouze). See [context](#context) for more details.
+`semtree` is a utility to construct a semantic tree from word lists/indexes which may span multiple objects -- the most likely setup being multiple filenames which map to their file content.
+
+`semtree` itself is essentially a collection of functions to facilitate the cultivation of this tree, namely with [`lint()`](#lintcontent-string--recordstring-string-opts-lintopts-void--string), [`create()`](#createroot-string-content-recordstring-string-opts-semtreeopts--defaultopts-semtree--string), [`update()`](#updatetree-semtree-subroot-string-content-recordstring-string-opts-semtreeopts--defaultopts-semtree--string), or [`print()`](#printtree-semtree-print-boolean--true-string--undefined), and handles the build process via a [state machine](https://mfaani.com/posts/interviewing/how-understanding-state-machines-helps-with-building-trees-and-graphs/).
+
+This package can be used in conjunction with [treehouze](https://github.com/wikibonsai/treehouze) and is compatible with [`[[wikirefs]]`](https://github.com/wikibonsai/wikirefs), [caml](https://github.com/wikibonsai/caml-mkdn) and [yaml](https://yaml.org/) syntaxes.
+
+See [context](#context) for more about why and how this package is useful.
 
 🌳 Cultivate a "semantic tree" or "knowledge bonsai" in your [🎋 WikiBonsai](https://github.com/wikibonsai/wikibonsai) digital garden.
 
@@ -141,7 +147,7 @@ Validity:
 - Must be a directed-acyclic-graph (DAG).
 - Each level can have any number of nodes.
 
-### API
+## API
 
 ### TreeNode
 
@@ -262,14 +268,16 @@ Print the contents of a tree to console logs and return the string if there was 
 Example output:
 
 ```
-root
-└── child
-    ├── branch1
-    |   ├── child1b
-    |   └── branch2
-    |       └── child2b
-    └── grandchild
-        └── greatgrandchild
+bk.how-to-read-a-book
+├── demanding-reader
+|   └── active-reading
+|       ├── reading-comprehension
+|       └── the-art-of-reading
+└── 4-levels-of-reading
+    ├── elementary-reading
+    ├── inspectional-reading
+    ├── analytical-reading
+    └── syntopical-reading
 ```
 
 #### Parameters
