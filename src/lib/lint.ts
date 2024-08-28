@@ -70,7 +70,7 @@ export const lint = (
       const trimmedLine: string = line.trim();
       // markdown bullet check
       const hasBullet: boolean = RGX_MKDN_BLT.test(trimmedLine);
-      if ((currentIndent > 0) && (hasBullet !== mkdnBullet)) {
+      if (hasBullet !== mkdnBullet) {
         lintMkdnBullets.push({
           fname: fname ? fname : '',
           line: lineNumber,
@@ -79,7 +79,7 @@ export const lint = (
       }
       // wikiLink check
       const hasWikiLink: boolean = RGX_WIKI.test(trimmedLine);
-      if ((currentIndent > 0) && (hasWikiLink !== wikiLink)) {
+      if (hasWikiLink !== wikiLink) {
         lintWikiLink.push({
           fname: fname ? fname : '',
           line: lineNumber,
