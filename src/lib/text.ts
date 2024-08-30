@@ -39,30 +39,34 @@ export const rawText = (
 
 // extract tree text (either via delimiters or strip attrs)
 
-export const extractTreeContent = (content: Record<string, string[]>, delimiter: string = 'semtree'): Record<string, string[]> => {
-  const extractedContent: Record<string, string[]> = {};
+export const extractTreeContent = (
+  content: Record<string, string>,
+  delimiter: string = 'semtree',
+): Record<string, string> => {
+  const extractedContent: Record<string, string> = {};
   for (const [key, text] of Object.entries(content)) {
-    let content = text.join('\n');
+    let tmpContent: string = text;
     // first, check semtree markers
     const semtreeRegex = new RegExp(`<!--<${delimiter}>-->([\\s\\S]*?)<!--</${delimiter}>-->`, 's');
-    const semtreeMatch = content.match(semtreeRegex);
+    const semtreeMatch = tmpContent.match(semtreeRegex);
     if (semtreeMatch) {
       // clean semtree markers
-      content = semtreeMatch[1].trim();
+      tmpContent = semtreeMatch[1].trim();
     } else {
       // second, if no semtree markers, strip CAML and YAML
-      const camlData: any = caml.load(content);
-      const cleanerContent: string = camlData.content ? camlData.content : content;
+      const camlData: any = caml.load(tmpContent);
+      const cleanerContent: string = camlData.content ? camlData.content : tmpContent;
       const cleanererContent: string = stripWikiAttrs(cleanerContent);
-      const yamlData: any = (content.substring(0,4) === '---\n') ? matter(cleanererContent) : { data: {}, content: cleanererContent };
+      /* eslint-disable indent */
+      const yamlData: any = (tmpContent.substring(0,4) === '---\n')
+                          ? matter(cleanererContent)
+                          : { data: {}, content: cleanererContent };
+      /* eslint-enable indent */
       const cleanContent: string = yamlData.content;
-      content = cleanContent;
+      tmpContent = cleanContent;
     }
     // finally, remove any leading/trailing newlines
-    /* eslint-disable indent */
-    extractedContent[key] = content.split('\n')
-                                   .filter((line, index, array) => line.trim().length > 0);
-    /* eslint-enable indent */
+    extractedContent[key] = tmpContent.replace(/^\s+|\s+$/g, '');
   }
   return extractedContent;
 };

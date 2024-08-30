@@ -20,7 +20,7 @@ import { checkComment, getLevel, rawText } from './text';
 
 export const build = (
   root: string,
-  content: Record<string, string[]>,
+  content: Record<string, string>,
   opts: SemTreeOpts,
   existingTree?: SemTree,
 ): SemTree | string => {
@@ -45,7 +45,8 @@ export const build = (
         updatedState = processBranch(updatedState, currentBranch);
         updatedState.level += 1;
       }
-      for (const line of updatedState.content[currentBranch]) {
+      const lines: string[] = updatedState.content[currentBranch].split('\n');
+      for (const line of lines) {
         if (checkComment(line)) { continue; }
         const thisLvl: number = getLevel(line, updatedState.opts.indentSize || 2);
         const leafText: string = rawText(line.trim(), {
@@ -55,7 +56,7 @@ export const build = (
         // Handle root setting for virtual trunk mode
         if (updatedState.opts.virtualTrunk
           && ((updatedState.level + thisLvl) === 0)
-          && !updatedState.content[leafText]
+          && !Object.keys(updatedState.content).includes(leafText)
         ) {
           if (updatedState.virtualRoot === root) {
             updatedState.virtualRoot = leafText;
@@ -64,11 +65,11 @@ export const build = (
           }
         }
         // always process the leaf unless it's a trunk file in virtual trunk mode
-        if (!updatedState.opts.virtualTrunk || !updatedState.content[leafText]) {
+        if (!updatedState.opts.virtualTrunk || !Object.keys(updatedState.content).includes(leafText)) {
           updatedState = processLeaf(updatedState, line, thisLvl, currentBranch);
         }
         // branch handling
-        if (updatedState.content[leafText]) {
+        if (Object.keys(updatedState.content).includes(leafText)) {
           updatedState.level += thisLvl;
           updatedState = processContent(updatedState, leafText, false);
           updatedState.level -= thisLvl;

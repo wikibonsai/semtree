@@ -39,14 +39,13 @@ describe('state 3; lintContent()', () => {
   it('success', () => {
     // setup
     state.content = {
-      'root': [
-        '- [[node-1]]',
-        '  - [[node-2]]',
-        '- [[node-3]]',
-      ],
+      'root':
+        '- [[node-1]]\n'
+      + '  - [[node-2]]\n'
+      + '- [[node-3]]\n',
     };
     // go
-    const result = lintContent(state);
+    const result: TreeBuilderState = lintContent(state);
     // assert
     assert.strictEqual(result.state, 'LINTING_CONTENT');
   });
@@ -54,10 +53,10 @@ describe('state 3; lintContent()', () => {
   it('error', () => {
     // setup
     state.content = {
-      'root': [
-        '- [[node-1]]',
-        '- [[node-2]]',
-        '    - [[node-3]]'], // over-indented
+      'root':
+        '- [[node-1]]\n'
+      + '- [[node-2]]\n'
+      + '    - [[node-3]]',
     };
     // go and assert
     assert.throws(() => lintContent(state), Error);

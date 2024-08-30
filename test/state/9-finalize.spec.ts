@@ -55,7 +55,7 @@ describe('state 9; finalize()', () => {
     // setup
     state.content = {
       // 'root': ['- [[child1a]]'], // imagine this was the full content and it's been processed already
-      'branch': ['- [[child1b]]'],
+      'branch': '- [[child1b]]\n',
     };
     state.root = 'root';
     state.trunk = ['root'];

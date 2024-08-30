@@ -39,179 +39,166 @@ describe('state 1; extractContent()', () => {
   it('semtree delimiters', () => {
     // setup
     state.content = {
-      'root': [
-        'Some text before',
-        '<!--<semtree>-->',
-        '- [[node-1]]',
-        '  - [[node-2]]',
-        '    - [[node-3]]',
-        '  - [[node-4]]',
-        '<!--</semtree>-->',
-        'Some text after',
-      ],
+      'root':
+        'Some text before\n'
+      + '<!--<semtree>-->\n'
+      + '- [[node-1]]\n'
+      + '  - [[node-2]]\n'
+      + '    - [[node-3]]\n'
+      + '  - [[node-4]]\n'
+      + '<!--</semtree>-->\n'
+      + 'Some text after\n',
     };
     // go
-    const result = extractContent(state);
+    const result: TreeBuilderState = extractContent(state);
     // assert
     assert.strictEqual(result.state, 'EXTRACTING_CONTENT');
     assert.deepStrictEqual(result.content, {
-      'root': [
-        '- [[node-1]]',
-        '  - [[node-2]]',
-        '    - [[node-3]]',
-        '  - [[node-4]]',
-      ],
+      'root':
+        '- [[node-1]]\n'
+      + '  - [[node-2]]\n'
+      + '    - [[node-3]]\n'
+      + '  - [[node-4]]'
     });
   });
 
   it('yaml', () => {
     // setup
     state.content = {
-      'root': [
-        '---',
-        'title: Test Document',
-        'date: 2023-04-01',
-        '---',
-        '',
-        '- [[node-1]]',
-        '  - [[node-2]]',
-      ],
+      'root':
+        '---\n'
+      + 'title: Test Document\n'
+      + 'date: 2023-04-01\n'
+      + '---\n'
+      + '\n'
+      + '- [[node-1]]\n'
+      + '  - [[node-2]]\n',
     };
     // go
-    const result = extractContent(state);
+    const result: TreeBuilderState = extractContent(state);
     // assert
     assert.strictEqual(result.state, 'EXTRACTING_CONTENT');
     assert.deepStrictEqual(result.content, {
-      'root': [
-        '- [[node-1]]',
-        '  - [[node-2]]',
-      ],
+      'root':
+        '- [[node-1]]\n'
+      + '  - [[node-2]]',
     });
   });
 
   it('caml', () => {
     // setup
     state.content = {
-      'root': [
-        ': title :: Test Document',
-        ': date :: 2023-04-01',
-        '',
-        '- [[node-1]]',
-        '  - [[node-2]]',
-      ],
+      'root':
+        ': title :: Test Document\n'
+      + ': date :: 2023-04-01\n'
+      + '\n'
+      + '- [[node-1]]\n'
+      + '  - [[node-2]]\n',
     };
     // go
-    const result = extractContent(state);
+    const result: TreeBuilderState = extractContent(state);
     // assert
     assert.strictEqual(result.state, 'EXTRACTING_CONTENT');
     assert.deepStrictEqual(result.content, {
-      'root': [
-        '- [[node-1]]',
-        '  - [[node-2]]',
-      ],
+      'root':
+        '- [[node-1]]\n'
+      + '  - [[node-2]]',
     });
   });
 
   it('caml + wikiattr', () => {
     // setup
     state.content = {
-      'root': [
-        ': title :: Test Document',
-        ': date  :: 2023-04-01',
-        ': comma :: thing1, thing2, thing3',
-        ': list  :: ',
-        '           - thing1',
-        '           - thing2',
-        '           - thing3',
-        ': synonym :: [[link]]',
-        ': antonym :: ',
-        '            - [[link1]]',
-        '            - [[link2]]',
-        ': tag     :: [[tag1]], [[tag2]], [[tag3]]',
-        '',
-        '- [[node-1]]',
-        '  - [[node-2]]',
-      ],
+      'root':
+        ': title :: Test Document\n'
+      + ': date  :: 2023-04-01\n'
+      + ': comma :: thing1, thing2, thing3\n'
+      + ': list  :: \n'
+      + '           - thing1\n'
+      + '           - thing2\n'
+      + '           - thing3\n'
+      + ': synonym :: [[link]]\n'
+      + ': antonym :: \n'
+      + '            - [[link1]]\n'
+      + '            - [[link2]]\n'
+      + ': tag     :: [[tag1]], [[tag2]], [[tag3]]\n'
+      + '\n'
+      + '- [[node-1]]\n'
+      + '  - [[node-2]]\n',
     };
     // go
-    const result = extractContent(state);
+    const result: TreeBuilderState = extractContent(state);
     // assert
     assert.strictEqual(result.state, 'EXTRACTING_CONTENT');
     assert.deepStrictEqual(result.content, {
-      'root': [
-        '- [[node-1]]',
-        '  - [[node-2]]',
-      ],
+      'root':
+        '- [[node-1]]\n'
+      + '  - [[node-2]]',
     });
   });
 
   it('yaml + caml + blank lines', () => {
     // setup
     state.content = {
-      'root': [
-        '---',
-        'title: Test Document',
-        '---',
-        ': date  :: 2023-04-01',
-        ': comma :: thing1, thing2, thing3',
-        ': list  :: ',
-        '           - thing1',
-        '           - thing2',
-        '           - thing3',
-        ': synonym :: [[link]]',
-        ': antonym :: ',
-        '            - [[link1]]',
-        '            - [[link2]]',
-        ': tag     :: [[tag1]], [[tag2]], [[tag3]]',
-        '',
-        '',
-        '- [[node-1]]',
-        '  - [[node-2]]',
-      ],
+      'root':
+        '---\n'
+      + 'title: Test Document\n'
+      + '---\n'
+      + '\n'
+      + ': date  :: 2023-04-01\n'
+      + ': comma :: thing1, thing2, thing3\n'
+      + ': list  :: \n'
+      + '           - thing1\n'
+      + '           - thing2\n'
+      + '           - thing3\n'
+      + ': synonym :: [[link]]\n'
+      + ': antonym :: \n'
+      + '            - [[link1]]\n'
+      + '            - [[link2]]\n'
+      + ': tag     :: [[tag1]], [[tag2]], [[tag3]]\n'
+      + '\n'
+      + '- [[node-1]]\n'
+      + '  - [[node-2]]\n',
     };
     // go
-    const result = extractContent(state);
+    const result: TreeBuilderState = extractContent(state);
     // assert
     assert.strictEqual(result.state, 'EXTRACTING_CONTENT');
     assert.deepStrictEqual(result.content, {
-      'root': [
-        '- [[node-1]]',
-        '  - [[node-2]]',
-      ],
+      'root':
+        '- [[node-1]]\n'
+      + '  - [[node-2]]',
     });
   });
 
   it('delimiter; markdown, yaml, caml', () => {
     // setup
     state.content = {
-      'root': [
-        '# Header',
-        '',
-        '---',
-        'title: Test Document',
-        '---',
-        '',
-        'Some paragraph text.',
-        '',
-        ': date :: 2023-04-01',
-        '',
-        '<!--<semtree>-->',
-        '- [[node-1]]',
-        '  - [[node-2]]',
-        '<!--</semtree>-->',
-        '',
-        'More markdown content.',
-      ],
+      'root':
+        '# Header\n'
+      + '\n'
+      + 'title: Test Document\n'
+      + '---\n'
+      + '\n'
+      + 'Some paragraph text.\n'
+      + '\n'
+      + ': date :: 2023-04-01\n'
+      + '\n'
+      + '<!--<semtree>-->\n'
+      + '- [[node-1]]\n'
+      + '  - [[node-2]]\n'
+      + '<!--</semtree>-->\n'
+      + '\n'
+      + 'More markdown content.\n',
     };
     // go
-    const result = extractContent(state);
+    const result: TreeBuilderState = extractContent(state);
     // assert
     assert.strictEqual(result.state, 'EXTRACTING_CONTENT');
     assert.deepStrictEqual(result.content, {
-      'root': [
-        '- [[node-1]]',
-        '  - [[node-2]]',
-      ],
+      'root':
+        '- [[node-1]]\n'
+      + '  - [[node-2]]',
     });
 
   });

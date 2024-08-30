@@ -35,7 +35,7 @@ export type TreeBuildingState = 'EXTRACTING_CONTENT'
 export type TreeBuilderState = {
   state: TreeBuildingState;
   // input
-  content: Record<string, string[]>;
+  content: Record<string, string>;
   opts: SemTreeOpts;
   // tree
   root: string | null;

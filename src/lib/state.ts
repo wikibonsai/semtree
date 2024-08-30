@@ -3,10 +3,9 @@ import { lint } from './lint';
 import { pruneOrphans } from './orphan';
 import { rawText, extractTreeContent } from './text';
 
-
 export const createInitialState = (
   root: string,
-  content: Record<string, string[]>,
+  content: Record<string, string>,
   opts: SemTreeOpts,
   existingTree?: SemTree,
 ): TreeBuilderState => ({
@@ -29,7 +28,7 @@ export const extractContent = (state: TreeBuilderState): TreeBuilderState => {
   return {
     ...state,
     state: 'EXTRACTING_CONTENT',
-    content: extractTreeContent(state.content, state.opts.delimiter),
+    content: extractTreeContent(state.content as Record<string, string>),
   };
 };
 
@@ -50,10 +49,7 @@ export const processRoot = (state: TreeBuilderState): TreeBuilderState => {
 };
 
 export const lintContent = (state: TreeBuilderState): TreeBuilderState => {
-  const contentAsStrings: Record<string, string> = Object.fromEntries(
-    Object.entries(state.content).map(([key, value]) => [key, value.join('\n')])
-  );
-  const lintError: { warn: string, error: string } | void = lint(contentAsStrings, {
+  const lintError: { warn: string, error: string } | void = lint(state.content as Record<string, string>, {
     indentKind: state.opts.indentKind,
     indentSize: state.opts.indentSize,
     mkdnBullet: state.opts.mkdnBullet,
@@ -135,7 +131,7 @@ export const processLeaf = (state: TreeBuilderState, line: string, level: number
   if (parentNode) {
     if (!parentNode.children.includes(leafText)) {
       // calculate insertion index
-      const contentArray: string[] = state.content[branchText];
+      const contentArray: string[] = (state.content[branchText] as string).split('\n');
       const currentIndex: number = contentArray.findIndex(l => rawText(l.trim(), {
         hasBullets: state.opts.mkdnBullet,
         hasWiki: state.opts.wikiLink,

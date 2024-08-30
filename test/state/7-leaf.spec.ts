@@ -41,9 +41,7 @@ describe('state 7; processLeaf()', () => {
   it('create; concrete trunk', () => {
     // setup
     state.content = {
-      'root': [
-        '- [[leaf]]',
-      ],
+      'root': '- [[leaf]]\n',
     };
     state.nodes = [
       { text: 'root', ancestors: [], children: [] },
@@ -71,9 +69,7 @@ describe('state 7; processLeaf()', () => {
     // setup
     state.opts.virtualTrunk = true;
     state.content = {
-      'root': [
-        '- [[leaf]]',
-      ],
+      'root': '- [[leaf]]\n',
     };
     state.nodes = [];
     state.currentAncestors = [];
@@ -98,11 +94,10 @@ describe('state 7; processLeaf()', () => {
     // setup
     state.opts.virtualTrunk = true;
     state.content = {
-      'root': [
-        '  - [[child]]',
-        '    - [[grandchild]]',
-        '      - [[leaf]]',
-      ],
+      'root':
+        '  - [[child]]\n'
+      + '    - [[grandchild]]\n'
+      + '      - [[leaf]]\n',
     };
     state.nodes = [
       { text: 'root', ancestors: [], children: [] },
@@ -134,9 +129,7 @@ describe('state 7; processLeaf()', () => {
     // setup
     state.isUpdate = true;
     state.content = {
-      'root': [
-        '- [[leaf]]',
-      ],
+      'root': '- [[leaf]]\n',
     };
     state.nodes = [
       { text: 'root', ancestors: [], children: [] },
@@ -167,10 +160,9 @@ describe('state 7; processLeaf()', () => {
     // setup
     state.isUpdate = true;
     state.content = {
-      'root': [
-        '  - [[branch]]',
-        '    - [[leaf]]',
-      ],
+      'root':
+        '  - [[branch]]\n'
+      + '    - [[leaf]]\n',
     };
     state.nodes = [
       { text: 'root', ancestors: [], children: [] },
@@ -201,10 +193,9 @@ describe('state 7; processLeaf()', () => {
     // setup
     state.isUpdate = true;
     state.content = {
-      'root': [
-        '- [[leaf]]',
-        '  - [[child-leaf]]',
-      ],
+      'root':
+        '- [[leaf]]\n'
+      + '  - [[child-leaf]]\n',
     };
     state.nodes = [
       { text: 'root', ancestors: [], children: [] },
@@ -242,9 +233,7 @@ describe('state 7; processLeaf()', () => {
     state.isUpdate = true;
     state.opts.virtualTrunk = true;
     state.content = {
-      'root': [
-        '- [[leaf]]',
-      ],
+      'root': '- [[leaf]]\n',
     };
     state.nodes = [
       { text: 'leaf', ancestors: [], children: [] },
@@ -275,11 +264,10 @@ describe('state 7; processLeaf()', () => {
     state.isUpdate = true;
     state.opts.virtualTrunk = true;
     state.content = {
-      'root': [
-        '  - [[child]]',
-        '    - [[grandchild]]',
-        '      - [[leaf]]',
-      ],
+      'root':
+        '  - [[child]]\n'
+      + '    - [[grandchild]]\n'
+      + '      - [[leaf]]\n'
     };
     state.nodes = [
       { text: 'root', ancestors: [], children: [] },

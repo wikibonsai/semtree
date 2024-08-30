@@ -12,22 +12,19 @@ export const update = (
   if (opts?.virtualTrunk) {
     return 'semtree.update(): cannot run updates on a virtual trunk';
   }
-  const contentArray: Record<string, string[]> = Object.fromEntries(
-    Object.entries(content).map(([key, value]) => [key, value.split('\n').filter(line => line.trim().length > 0)])
-  );
   // validate subroot
   const subrootNode = tree.nodes.find(node => node.text === subroot);
   if (!subrootNode) {
     return `semtree.update(): subroot not found in the tree: "${subroot}"`;
   }
   // track updated trunk nodes
-  const updatedTrunkNodes: string[] = Object.keys(contentArray);
+  const updatedTrunkNodes: string[] = Object.keys(content);
   // grab all original connections
   const originalConnections = new Set(
     tree.nodes.flatMap(node => node.children.map(child => `${node.text}:${child}`))
   );
   // go
-  const updatedTree = build(subroot, contentArray, {
+  const updatedTree = build(subroot, content, {
     ...defaultOpts,
     ...opts,
     subroot: subroot,
