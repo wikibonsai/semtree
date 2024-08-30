@@ -40,9 +40,6 @@ export const build = (
     }
 
     const processContent = (currentState: TreeBuilderState, currentBranch: string, isRootFile: boolean = true): TreeBuilderState => {
-      if (!currentState.content[currentBranch]) {
-        return currentState;
-      }
       let updatedState: TreeBuilderState = currentState;
       if (!currentState.opts.virtualTrunk) {
         updatedState = processBranch(updatedState, currentBranch);
