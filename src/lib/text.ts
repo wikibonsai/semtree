@@ -37,9 +37,9 @@ export const rawText = (
   return fullText.replace(/\r?\n|\r/g, '');
 };
 
-// attrs
+// extract tree text (either via delimiters or strip attrs)
 
-export const stripAttrs = (content: Record<string, string[]>, delimiter: string = 'semtree'): Record<string, string[]> => {
+export const extractTreeContent = (content: Record<string, string[]>, delimiter: string = 'semtree'): Record<string, string[]> => {
   const extractedContent: Record<string, string[]> = {};
   for (const [key, text] of Object.entries(content)) {
     let content = text.join('\n');

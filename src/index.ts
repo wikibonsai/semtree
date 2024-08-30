@@ -5,7 +5,12 @@ export { update } from './lib/update';
 export { lint } from './lib/lint';
 export { print } from './lib/print';
 // util funcs
-export { checkComment, getLevel, rawText } from './lib/text';
+export {
+  checkComment,
+  extractTreeContent,
+  getLevel,
+  rawText,
+} from './lib/text';
 // types
 export type {
   LintOpts,

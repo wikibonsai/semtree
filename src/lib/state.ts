@@ -1,7 +1,7 @@
 import type { SemTreeOpts, SemTree, TreeBuilderState, TreeNode } from './types';
 import { lint } from './lint';
 import { pruneOrphans } from './orphan';
-import { rawText, stripAttrs } from './text';
+import { rawText, extractTreeContent } from './text';
 
 
 export const createInitialState = (
@@ -29,7 +29,7 @@ export const extractContent = (state: TreeBuilderState): TreeBuilderState => {
   return {
     ...state,
     state: 'EXTRACTING_CONTENT',
-    content: stripAttrs(state.content, state.opts.delimiter),
+    content: extractTreeContent(state.content, state.opts.delimiter),
   };
 };
 
