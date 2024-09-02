@@ -137,9 +137,9 @@ Parsing:
 
 Syntax:
 
-- Indentation size defaults to `2` `'space'`s. (see options [`indentKind`](#indentkind-space--tab-1) and [`indentSize`](#indentsize-number-1)).
-- Markdown bullets (`-*+`) are optional (see option [`mkdnBullet`](#mkdnbullet-boolean-1)).
-- `[[wikilink]]` syntax is optional (see option [`wikiLink`](#wikilink-boolean-1)).
+- Indentation size defaults to `2` `'space'`s. (see options [`indentKind`](#indentkind-space--tab--space) and [`indentSize`](#indentsize-number--2)).
+- Markdown bullets (`-*+`) are optional (see option [`mkdnBullet`](#mkdnbullet-boolean--true)).
+- `[[wikilink]]` syntax is optional (see option [`wikiLink`](#wikilink-boolean--true)).
 
 Validity:
 
