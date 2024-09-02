@@ -47,8 +47,8 @@ export const extractTreeContent = (
   for (const [key, text] of Object.entries(content)) {
     let tmpContent: string = text;
     // first, check semtree markers
-    const semtreeRegex = new RegExp(`<!--<${delimiter}>-->([\\s\\S]*?)<!--</${delimiter}>-->`, 's');
-    const semtreeMatch = tmpContent.match(semtreeRegex);
+    const semtreeRegex: RegExp = new RegExp(`<!--<${delimiter}>-->([\\s\\S]*?)<!--</${delimiter}>-->`, 's');
+    const semtreeMatch: RegExpMatchArray | null = tmpContent.match(semtreeRegex);
     if (semtreeMatch) {
       // clean semtree markers
       tmpContent = semtreeMatch[1].trim();
