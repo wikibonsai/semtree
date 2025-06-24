@@ -11,6 +11,10 @@
 > 
 > ~ [Elon Musk](https://www.reddit.com/r/IAmA/comments/2rgsan/comment/cnfre0a/?utm_source=share&utm_medium=web2x&context=3)
 
+> "'First principles' means: Break things down to the fundamental axiomatic elements that are most likely to be true and reason up from there as cogently as possible."
+> 
+> ~ [Elon Musk](https://youtu.be/cFIlta1GkiE?si=dVxwck2nb-gGOKqQ&t=1566)
+
 `semtree` is a utility to construct a semantic tree from word lists/indexes which may span multiple objects -- the most likely setup being multiple filenames which map to their file content.
 
 `semtree` itself is essentially a collection of functions to facilitate the cultivation of this tree, namely with [`lint()`](#lintcontent-string--recordstring-string-opts-lintopts-void--string), [`create()`](#createroot-string-content-recordstring-string-opts-semtreeopts--defaultopts-semtree--string), [`update()`](#updatetree-semtree-subroot-string-content-recordstring-string-opts-semtreeopts--defaultopts-semtree--string), or [`print()`](#printtree-semtree-print-boolean--true-string--undefined), and handles the build process via a [state machine](https://mfaani.com/posts/interviewing/how-understanding-state-machines-helps-with-building-trees-and-graphs/).
