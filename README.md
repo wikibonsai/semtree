@@ -11,7 +11,7 @@
 > 
 > ~ [Elon Musk](https://www.reddit.com/r/IAmA/comments/2rgsan/comment/cnfre0a/?utm_source=share&utm_medium=web2x&context=3)
 
-> "'First principles' means: Break things down to the fundamental axiomatic elements that are most likely to be true and reason up from there as cogently as possible."
+> "'First principles' means: Break things down to the fundamental axiomatic elements that are most likely to be true and reason up from there as cogently as possible -- as opposed to reasoning by analysis or metaphor."
 > 
 > ~ [Elon Musk](https://youtu.be/cFIlta1GkiE?si=dVxwck2nb-gGOKqQ&t=1566)
 
