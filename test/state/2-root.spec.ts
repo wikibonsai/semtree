@@ -11,7 +11,7 @@ describe('state 2; processRoot()', () => {
 
   beforeEach(() => {
     opts = {
-      virtualTrunk: false,
+      virtualBranches: false,
       delimiter: 'semtree',
       indentKind: 'space',
       indentSize: 2,
@@ -24,9 +24,9 @@ describe('state 2; processRoot()', () => {
       content: {},
       root: 'root',
       nodes: [],
-      trunk: [],
+      branches: [],
       petioleMap: {},
-      orphans: [],
+      orphanedBranches: [],
       level: 0,
       currentAncestors: [],
       isUpdate: false,
@@ -35,29 +35,29 @@ describe('state 2; processRoot()', () => {
     };
   });
 
-  it('create; concrete trunk', () => {
+  it('create; concrete branches', () => {
     // go
     const result = processRoot(state);
     // assert
     assert.strictEqual(result.root, 'root');
-    assert.strictEqual(result.opts.virtualTrunk, false);
+    assert.strictEqual(result.opts.virtualBranches, false);
     assert.strictEqual(result.virtualRoot, undefined);
     assert.strictEqual(result.subroot, undefined);
   });
 
-  it('create; virtual trunk', () => {
+  it('create; virtual branches', () => {
     // setup
-    state.opts.virtualTrunk = true;
+    state.opts.virtualBranches = true;
     // go
     const result = processRoot(state);
     // assert
     assert.strictEqual(result.root, 'root');
-    assert.strictEqual(result.opts.virtualTrunk, true);
+    assert.strictEqual(result.opts.virtualBranches, true);
     assert.strictEqual(result.virtualRoot, undefined);
     assert.strictEqual(result.subroot, undefined);
   });
 
-  it('update; concrete trunk', () => {
+  it('update; concrete branches', () => {
     // setup
     state.isUpdate = true;
     state.opts.subroot = 'root';
@@ -65,21 +65,21 @@ describe('state 2; processRoot()', () => {
     const result = processRoot(state);
     // assert
     assert.strictEqual(result.root, 'root');
-    assert.strictEqual(result.opts.virtualTrunk, false);
+    assert.strictEqual(result.opts.virtualBranches, false);
     assert.strictEqual(result.virtualRoot, undefined);
     assert.strictEqual(result.subroot, 'root');
   });
 
-  it('update; virtual trunk', () => {
+  it('update; virtual branches', () => {
     // setup
     state.isUpdate = true;
-    state.opts.virtualTrunk = true;
+    state.opts.virtualBranches = true;
     state.opts.subroot = 'root';
     // go
     const result = processRoot(state);
     // assert
     assert.strictEqual(result.root, 'root');
-    assert.strictEqual(result.opts.virtualTrunk, true);
+    assert.strictEqual(result.opts.virtualBranches, true);
     assert.strictEqual(result.virtualRoot, 'root');
     assert.strictEqual(result.subroot, 'root');
   });

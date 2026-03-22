@@ -11,7 +11,7 @@ describe('state 6; processBranch()', () => {
 
   beforeEach(() => {
     opts = {
-      virtualTrunk: false,
+      virtualBranches: false,
       delimiter: 'semtree',
       indentKind: 'space',
       indentSize: 2,
@@ -24,9 +24,9 @@ describe('state 6; processBranch()', () => {
       content: {},
       root: null,
       nodes: [],
-      trunk: [],
+      branches: [],
       petioleMap: {},
-      orphans: [],
+      orphanedBranches: [],
       level: 0,
       currentAncestors: [],
       isUpdate: false,
@@ -36,7 +36,7 @@ describe('state 6; processBranch()', () => {
 
   // create
 
-  it('create; concrete trunk; add node; root case', () => {
+  it('create; concrete branches; add node; root case', () => {
     // go
     const result: TreeBuilderState = processBranch(state, 'root');
     // assert
@@ -47,16 +47,16 @@ describe('state 6; processBranch()', () => {
       ancestors: [],
       children: [], // see 'processLeaf()' for children population
     });
-    assert.deepStrictEqual(result.trunk, ['root']);
+    assert.deepStrictEqual(result.branches, ['root']);
   });
 
-  it('create; concrete trunk; add node; branch case', () => {
+  it('create; concrete branches; add node; branch case', () => {
     // setup
     state.nodes = [
       { text: 'root', ancestors: [], children: ['node-1', 'branch'] },
       { text: 'node-1', ancestors: ['root'], children: [] },
     ];
-    state.trunk = ['root'];
+    state.branches = ['root'];
     state.currentAncestors = ['root'];
     // go
     const result: TreeBuilderState = processBranch(state, 'branch');
@@ -68,12 +68,12 @@ describe('state 6; processBranch()', () => {
       { text: 'node-1', ancestors: ['root'], children: [], },
       { text: 'branch', ancestors: ['root'], children: [], },
     ]);
-    assert.deepStrictEqual(result.trunk, ['root', 'branch']);
+    assert.deepStrictEqual(result.branches, ['root', 'branch']);
   });
 
   // update
 
-  it('update; concrete trunk; add node; root case', () => {
+  it('update; concrete branches; add node; root case', () => {
     // setup
     state.isUpdate = true;
     state.nodes = [
@@ -81,7 +81,7 @@ describe('state 6; processBranch()', () => {
       { text: 'node-1', ancestors: ['root'], children: [] },
       { text: 'node-3', ancestors: ['root'], children: [] },
     ];
-    state.trunk = ['root'];
+    state.branches = ['root'];
     state.currentAncestors = ['root'];
     // go
     const result: TreeBuilderState = processBranch(state, 'root');
@@ -94,10 +94,10 @@ describe('state 6; processBranch()', () => {
       { text: 'node-1', ancestors: ['root'], children: [] },
       { text: 'node-3', ancestors: ['root'], children: [] },
     ]);
-    assert.deepStrictEqual(result.trunk, ['root']);
+    assert.deepStrictEqual(result.branches, ['root']);
   });
 
-  it('update; concrete trunk; node exists; root case', () => {
+  it('update; concrete branches; node exists; root case', () => {
     // setup
     state.isUpdate = true;
     state.nodes = [
@@ -116,10 +116,10 @@ describe('state 6; processBranch()', () => {
       { text: 'node-1', ancestors: ['root'], children: [] },
       { text: 'node-3', ancestors: ['root'], children: [] },
     ]);
-    assert.deepStrictEqual(result.trunk, ['root']);
+    assert.deepStrictEqual(result.branches, ['root']);
   });
 
-  it('update; concrete trunk; node exists; branch case', () => {
+  it('update; concrete branches; node exists; branch case', () => {
     // setup
     state.isUpdate = true;
     state.nodes = [
@@ -128,7 +128,7 @@ describe('state 6; processBranch()', () => {
       { text: 'branch', ancestors: ['root'], children: ['leaf-1'] },
       { text: 'leaf-1', ancestors: ['root', 'branch'], children: [] },
     ];
-    state.trunk = ['root'];
+    state.branches = ['root'];
     state.currentAncestors = ['root'];
     // go
     const result: TreeBuilderState = processBranch(state, 'branch');
@@ -142,12 +142,12 @@ describe('state 6; processBranch()', () => {
       { text: 'branch', ancestors: ['root'], children: [] },
       { text: 'leaf-1', ancestors: ['root', 'branch'], children: [] },
     ]);
-    assert.deepStrictEqual(result.trunk, ['root', 'branch']);
+    assert.deepStrictEqual(result.branches, ['root', 'branch']);
   });
 
-  it('virtual trunk; branches do not exist in virtual trunk mode', () => {
+  it('virtual branches; branches do not exist in virtual branches mode', () => {
     // setup
-    state.opts.virtualTrunk = true;
+    state.opts.virtualBranches = true;
     // go
     const result: TreeBuilderState = processBranch(state, 'root');
     // assert

@@ -11,7 +11,7 @@ describe('state 9; finalize()', () => {
 
   beforeEach(() => {
     opts = {
-      virtualTrunk: false,
+      virtualBranches: false,
       delimiter: 'semtree',
       indentKind: 'space',
       indentSize: 2,
@@ -25,9 +25,9 @@ describe('state 9; finalize()', () => {
       // tree
       root: null,
       nodes: [],
-      trunk: [],
+      branches: [],
       petioleMap: {},
-      orphans: [],
+      orphanedBranches: [],
       // processing
       level: 0,
       currentAncestors: [],
@@ -36,8 +36,8 @@ describe('state 9; finalize()', () => {
     };
   });
 
-  // ...see? this doesn't really do much with concrete trunks
-  it('concrete trunk', () => {
+  // ...see? this doesn't really do much with concrete branches
+  it('concrete branches', () => {
     // setup
     state.root = 'root';
     // go
@@ -45,20 +45,20 @@ describe('state 9; finalize()', () => {
     // assert
     assert.strictEqual(result.state, 'FINALIZING');
     assert.strictEqual(result.root, 'root');
-    assert.deepStrictEqual(result.trunk, []);
+    assert.deepStrictEqual(result.branches, []);
     assert.deepStrictEqual(result.petioleMap, {});
-    assert.deepStrictEqual(result.orphans, []);
+    assert.deepStrictEqual(result.orphanedBranches, []);
   });
 
-  // oh right -- it does set trunk orphans...
-  it('concrete trunk', () => {
+  // oh right -- it does set orphaned branches...
+  it('concrete branches', () => {
     // setup
     state.content = {
       // 'root': ['- [[child1a]]'], // imagine this was the full content and it's been processed already
       'branch': '- [[child1b]]\n',
     };
     state.root = 'root';
-    state.trunk = ['root'];
+    state.branches = ['root'];
     state.petioleMap = {
       'root': 'root',
       'child1a': 'root',
@@ -68,28 +68,28 @@ describe('state 9; finalize()', () => {
     // assert
     assert.strictEqual(result.state, 'FINALIZING');
     assert.strictEqual(result.root, 'root');
-    assert.deepStrictEqual(result.trunk, ['root']);
+    assert.deepStrictEqual(result.branches, ['root']);
     assert.deepStrictEqual(result.petioleMap, {
       'root': 'root',
       'child1a': 'root',
     });
-    assert.deepStrictEqual(result.orphans, ['branch']);
+    assert.deepStrictEqual(result.orphanedBranches, ['branch']);
   });
 
   // but finalize is mostly for making sure
-  // trunk-related properties are empty in virtual trunk mode...
-  it('virtual trunk', () => {
+  // branch-related properties are empty in virtual branches mode...
+  it('virtual branches', () => {
     // setup
-    state.opts.virtualTrunk = true;
+    state.opts.virtualBranches = true;
     state.virtualRoot = 'virtual-root';
     // go
     const result: TreeBuilderState = finalize(state);
     // assert
     assert.strictEqual(result.state, 'FINALIZING');
     assert.strictEqual(result.root, 'virtual-root');
-    assert.deepStrictEqual(result.trunk, []);
+    assert.deepStrictEqual(result.branches, []);
     assert.deepStrictEqual(result.petioleMap, {});
-    assert.deepStrictEqual(result.orphans, []);
+    assert.deepStrictEqual(result.orphanedBranches, []);
   });
 
 });

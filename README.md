@@ -179,9 +179,9 @@ The full `SemTree` looks like this:
 interface SemTree {
   root: string;
   nodes: TreeNode[];
-  trunk: string[];
+  branches: string[];
   petioleMap: Record<string, string>;
-  orphan: string[];
+  orphanedBranches: string[];
 }
 ```
 
@@ -189,13 +189,13 @@ interface SemTree {
 
 `nodes`: Contains a flat array of all the `TreeNode`s in the tree.
 
-`trunk`: An array of `text` names of all the index/branch nodes (which typically correspond to the keys of the `content` hash).
+`branches`: An array of `text` names of all the index/branch nodes (which typically correspond to the keys of the `content` hash).
 
 `petioleMap`: A hash whose keys are the `text` names of all the nodes in the tree and the values are the `text` names of the index/branch node those keys appeared in (e.g. key `node-1` yields value `fname-a` from the example above because `node-1` appears in `fname-a`).
 
 ('petiole': "A leaf petiole is a thin stalk that connects a leaf blade to a stem")
 
-`orphan`: An array of `text` names of any unprocessed index/branch nodes from the `content` hash keys not processed after calling [`create()`](#createroot-string-content-recordstring-string-opts-semtreeopts--defaultopts-semtree--string) or [`update()`](#updatetree-semtree-subroot-string-content-recordstring-string-opts-semtreeopts--defaultopts-semtree--string).
+`orphanedBranches`: An array of `text` names of any unprocessed index/branch nodes from the `content` hash keys not processed after calling [`create()`](#createroot-string-content-recordstring-string-opts-semtreeopts--defaultopts-semtree--string) or [`update()`](#updatetree-semtree-subroot-string-content-recordstring-string-opts-semtreeopts--defaultopts-semtree--string).
 
 ### `create(root: string, content: Record<string, string>, opts: SemTreeOpts): SemTree | string;`
 
@@ -219,9 +219,9 @@ const tree: SemTree | string = create('fname-a', content, opts);
 //     { text: 'node-1a', ancestors: ['fname-a', 'node-1'], children: [] },
 //     ...
 //   ],
-//   trunk: ['fname-a', 'fname-b'],
+//   branches: ['fname-a', 'fname-b'],
 //   petioleMap: { 'node-1': 'fname-a', 'node-2': 'fname-b', ... },
-//   orphans: [],
+//   orphanedBranches: [],
 // }
 ```
 
@@ -313,7 +313,7 @@ Whether the validator should check for `[[wikilink]]` and print a warning if any
 
 ###### `root?: string`
 
-The root filename is needed to print the names of any orphan (unprocessed / unlinked) index / trunk files.
+The root filename is needed to print the names of any orphaned branch (unprocessed / unlinked) index / branch files.
 
 ### `print(tree: SemTree, print: boolean = true): string | undefined`
 
@@ -408,11 +408,11 @@ Options object -- see [options](#Options) below.
 
 ### Config
 
-#### `virtualTrunk: boolean`
+#### `virtualBranches: boolean`
 
-Whether or not to include the semtree/index files themselves as nodes in the tree. This option is a useful toggle between 'tree-building' (non-virtual to allow for index/trunk file traversal) and 'tree-viewing' (virtual to eliminate unnecessary index/trunk files) states. Default is `false`. Best used for things like static site generation where updates are not a usual occurrence.
+Whether or not to include the semtree/index files themselves as nodes in the tree. This option is a useful toggle between 'tree-building' (non-virtual to allow for index/branch file traversal) and 'tree-viewing' (virtual to eliminate unnecessary index/branch files) states. Default is `false`. Best used for things like static site generation where updates are not a usual occurrence.
 
-Note: If `virtualTrunk` is set to `true`, the resulting tree will not be updatable via the `update` function.
+Note: If `virtualBranches` is set to `true`, the resulting tree will not be updatable via the `update` function.
 
 ### Text / Validate
 
@@ -462,4 +462,4 @@ But none of these solutions accommodate the specific aim of trying to build a si
 
 This implementation attempts to ameliorate these issues with the primary focus on facilitating semantic tree cultivation.
 
-Side-Note: If you already have a collection of markdown notes, good candidates for index/tree(trunk) files might be "[zettelkasten hubs](https://zettelkasten.de/posts/zettelkasten-hubs/)" or "[maps of content](https://notes.linkingyourthinking.com/Cards/MOCs+Overview)" (will likely require some tweaking to fit the model required by this package).
+Side-Note: If you already have a collection of markdown notes, good candidates for index/tree(branch) files might be "[zettelkasten hubs](https://zettelkasten.de/posts/zettelkasten-hubs/)" or "[maps of content](https://notes.linkingyourthinking.com/Cards/MOCs+Overview)" (will likely require some tweaking to fit the model required by this package).

@@ -41,7 +41,7 @@ export const build = (
 
     const processContent = (currentState: TreeBuilderState, currentBranch: string, isRootFile: boolean = true): TreeBuilderState => {
       let updatedState: TreeBuilderState = currentState;
-      if (!currentState.opts.virtualTrunk) {
+      if (!currentState.opts.virtualBranches) {
         updatedState = processBranch(updatedState, currentBranch);
         updatedState.level += 1;
       }
@@ -53,8 +53,8 @@ export const build = (
           hasBullets: updatedState.opts.mkdnBullet,
           hasWiki: updatedState.opts.wikiLink,
         });
-        // Handle root setting for virtual trunk mode
-        if (updatedState.opts.virtualTrunk
+        // Handle root setting for virtual branches mode
+        if (updatedState.opts.virtualBranches
           && ((updatedState.level + thisLvl) === 0)
           && !Object.keys(updatedState.content).includes(leafText)
         ) {
@@ -64,8 +64,8 @@ export const build = (
             throw new Error(`semtree.build(): cannot have multiple root nodes, node "${leafText}" at same level as root node "${updatedState.virtualRoot}"`);
           }
         }
-        // always process the leaf unless it's a trunk file in virtual trunk mode
-        if (!updatedState.opts.virtualTrunk || !Object.keys(updatedState.content).includes(leafText)) {
+        // always process the leaf unless it's a branch file in virtual branches mode
+        if (!updatedState.opts.virtualBranches || !Object.keys(updatedState.content).includes(leafText)) {
           updatedState = processLeaf(updatedState, line, thisLvl, currentBranch);
         }
         // branch handling
@@ -75,10 +75,10 @@ export const build = (
           updatedState.level -= thisLvl;
         }
       }
-      if (updatedState.opts.virtualTrunk && isRootFile && updatedState.root === null) {
-        throw new Error('semtree.build(): no root-level entry found in virtual trunk mode');
+      if (updatedState.opts.virtualBranches && isRootFile && updatedState.root === null) {
+        throw new Error('semtree.build(): no root-level entry found in virtual branches mode');
       }
-      if (!currentState.opts.virtualTrunk) {
+      if (!currentState.opts.virtualBranches) {
         updatedState.level -= 1;
       }
       delete updatedState.content[currentBranch];
@@ -93,10 +93,10 @@ export const build = (
     // return
     return {
       root: state.root ?? '',
-      trunk: state.trunk,
+      branches: state.branches,
       petioleMap: state.petioleMap,
       nodes: state.nodes,
-      orphans: state.orphans,
+      orphanedBranches: state.orphanedBranches,
     };
   } catch (error) {
     if (state && state.isUpdate) {

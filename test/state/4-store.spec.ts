@@ -11,7 +11,7 @@ describe('state 4; storeState()', () => {
 
   beforeEach(() => {
     opts = {
-      virtualTrunk: false,
+      virtualBranches: false,
       delimiter: 'semtree',
       indentKind: 'space',
       indentSize: 2,
@@ -27,9 +27,9 @@ describe('state 4; storeState()', () => {
         { text: 'root', ancestors: [], children: ['child'] },
         { text: 'child', ancestors: ['root'], children: [] },
       ],
-      trunk: ['root'],
+      branches: ['root'],
       petioleMap: { 'root': 'root', 'child': 'root' },
-      orphans: [],
+      orphanedBranches: [],
       level: 0,
       currentAncestors: [],
       isUpdate: true,
@@ -49,14 +49,14 @@ describe('state 4; storeState()', () => {
         { text: 'root', ancestors: [], children: ['child'] },
         { text: 'child', ancestors: ['root'], children: [] },
       ],
-      trunk: ['root'],
+      branches: ['root'],
       petioleMap: { 'root': 'root', 'child': 'root' },
-      orphans: [],
+      orphanedBranches: [],
     });
     assert.notStrictEqual(result.originalState.nodes, state.nodes);
-    assert.notStrictEqual(result.originalState.trunk, state.trunk);
+    assert.notStrictEqual(result.originalState.branches, state.branches);
     assert.notStrictEqual(result.originalState.petioleMap, state.petioleMap);
-    assert.notStrictEqual(result.originalState.orphans, state.orphans);
+    assert.notStrictEqual(result.originalState.orphanedBranches, state.orphanedBranches);
   });
 
 });

@@ -11,7 +11,7 @@ describe('state 8; pruneOrphanNodes()', () => {
 
   beforeEach(() => {
     opts = {
-      virtualTrunk: false,
+      virtualBranches: false,
       delimiter: 'semtree',
       indentKind: 'space',
       indentSize: 2,
@@ -25,9 +25,9 @@ describe('state 8; pruneOrphanNodes()', () => {
       // tree
       root: 'root',
       nodes: [],
-      trunk: [],
+      branches: [],
       petioleMap: {},
-      orphans: [],
+      orphanedBranches: [],
       // processing
       level: 0,
       currentAncestors: [],

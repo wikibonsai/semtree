@@ -10,7 +10,7 @@ describe('state 0; createInitialState()', () => {
 
   beforeEach(() => {
     opts = {
-      virtualTrunk: false,
+      virtualBranches: false,
       delimiter: 'semtree',
       indentKind: 'space',
       indentSize: 2,
@@ -19,7 +19,7 @@ describe('state 0; createInitialState()', () => {
     };
   });
 
-  it('create tree; concrete trunk', () => {
+  it('create tree; concrete branches', () => {
     // go
     const result = createInitialState('root', {}, opts);
     // assert
@@ -29,9 +29,9 @@ describe('state 0; createInitialState()', () => {
       content: {},
       root: 'root',
       nodes: [],
-      trunk: [],
+      branches: [],
       petioleMap: {},
-      orphans: [],
+      orphanedBranches: [],
       level: 0,
       currentAncestors: [],
       isUpdate: false,
@@ -40,9 +40,9 @@ describe('state 0; createInitialState()', () => {
     });
   });
 
-  it('create tree; virtual trunk', () => {
+  it('create tree; virtual branches', () => {
     // setup
-    opts.virtualTrunk = true;
+    opts.virtualBranches = true;
     // go
     const result = createInitialState('root', {}, opts);
     // assert
@@ -52,9 +52,9 @@ describe('state 0; createInitialState()', () => {
       content: {},
       root: 'root', // this should be updated properly in processRoot()
       nodes: [],
-      trunk: [],
+      branches: [],
       petioleMap: {},
-      orphans: [],
+      orphanedBranches: [],
       level: 0,
       currentAncestors: [],
       isUpdate: false,
@@ -68,9 +68,9 @@ describe('state 0; createInitialState()', () => {
     const tree: SemTree = {
       root: 'root',
       nodes: [{ text: 'root', ancestors: [], children: ['node-2'] }, { text: 'node-2', ancestors: [], children: [] }],
-      trunk: ['root'],
+      branches: ['root'],
       petioleMap: { 'root': 'root', 'node-2': 'root' },
-      orphans: [],
+      orphanedBranches: [],
     };
     // go
     const result: TreeBuilderState = createInitialState('root', {}, opts, tree);
@@ -81,9 +81,9 @@ describe('state 0; createInitialState()', () => {
       content: {},
       root: tree.root,
       nodes: tree.nodes,
-      trunk: tree.trunk,
+      branches: tree.branches,
       petioleMap: tree.petioleMap,
-      orphans: tree.orphans,
+      orphanedBranches: tree.orphanedBranches,
       level: 0,
       currentAncestors: [],
       isUpdate: true,

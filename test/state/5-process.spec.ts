@@ -11,7 +11,7 @@ describe('state 5; processContent()', () => {
 
 //   beforeEach(() => {
 //     opts = {
-//       virtualTrunk: false,
+//       virtualBranches: false,
 //       delimiter: 'semtree',
 //       indentKind: 'space',
 //       indentSize: 2,
@@ -25,9 +25,9 @@ describe('state 5; processContent()', () => {
 //       // tree
 //       root: null,
 //       nodes: [],
-//       trunk: [],
+//       branches: [],
 //       petioleMap: {},
-//       orphans: [],
+//       orphanedBranches: [],
 //       // processing
 //       level: 0,
 //       currentAncestors: [],
@@ -40,29 +40,29 @@ describe('state 5; processContent()', () => {
     assert.strictEqual(0, 1);
   });
 
-//   it('create; concrete trunk', () => {
+//   it('create; concrete branches', () => {
 //     // go
 //     const result = processContent(state);
 //     // assert
 //   });
 
-//   it('create; virtual trunk (mode)', () => {
+//   it('create; virtual branches (mode)', () => {
 //     // setup
-//     state.options.virtualTrunk = true;
+//     state.options.virtualBranches = true;
 //     // go
 //     const result = processContent(state);
 //     // assert
 //   });
 
-//   it('update; concrete trunk', () => {
+//   it('update; concrete branches', () => {
 //     // go
 //     const result = processContent(state);
 //     // assert
 //   });
 
-//   it('update; virtual trunk (mode)', () => {
+//   it('update; virtual branches (mode)', () => {
 //     // setup
-//     state.options.virtualTrunk = true;
+//     state.options.virtualBranches = true;
 //     // go
 //     const result = processContent(state);
 //     // assert

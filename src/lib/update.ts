@@ -9,16 +9,16 @@ export const update = (
   content: Record<string, string>,
   opts?: SemTreeOpts,
 ): TreeNode[] | string => {
-  if (opts?.virtualTrunk) {
-    return 'semtree.update(): cannot run updates on a virtual trunk';
+  if (opts?.virtualBranches) {
+    return 'semtree.update(): cannot run updates on virtual branches';
   }
   // validate subroot
   const subrootNode: TreeNode | undefined = tree.nodes.find(node => node.text === subroot);
   if (!subrootNode) {
     return `semtree.update(): subroot not found in the tree: "${subroot}"`;
   }
-  // track updated trunk nodes
-  const updatedTrunkNodes: string[] = Object.keys(content);
+  // track updated branch nodes
+  const updatedBranchNodes: string[] = Object.keys(content);
   // grab all original connections
   const originalConnections: Set<string> = new Set(
     tree.nodes.flatMap(node => node.children.map(child => `${node.text}:${child}`))
@@ -54,9 +54,9 @@ export const update = (
   });
 
   // Update tree properties
-  tree.trunk = updatedTree.trunk;
+  tree.branches = updatedTree.branches;
   tree.petioleMap = updatedTree.petioleMap;
-  tree.orphans = updatedTree.orphans;
+  tree.orphanedBranches = updatedTree.orphanedBranches;
 
   // option function operations
   if (opts?.setRoot) {
@@ -81,7 +81,7 @@ export const update = (
 
   // Return updated nodes
   return tree.nodes.filter(n => 
-    updatedTrunkNodes.includes(n.text) ||
-    updatedTrunkNodes.some(key => tree.petioleMap[n.text] === key)
+    updatedBranchNodes.includes(n.text) ||
+    updatedBranchNodes.some(key => tree.petioleMap[n.text] === key)
   );
 };

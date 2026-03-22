@@ -11,7 +11,7 @@ describe('state 7; processLeaf()', () => {
 
   beforeEach(() => {
     opts = {
-      virtualTrunk: false,
+      virtualBranches: false,
       delimiter: 'semtree',
       indentKind: 'space',
       indentSize: 2,
@@ -25,9 +25,9 @@ describe('state 7; processLeaf()', () => {
       // tree
       root: null,
       nodes: [],
-      trunk: [],
+      branches: [],
       petioleMap: {},
-      orphans: [],
+      orphanedBranches: [],
       // processing
       level: 0,
       currentAncestors: [],
@@ -38,7 +38,7 @@ describe('state 7; processLeaf()', () => {
 
   // create
 
-  it('create; concrete trunk', () => {
+  it('create; concrete branches', () => {
     // setup
     state.content = {
       'root': '- [[leaf]]\n',
@@ -65,9 +65,9 @@ describe('state 7; processLeaf()', () => {
     assert.strictEqual(result.currentAncestors[1], 'leaf');
   });
 
-  it('create; virtual trunk; root case', () => {
+  it('create; virtual branches; root case', () => {
     // setup
-    state.opts.virtualTrunk = true;
+    state.opts.virtualBranches = true;
     state.content = {
       'root': '- [[leaf]]\n',
     };
@@ -90,9 +90,9 @@ describe('state 7; processLeaf()', () => {
     assert.strictEqual(result.currentAncestors[0], 'leaf');
   });
 
-  it('create; virtual trunk; with ancestors', () => {
+  it('create; virtual branches; with ancestors', () => {
     // setup
-    state.opts.virtualTrunk = true;
+    state.opts.virtualBranches = true;
     state.content = {
       'root':
         '  - [[child]]\n'
@@ -125,7 +125,7 @@ describe('state 7; processLeaf()', () => {
 
   // update
 
-  it('update; concrete trunk; exists; no change', () => {
+  it('update; concrete branches; exists; no change', () => {
     // setup
     state.isUpdate = true;
     state.content = {
@@ -156,7 +156,7 @@ describe('state 7; processLeaf()', () => {
     assert.deepStrictEqual(result.updatedNodes, [expdLeafNode]);
   });
 
-  it('update; concrete trunk; exists; ancestors change', () => {
+  it('update; concrete branches; exists; ancestors change', () => {
     // setup
     state.isUpdate = true;
     state.content = {
@@ -189,7 +189,7 @@ describe('state 7; processLeaf()', () => {
     assert.deepStrictEqual(result.updatedNodes, [expdLeafNode]);
   });
 
-  it('update; concrete trunk; exists; children change', () => {
+  it('update; concrete branches; exists; children change', () => {
     // setup
     state.isUpdate = true;
     state.content = {
@@ -228,10 +228,10 @@ describe('state 7; processLeaf()', () => {
     }]);
   });
 
-  it('update; virtual trunk; exists; root case', () => {
+  it('update; virtual branches; exists; root case', () => {
     // setup
     state.isUpdate = true;
-    state.opts.virtualTrunk = true;
+    state.opts.virtualBranches = true;
     state.content = {
       'root': '- [[leaf]]\n',
     };
@@ -259,10 +259,10 @@ describe('state 7; processLeaf()', () => {
     assert.deepStrictEqual(result.updatedNodes, [expdLeafNode]);
   });
 
-  it('update; virtual trunk; exists; with ancestors', () => {
+  it('update; virtual branches; exists; with ancestors', () => {
     // setup
     state.isUpdate = true;
-    state.opts.virtualTrunk = true;
+    state.opts.virtualBranches = true;
     state.content = {
       'root':
         '  - [[child]]\n'

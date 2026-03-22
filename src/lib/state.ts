@@ -14,9 +14,9 @@ export const createInitialState = (
   opts: opts,
   root: existingTree ? existingTree.root : root,
   nodes: existingTree ? [...existingTree.nodes] : [],
-  trunk: existingTree ? [...existingTree.trunk] : [],
+  branches: existingTree ? [...existingTree.branches] : [],
   petioleMap: existingTree ? { ...existingTree.petioleMap } : {},
-  orphans: existingTree ? [...existingTree.orphans] : [],
+  orphanedBranches: existingTree ? [...existingTree.orphanedBranches] : [],
   level: 0,
   currentAncestors: [],
   isUpdate: !!existingTree,
@@ -42,7 +42,7 @@ export const processRoot = (state: TreeBuilderState): TreeBuilderState => {
     ...state,
     state: 'PROCESSING_ROOT',
     root: state.root,
-    virtualRoot: state.opts.virtualTrunk
+    virtualRoot: state.opts.virtualBranches
       ? (state.isUpdate
         ? state.root!
         : (state.subroot || state.opts.subroot || Object.keys(state.content)[0]))
@@ -77,16 +77,16 @@ export const storeState = (state: TreeBuilderState): TreeBuilderState => ({
   originalState: {
     root: state.root!,
     nodes: state.nodes.map(node => ({ ...node })),
-    trunk: [...state.trunk],
+    branches: [...state.branches],
     petioleMap: { ...state.petioleMap },
-    orphans: [...state.orphans],
+    orphanedBranches: [...state.orphanedBranches],
   },
 });
 
 // process content
 
 export const processBranch = (state: TreeBuilderState, branchText: string): TreeBuilderState => {
-  if (state.opts.virtualTrunk) { return state; }
+  if (state.opts.virtualBranches) { return state; }
   // branch
   let branchNode: TreeNode | undefined = state.nodes.find(node => node.text === branchText);
   // create
@@ -111,8 +111,8 @@ export const processBranch = (state: TreeBuilderState, branchText: string): Tree
   if (state.root === branchText) {
     state.petioleMap[branchText] = state.root;
   }
-  if (!state.trunk.includes(branchText)) {
-    state.trunk.push(branchText);
+  if (!state.branches.includes(branchText)) {
+    state.branches.push(branchText);
   }
   return {
     ...state,
@@ -175,7 +175,7 @@ export const processLeaf = (state: TreeBuilderState, line: string, level: number
     state.updatedNodes.push(leafNode);
   }
   // metadata
-  if (!state.opts.virtualTrunk) {
+  if (!state.opts.virtualBranches) {
     state.petioleMap[leafText] = branchText;
   }
   // return
@@ -189,10 +189,10 @@ export const processLeaf = (state: TreeBuilderState, line: string, level: number
 export const pruneOrphanNodes = (state: TreeBuilderState): TreeBuilderState => {
   const pruned: SemTree | string = pruneOrphans({
     root: state.root!,
-    trunk: state.trunk,
+    branches: state.branches,
     petioleMap: state.petioleMap,
     nodes: state.nodes,
-    orphans: state.orphans,
+    orphanedBranches: state.orphanedBranches,
   });
   if (typeof pruned === 'string') {
     throw new Error(pruned);
@@ -201,7 +201,7 @@ export const pruneOrphanNodes = (state: TreeBuilderState): TreeBuilderState => {
     ...state,
     state: 'PRUNING_ORPHANS',
     nodes: pruned.nodes,
-    trunk: pruned.trunk,
+    branches: pruned.branches,
     petioleMap: pruned.petioleMap,
   };
 };
@@ -210,10 +210,10 @@ export const finalize = (state: TreeBuilderState): TreeBuilderState => {
   return {
     ...state,
     state: 'FINALIZING',
-    root: state.opts.virtualTrunk ? state.virtualRoot! : state.root!,
-    trunk: state.opts.virtualTrunk ? [] : state.trunk,
-    petioleMap: state.opts.virtualTrunk ? {} : state.petioleMap,
-    orphans: state.opts.virtualTrunk ? [] : [...Object.keys(state.content)],
+    root: state.opts.virtualBranches ? state.virtualRoot! : state.root!,
+    branches: state.opts.virtualBranches ? [] : state.branches,
+    petioleMap: state.opts.virtualBranches ? {} : state.petioleMap,
+    orphanedBranches: state.opts.virtualBranches ? [] : [...Object.keys(state.content)],
   };
 };
 
@@ -222,7 +222,7 @@ export const restoreState = (state: TreeBuilderState): TreeBuilderState => ({
   state: 'RESTORING_STATE',
   root: state.originalState?.root || state.root!,
   nodes: state.originalState?.nodes || [],
-  trunk: state.originalState?.trunk || [],
+  branches: state.originalState?.branches || [],
   petioleMap: state.originalState?.petioleMap || {},
-  orphans: state.originalState?.orphans || [],
+  orphanedBranches: state.originalState?.orphanedBranches || [],
 });

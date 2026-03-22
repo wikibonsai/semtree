@@ -34,24 +34,24 @@ describe('validate()', () => {
     assert.strictEqual(actlResult, expdResult);
   });
 
-  // orphan trunk files
+  // orphaned branch files
 
-  it('warn; orphan trunk files', () => {
+  it('warn; orphaned branch files', () => {
     // setup
     const content: Record<string, string> = {
       'root':
         '- [[child]]\n'
       + '  - [[grandchild]]\n'
       + '    - [[greatgrandchild]]\n',
-      'unused-trunk-file':
+      'unused-branch-file':
         '- [[another-child]]\n'
       + '  - [[another-grandchild]]\n'
       + '    - [[another-greatgrandchild]]\n',
     };
     const expdResult = {
-      warn: 'orphan trunk files found:\n'
+      warn: 'orphaned branch files found:\n'
       + '\n'
-      + '- unused-trunk-file\n',
+      + '- unused-branch-file\n',
       error: '',
     };
     // go
@@ -60,22 +60,22 @@ describe('validate()', () => {
     assert.deepStrictEqual(actlResult, expdResult);
   });
 
-  it('warn; orphan trunk files with duplicates (duplicates removed from error string)', () => {
+  it('warn; orphaned branch files with duplicates (duplicates removed from error string)', () => {
     // setup
     const content: Record<string, string> = {
       'root':
         '- [[child]]\n'
       + '  - [[grandchild]]\n'
       + '    - [[greatgrandchild]]\n',
-      'unused-trunk-file':
+      'unused-branch-file':
         '- [[another-child]]\n'
       + '  - [[another-grandchild]]\n'
       + '    - [[another-greatgrandchild]]\n',
     };
     const expdResult = {
-      warn: 'orphan trunk files found:\n'
+      warn: 'orphaned branch files found:\n'
       + '\n'
-      + '- unused-trunk-file\n',
+      + '- unused-branch-file\n',
       error: '',
     };
     // go
@@ -122,7 +122,7 @@ describe('validate()', () => {
       + '  - [[anotherduplicate]]\n',
     };
     const expdResult = {
-      warn: 'orphan trunk files found:\n'
+      warn: 'orphaned branch files found:\n'
       + '\n'
       + '- another-file\n'
       + '- third-file\n',
@@ -618,7 +618,7 @@ describe('validate()', () => {
       };
       const lineOffsets: Record<string, number> = { 'root': 4, 'branch': 2 };
       const expdResult = {
-        warn: 'orphan trunk files found:\n'
+        warn: 'orphaned branch files found:\n'
         + '\n'
         + '- branch\n',
         error: 'duplicate entity names found:\n'

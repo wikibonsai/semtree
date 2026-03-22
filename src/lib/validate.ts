@@ -29,7 +29,7 @@ export const validate = (
   if (opts.root) {
     entities.set(opts.root, { occurrences: [{ fname: opts.root, line: -1 }] });
   }
-  const lintOrphanTrunks: string[] = [];
+  const lintOrphanedBranches: string[] = [];
   const lintMkdnBullets: { fname?: string, line: number; content: string }[] = [];
   const lintWikiLink: { fname?: string, line: number; content: string }[] = [];
   // state
@@ -120,9 +120,9 @@ export const validate = (
     }
   }
   if (typeof content !== 'string') {
-    // if a root is given we can check for unused trunk files
+    // if a root is given we can check for unused branch files
     if (opts.root) {
-      // track trunk/index usage
+      // track branch/index usage
       const contentKeys: string[] = Object.keys(content);
       // remove root from contentKeys
       const rootIndex: number = contentKeys.indexOf(opts.root ?? '');
@@ -131,7 +131,7 @@ export const validate = (
       }
       for (const key of contentKeys) {
         if (!entities.has(key)) {
-          lintOrphanTrunks.push(key);
+          lintOrphanedBranches.push(key);
         }
       }
     }
@@ -189,9 +189,9 @@ export const validate = (
   let warnMsg: string = '';
   // Check for unused content keys
   if (typeof content === 'object') {
-    if (lintOrphanTrunks.length > 0) {
-      warnMsg += 'orphan trunk files found:\n\n';
-      lintOrphanTrunks.forEach(key => {
+    if (lintOrphanedBranches.length > 0) {
+      warnMsg += 'orphaned branch files found:\n\n';
+      lintOrphanedBranches.forEach(key => {
         warnMsg += `- ${key}\n`;
       });
     }

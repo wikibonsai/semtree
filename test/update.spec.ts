@@ -9,17 +9,17 @@ describe('update()', () => {
 
   beforeEach(() => {
     opts = {
-      virtualTrunk: false,
+      virtualBranches: false,
     };
   });
 
-  describe('concrete trunk', () => {
+  describe('concrete branches', () => {
 
-    it('concrete trunk; single file; add leaf', () => {
+    it('concrete branches; single file; add leaf', () => {
       // setup
       const tree: SemTree = {
         root: 'root',
-        trunk: ['root', 'branch1', 'branch2'],
+        branches: ['root', 'branch1', 'branch2'],
         petioleMap: {
           'root': 'root',
           'branch1': 'root',
@@ -28,7 +28,7 @@ describe('update()', () => {
           'child1a': 'root',
           'child1c': 'branch2',
         },
-        orphans: [],
+        orphanedBranches: [],
         nodes: [
           { text: 'root', ancestors: [], children: ['child1a'] },
           { text: 'child1a', ancestors: ['root'], children: ['branch1', 'grandchild1a'] },
@@ -62,16 +62,16 @@ describe('update()', () => {
       assert.deepEqual(actlTree, expdTree);
     });
 
-    it('concrete trunk; single file; add trunk', () => {
+    it('concrete branches; single file; add branch', () => {
       // setup
       const tree: SemTree = {
         root: 'root',
-        trunk: ['root'],
+        branches: ['root'],
         petioleMap: {
           'root': 'root',
           'child1': 'root',
         },
-        orphans: [],
+        orphanedBranches: [],
         nodes: [
           {
             text: 'root',
@@ -95,17 +95,17 @@ describe('update()', () => {
       assert.deepEqual(actlSubTree, expdSubTree);
     });
 
-    it('concrete trunk; single file; remove leaf', () => {
+    it('concrete branches; single file; remove leaf', () => {
       // setup
       const tree: SemTree = {
         root: 'root',
-        trunk: ['root'],
+        branches: ['root'],
         petioleMap: {
           'root': 'root',
           'child1': 'root',
           'grandchild1': 'root',
         },
-        orphans: [],
+        orphanedBranches: [],
         nodes: [
           { text: 'root', ancestors: [], children: ['child1'] },
           { text: 'child1', ancestors: ['root'], children: ['grandchild1'] },
@@ -121,15 +121,15 @@ describe('update()', () => {
       assert.deepEqual(actlSubTree, expdSubTree);
     });
 
-    it('concrete trunk; single file; options; indentSize', () => {
+    it('concrete branches; single file; options; indentSize', () => {
       const tree: SemTree = {
         root: 'root',
-        trunk: ['root'],
+        branches: ['root'],
         petioleMap: {
           'root': 'root',
           'child1': 'root',
         },
-        orphans: [],
+        orphanedBranches: [],
         nodes: [
           { text: 'root', ancestors: [], children: ['child1'] },
           { text: 'child1', ancestors: ['root'], children: [] },
@@ -148,15 +148,15 @@ describe('update()', () => {
       assert.deepEqual(actlSubTree, expdSubTree);
     });
 
-    it('concrete trunk; single file; options; mkdnBullet: false', () => {
+    it('concrete branches; single file; options; mkdnBullet: false', () => {
       const tree: SemTree = {
         root: 'root',
-        trunk: ['root'],
+        branches: ['root'],
         petioleMap: {
           'root': 'root',
           'child1': 'root',
         },
-        orphans: [],
+        orphanedBranches: [],
         nodes: [
           { text: 'root', ancestors: [], children: ['child1'] },
           { text: 'child1', ancestors: ['root'], children: [] },
@@ -173,15 +173,15 @@ describe('update()', () => {
       assert.deepEqual(actlSubTree, expdSubTree);
     });
 
-    it('concrete trunk; single file; options; wikilink: false', () => {
+    it('concrete branches; single file; options; wikilink: false', () => {
       const tree: SemTree = {
         root: 'root',
-        trunk: ['root'],
+        branches: ['root'],
         petioleMap: {
           'root': 'root',
           'child1': 'root',
         },
-        orphans: [],
+        orphanedBranches: [],
         nodes: [
           { text: 'root', ancestors: [], children: ['child1'] },
           { text: 'child1', ancestors: ['root'], children: [] },
@@ -214,7 +214,7 @@ describe('update()', () => {
         };
         initialTree = {
           root: 'root',
-          trunk: ['root'],
+          branches: ['root'],
           petioleMap: {
             'root': 'root',
             'child1': 'root',
@@ -222,7 +222,7 @@ describe('update()', () => {
             'grandchild2': 'root',
             'child2': 'root',
           },
-          orphans: [],
+          orphanedBranches: [],
           nodes: [
             { text: 'root', ancestors: [], children: ['child1', 'child2'] },
             { text: 'child1', ancestors: ['root'], children: ['grandchild1', 'grandchild2'] },
@@ -233,7 +233,7 @@ describe('update()', () => {
         };
       });
     
-      it('concrete trunk; single file; options; graft/prune; add leaf', () => {
+      it('concrete branches; single file; options; graft/prune; add leaf', () => {
         // setup
         const updatedContent: Record<string, string> = {
           'root':
@@ -252,7 +252,7 @@ describe('update()', () => {
         assert.equal(spyPrune.callCount, 0);
       });
   
-      it('concrete trunk; single file; options; graft/prune; remove leaf', () => {
+      it('concrete branches; single file; options; graft/prune; remove leaf', () => {
         // setup
         const updatedContent: Record<string, string> = {
           'root':
@@ -269,7 +269,7 @@ describe('update()', () => {
         assert(spyPrune.calledWith('root', 'child2'));
       });
   
-      it('concrete trunk; single file; options; graft/prune; add trunk', () => {
+      it('concrete branches; single file; options; graft/prune; add branch', () => {
         // setup
         const updatedContent: Record<string, string> = {
           'root':
@@ -291,7 +291,7 @@ describe('update()', () => {
         assert.equal(spyPrune.callCount, 0);
       });
   
-      it('concrete trunk; single file; options; graft/prune; remove trunk', () => {
+      it('concrete branches; single file; options; graft/prune; remove branch', () => {
         // setup
         const updatedContent: Record<string, string> = {
           'root':
@@ -308,7 +308,7 @@ describe('update()', () => {
         assert(spyPrune.calledWith('root', 'child2'));
       });
   
-      it('concrete trunk; single file; options; graft/prune; no change; no graft or prune', () => {
+      it('concrete branches; single file; options; graft/prune; no change; no graft or prune', () => {
         // setup
         const updatedContent: Record<string, string> = {
           'root':
@@ -325,7 +325,7 @@ describe('update()', () => {
         assert.equal(spyPrune.callCount, 0);
       });
   
-      it('concrete trunk; single file; options; graft/prune; reorganized only (no additions or removals)', () => {
+      it('concrete branches; single file; options; graft/prune; reorganized only (no additions or removals)', () => {
         // setup
         const updatedContent: Record<string, string> = {
           'root':
@@ -344,7 +344,7 @@ describe('update()', () => {
         assert(spyPrune.calledWith('root', 'child1'));
       });
   
-      it('concrete trunk; single file; options; graft/prune; nested structures', () => {
+      it('concrete branches; single file; options; graft/prune; nested structures', () => {
         // setup
         const updatedContent: Record<string, string> = {
           'root':
@@ -369,11 +369,11 @@ describe('update()', () => {
 
     // error handling
 
-    it('concrete trunk; single file; error handling; missing subtree', () => {
+    it('concrete branches; single file; error handling; missing subtree', () => {
       // setup
       const tree: SemTree = {
         root: 'root',
-        trunk: ['root', 'branch1', 'branch2'],
+        branches: ['root', 'branch1', 'branch2'],
         petioleMap: {
           'root': 'root',
           'branch1': 'root',
@@ -381,7 +381,7 @@ describe('update()', () => {
           'grandchild1a': 'root',
           'child1c': 'branch2',
         },
-        orphans: [],
+        orphanedBranches: [],
         nodes: [
           { text: 'root', ancestors: [], children: ['child1a'] },
           { text: 'child1a', ancestors: ['root'], children: ['branch1', 'grandchild1a'] },
@@ -398,17 +398,17 @@ describe('update()', () => {
       );
     });
 
-    it('concrete trunk; single file; error handling; should restore original tree state on error', () => {
+    it('concrete branches; single file; error handling; should restore original tree state on error', () => {
       // setup
       const initialTree: SemTree = {
         root: 'root',
-        trunk: ['root'],
+        branches: ['root'],
         petioleMap: {
           'root': 'root',
           'child1': 'root',
           'grandchild1': 'root',
         },
-        orphans: [],
+        orphanedBranches: [],
         nodes: [
           { text: 'root', ancestors: [], children: ['child1'] },
           { text: 'child1', ancestors: ['root'], children: ['grandchild1'] },
@@ -431,11 +431,11 @@ describe('update()', () => {
 
     // multi file
 
-    it('concrete trunk; multi file; remove trunk; clean (only removing a single branch)', () => {
+    it('concrete branches; multi file; remove branch; clean (only removing a single branch)', () => {
       // setup
       const tree: SemTree = {
         root: 'root',
-        trunk: ['root', 'branch1', 'branch2'],
+        branches: ['root', 'branch1', 'branch2'],
         petioleMap: {
           'root': 'root',
           'branch1': 'root',
@@ -444,7 +444,7 @@ describe('update()', () => {
           'child1a': 'root',
           'child1c': 'branch2',
         },
-        orphans: [],
+        orphanedBranches: [],
         nodes: [
           { text: 'root', ancestors: [], children: ['child1a'] },
           { text: 'child1a', ancestors: ['root'], children: ['branch1', 'grandchild1a'] },
@@ -484,11 +484,11 @@ describe('update()', () => {
       assert.deepEqual(actlTree, expdTree);
     });
 
-    it('concrete trunk; multi file; remove trunk; with remaining dead branch (not mentioned explicitly in update but is effected); (this is also the root case)', () => {
+    it('concrete branches; multi file; remove branch; with remaining dead branch (not mentioned explicitly in update but is effected); (this is also the root case)', () => {
       // setup
       const tree: SemTree = {
         root: 'root',
-        trunk: ['root', 'branch1', 'branch2'],
+        branches: ['root', 'branch1', 'branch2'],
         petioleMap: {
           'root': 'root',
           'branch1': 'root',
@@ -497,7 +497,7 @@ describe('update()', () => {
           'child1a': 'root',
           'child1c': 'branch2',
         },
-        orphans: [],
+        orphanedBranches: [],
         nodes: [
           { text: 'root', ancestors: [], children: ['child1a'] },
           { text: 'child1a', ancestors: ['root'], children: ['branch1', 'grandchild1a'] },
@@ -527,19 +527,19 @@ describe('update()', () => {
       assert.deepEqual(actlTree, expdTree);
     });
 
-    // orphan (trunks)
+    // orphaned branches
 
-    it('concrete trunk; orphan trunk files; no change to tree, no change to orphans; no orphans', () => {
+    it('concrete branches; orphaned branch files; no change to tree, no change to orphanedBranches; none', () => {
       // setup
       const tree: SemTree = {
         root: 'root',
-        trunk: ['root', 'child1'],
+        branches: ['root', 'child1'],
         petioleMap: {
           'root': 'root',
           'child1': 'root',
           'grandchild1': 'child1',
         },
-        orphans: [],
+        orphanedBranches: [],
         nodes: [
           { text: 'root', ancestors: [], children: ['child1'] },
           { text: 'child1', ancestors: ['root'], children: ['grandchild1'] },
@@ -550,7 +550,7 @@ describe('update()', () => {
       // act
       const result: TreeNode[] | string = update(tree, 'root', replacement, opts);
       // assert
-      assert.deepStrictEqual(tree.orphans, []);
+      assert.deepStrictEqual(tree.orphanedBranches, []);
       assert.deepStrictEqual(tree.nodes, [
         { text: 'root', ancestors: [], children: ['child1'] },
         { text: 'child1', ancestors: ['root'], children: ['grandchild1'] },
@@ -558,16 +558,16 @@ describe('update()', () => {
       ]);
     });
 
-    it('concrete trunk; orphan trunk files; no tree change, no orphan changes; has orphans', () => {
+    it('concrete branches; orphaned branch files; no tree change, no change to orphanedBranches; has some', () => {
       // setup
       const tree: SemTree = {
         root: 'root',
-        trunk: ['root'],
+        branches: ['root'],
         petioleMap: {
           'root': 'root',
           'child1': 'root',
         },
-        orphans: ['branch1', 'branch2'],
+        orphanedBranches: ['branch1', 'branch2'],
         nodes: [
           { text: 'root', ancestors: [], children: ['child1'] },
           { text: 'child1', ancestors: ['root'], children: [] },
@@ -577,7 +577,7 @@ describe('update()', () => {
       // act
       const result: TreeNode[] | string = update(tree, 'root', replacement, opts);
       // assert
-      assert.deepStrictEqual(tree.orphans, ['branch1', 'branch2']);
+      assert.deepStrictEqual(tree.orphanedBranches, ['branch1', 'branch2']);
       assert.deepStrictEqual(tree.nodes, [
         { text: 'root', ancestors: [], children: ['child1'] },
         { text: 'child1', ancestors: ['root'], children: ['newChild'] },
@@ -585,11 +585,11 @@ describe('update()', () => {
       ]);
     });
 
-    it('concrete trunk; orphan trunk files; branch removal -- no orphans, add orphans', () => {
+    it('concrete branches; orphaned branch files; branch removal -- none, add orphanedBranches', () => {
       // setup
       const tree: SemTree = {
         root: 'root',
-        trunk: ['root', 'branch1', 'branch2'],
+        branches: ['root', 'branch1', 'branch2'],
         petioleMap: {
           'root': 'root',
           'child1': 'root',
@@ -597,7 +597,7 @@ describe('update()', () => {
           'branch2': 'branch1',
           'leaf1': 'branch2',
         },
-        orphans: [],
+        orphanedBranches: [],
         nodes: [
           { text: 'root', ancestors: [], children: ['child1'] },
           { text: 'child1', ancestors: ['root'], children: ['branch1'] },
@@ -611,23 +611,23 @@ describe('update()', () => {
       // act
       const result: TreeNode[] | string = update(tree, 'root', replacement, opts);
       // assert
-      assert.deepStrictEqual(tree.orphans, ['unused-branch']);
+      assert.deepStrictEqual(tree.orphanedBranches, ['unused-branch']);
       assert.deepStrictEqual(tree.nodes, [
         { text: 'root', ancestors: [], children: ['child1'] },
         { text: 'child1', ancestors: ['root'], children: [] },
       ]);
     });
 
-    it('concrete trunk; orphan trunk files; branch removal; has orphans, adopt all orphans', () => {
+    it('concrete branches; orphaned branch files; branch removal; has orphanedBranches, adopt all', () => {
       // setup
       const tree: SemTree = {
         root: 'root',
-        trunk: ['root'],
+        branches: ['root'],
         petioleMap: {
           'root': 'root',
           'child1': 'root',
         },
-        orphans: ['branch1', 'branch2'],
+        orphanedBranches: ['branch1', 'branch2'],
         nodes: [
           { text: 'root', ancestors: [], children: ['child1'] },
           { text: 'child1', ancestors: ['root'], children: [] },
@@ -637,7 +637,7 @@ describe('update()', () => {
       // act
       const result: TreeNode[] | string = update(tree, 'root', replacement, opts);
       // assert
-      assert.deepStrictEqual(tree.orphans, []);
+      assert.deepStrictEqual(tree.orphanedBranches, []);
       assert.deepStrictEqual(tree.nodes, [
         { text: 'root', ancestors: [], children: ['child1'] },
         { text: 'child1', ancestors: ['root'], children: ['branch1'] },
@@ -646,16 +646,16 @@ describe('update()', () => {
       ]);
     });
 
-    it('concrete trunk; orphan trunk files; branch removal; has orphans, adopt some orphans', () => {
+    it('concrete branches; orphaned branch files; branch removal; has orphanedBranches, adopt some', () => {
       // setup
       const tree: SemTree = {
         root: 'root',
-        trunk: ['root'],
+        branches: ['root'],
         petioleMap: {
           'root': 'root',
           'child1': 'root',
         },
-        orphans: ['branch1', 'branch2', 'branch3'],
+        orphanedBranches: ['branch1', 'branch2', 'branch3'],
         nodes: [
           { text: 'root', ancestors: [], children: ['child1'] },
           { text: 'child1', ancestors: ['root'], children: [] },
@@ -665,7 +665,7 @@ describe('update()', () => {
       // act
       const result: TreeNode[] | string = update(tree, 'root', replacement, opts);
       // assert
-      assert.deepStrictEqual(tree.orphans, ['branch3']);
+      assert.deepStrictEqual(tree.orphanedBranches, ['branch3']);
       assert.deepStrictEqual(tree.nodes, [
         { text: 'root', ancestors: [], children: ['child1'] },
         { text: 'child1', ancestors: ['root'], children: ['branch1', 'branch2'] },
@@ -676,15 +676,15 @@ describe('update()', () => {
 
   });
 
-  describe('virtual trunk', () => {
+  describe('virtual branches', () => {
 
-    it('virtual trunk; cannot run updates on virtual trunk', () => {
+    it('virtual branches; cannot run updates on virtual branches', () => {
       // setup
       const tree: SemTree = {
         root: 'root',
-        trunk: [],
+        branches: [],
         petioleMap: {},
-        orphans: [],
+        orphanedBranches: [],
         nodes: [
           { text: 'root', ancestors: [], children: ['child1'] },
           { text: 'child1', ancestors: ['root'], children: ['grandchild1'] },
@@ -693,9 +693,9 @@ describe('update()', () => {
       };
       const replacement: Record<string, string> = { root: '- [[child1]]\n  - [[grandchild1]]\n' };
       // act
-      const result: TreeNode[] | string = update(tree, 'root', replacement, { ...opts, virtualTrunk: true });
+      const result: TreeNode[] | string = update(tree, 'root', replacement, { ...opts, virtualBranches: true });
       // assert
-      assert.strictEqual(result, 'semtree.update(): cannot run updates on a virtual trunk');
+      assert.strictEqual(result, 'semtree.update(): cannot run updates on virtual branches');
     });
 
   });

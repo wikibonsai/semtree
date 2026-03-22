@@ -21,7 +21,7 @@ describe('print()', () => {
     fakeConsoleLog.restore();
   });
 
-  describe('concrete trunk', () => {
+  describe('concrete branches', () => {
 
     describe('multi', () => {
 
@@ -39,7 +39,7 @@ describe('print()', () => {
             { text: 'child2b', ancestors: ['root', 'child', 'branch1', 'branch2'], children: [] },
             { text: 'greatgrandchild', ancestors: ['root', 'child', 'grandchild'], children: [] },
           ],
-          trunk: ['root', 'branch1', 'branch2'],
+          branches: ['root', 'branch1', 'branch2'],
           petioleMap: {
             'root': 'root',
             'child': 'root',
@@ -50,7 +50,7 @@ describe('print()', () => {
             'child2b': 'branch2',
             'greatgrandchild': 'root',
           },
-          orphans: [],
+          orphanedBranches: [],
         };
         const expdTreeStr: string = 'root\n'
                                   + '└── child\n'
@@ -71,7 +71,7 @@ describe('print()', () => {
 
   });
 
-  describe('virtual trunk', () => {
+  describe('virtual branches', () => {
 
     describe('multi', () => {
 
@@ -86,7 +86,7 @@ describe('print()', () => {
             { text: 'grandchild', ancestors: ['child'], children: ['greatgrandchild'] },
             { text: 'greatgrandchild', ancestors: ['child', 'grandchild'], children: [] },
           ],
-          trunk: ['child'],
+          branches: ['child'],
           petioleMap: {
             'child': 'child',
             'child1b': 'child',
@@ -94,7 +94,7 @@ describe('print()', () => {
             'grandchild': 'child',
             'greatgrandchild': 'child',
           },
-          orphans: [],
+          orphanedBranches: [],
         };
         const expdTreeStr: string = 'child\n'
                                   + '├── child1b\n'
@@ -121,13 +121,13 @@ describe('print()', () => {
           { text: 'child1', ancestors: ['root'], children: [] },
           { text: 'child2', ancestors: ['root'], children: [] },
         ],
-        trunk: ['root'],
+        branches: ['root'],
         petioleMap: {
           'root': 'root',
           'child1': 'root',
           'child2': 'root',
         },
-        orphans: [],
+        orphanedBranches: [],
       };
       const expdTreeStr: string = 'root\n'
                                 + '├── child1\n'

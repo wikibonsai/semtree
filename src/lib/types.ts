@@ -2,7 +2,7 @@ export interface SemTreeOpts {
   // params
   // tree
   delimiter?: string;                                  // the keyword to use for semtree section markers
-  virtualTrunk?: boolean;                              // whether or not to include the semtree/index files themselves as nodes in the tree
+  virtualBranches?: boolean;                            // whether or not to include the semtree/index files themselves as nodes in the tree
   // text / lint
   indentKind?: 'space' | 'tab';                        // the type of indentation (space or tab)
   indentSize?: number;                                 // the number of indentations per tree level
@@ -40,13 +40,13 @@ export type TreeBuilderState = {
   // tree
   root: string | null;
   nodes: TreeNode[];
-  trunk: string[];
-  orphans: string[];
+  branches: string[];
+  orphanedBranches: string[];
   petioleMap: Record<string, string>;
   // tree processing
   level: number;
   currentAncestors: string[];
-  virtualRoot?: string; // for virtual trunk mode
+  virtualRoot?: string; // for virtual branches mode
   lineOffsets?: Record<string, number>; // per-file line offsets from content extraction
   // subtree
   originalState?: SemTree;
@@ -66,8 +66,8 @@ export interface TreeNode {
 export interface SemTree {
   root: string;
   nodes: TreeNode[];
-  trunk: string[];
-  orphans: string[];
+  branches: string[];
+  orphanedBranches: string[];
   petioleMap: Record<string, string>;
 }
 
@@ -80,7 +80,7 @@ export interface ValidateOpts {
   mkdnBullet?: boolean;                                // whether or not to expect markdown bullets ('- ', '* ', '+ ') for each node
   wikiLink?: boolean;                                  // whether or not to expect [[wikilink square brackets]] so they may be ignored when processing tree text
   // tree
-  root?: string;                                       // for linting duplicates (cycles) and unused turnk files
+  root?: string;                                       // for linting duplicates (cycles) and unused branch files
   // line offset
   lineOffsets?: Record<string, number>;                // per-file line offsets to adjust reported line numbers (e.g. after stripping frontmatter)
 }

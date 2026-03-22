@@ -3,7 +3,7 @@ import type { SemTreeOpts } from './types';
 
 export const defaultOpts: SemTreeOpts = {
   delimiter: 'semtree',
-  virtualTrunk: false,
+  virtualBranches: false,
   indentSize: 2,
   indentKind: 'space',
   mkdnBullet: true,

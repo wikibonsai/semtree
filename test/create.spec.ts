@@ -21,17 +21,17 @@ describe('create()', () => {
     fakeConsoleWarn.restore();
   });
 
-  ['concrete', 'virtual'].forEach((trunkType) => {
+  ['concrete', 'virtual'].forEach((branchType) => {
 
-    describe(`${trunkType} trunk`, () => {
+    describe(`${branchType} branches`, () => {
 
       beforeEach(() => {
         opts = {
-          virtualTrunk: (trunkType === 'virtual'),
+          virtualBranches: (branchType === 'virtual'),
         };
         concreteData = {
           root: 'root',
-          trunk: ['root'],
+          branches: ['root'],
           petioleMap: {
             'root': 'root',
             'child1': 'root',
@@ -39,7 +39,7 @@ describe('create()', () => {
             'grandchild2': 'root',
             'greatgrandchild1': 'root',
           },
-          orphans: [],
+          orphanedBranches: [],
           nodes: [
             { text: 'root', ancestors: [], children: ['child1'] },
             { text: 'child1', ancestors: ['root'], children: ['grandchild1', 'grandchild2'] },
@@ -50,9 +50,9 @@ describe('create()', () => {
         };
         virtualData = {
           root: 'child1',
-          trunk: [],
+          branches: [],
           petioleMap: {},
-          orphans: [],
+          orphanedBranches: [],
           nodes: [
             { text: 'child1', ancestors: [], children: ['grandchild1', 'grandchild2'] },
             { text: 'grandchild1', ancestors: ['child1'], children: [] },
@@ -71,7 +71,7 @@ describe('create()', () => {
 
       describe('single file', () => {
 
-        it(`${trunkType} trunk; single file; indentation; 2 spaces (default)`, () => {
+        it(`${branchType} branches; single file; indentation; 2 spaces (default)`, () => {
           const content: Record<string,string> = {
             'root':
               '- [[child1]]\n'
@@ -80,11 +80,11 @@ describe('create()', () => {
             + '    - [[greatgrandchild1]]\n'
           };
           const actl: SemTree | string = create('root', content, opts);
-          const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+          const expd: SemTree = (branchType === 'concrete') ? concreteData : virtualData;
           assert.deepStrictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; single file; indentation; 3 spaces`, () => {
+        it(`${branchType} branches; single file; indentation; 3 spaces`, () => {
           const content: Record<string,string> = {
             'root':
               '- [[child1]]\n'
@@ -93,11 +93,11 @@ describe('create()', () => {
             + '      - [[greatgrandchild1]]\n'
           };
           const actl: SemTree | string = create('root', content, { ...opts, indentSize: 3 });
-          const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+          const expd: SemTree = (branchType === 'concrete') ? concreteData : virtualData;
           assert.deepStrictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; single file; indentation; 4 spaces`, () => {
+        it(`${branchType} branches; single file; indentation; 4 spaces`, () => {
           const content: Record<string,string> = {
             'root':
               '- [[child1]]\n'
@@ -107,11 +107,11 @@ describe('create()', () => {
             + '\n'
           };
           const actl: SemTree | string = create('root', content, { ...opts, indentSize: 4 });
-          const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+          const expd: SemTree = (branchType === 'concrete') ? concreteData : virtualData;
           assert.deepStrictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; single file; indentation; 1 tab`, () => {
+        it(`${branchType} branches; single file; indentation; 1 tab`, () => {
           const content: Record<string,string> = {
             'root':
               '- [[child1]]\n'
@@ -120,11 +120,11 @@ describe('create()', () => {
             + '\t\t- [[greatgrandchild1]]\n'
           };
           const actl: SemTree | string = create('root', content, { ...opts, indentKind: 'tab', indentSize: 1 });
-          const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+          const expd: SemTree = (branchType === 'concrete') ? concreteData : virtualData;
           assert.deepStrictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; single file; indentation; 2 tabs`, () => {
+        it(`${branchType} branches; single file; indentation; 2 tabs`, () => {
           const content: Record<string,string> = {
             'root':
               '- [[child1]]\n'
@@ -133,11 +133,11 @@ describe('create()', () => {
             + '\t\t\t\t- [[greatgrandchild1]]\n'
           };
           const actl: SemTree | string = create('root', content, { ...opts, indentKind: 'tab', indentSize: 2 });
-          const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+          const expd: SemTree = (branchType === 'concrete') ? concreteData : virtualData;
           assert.deepStrictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; single file; extra newlines; strip leading newlines`, () => {
+        it(`${branchType} branches; single file; extra newlines; strip leading newlines`, () => {
           const content: Record<string,string> = {
             'root':
               '\n'
@@ -149,11 +149,11 @@ describe('create()', () => {
             + '    - [[greatgrandchild1]]\n'
           };
           const actl: SemTree | string = create('root', content, opts);
-          const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+          const expd: SemTree = (branchType === 'concrete') ? concreteData : virtualData;
           assert.deepStrictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; single file; extra newlines; strip trailing newlines`, () => {
+        it(`${branchType} branches; single file; extra newlines; strip trailing newlines`, () => {
           const content: Record<string,string> = {
             'root':
                 '- [[child1]]\n'
@@ -165,11 +165,11 @@ describe('create()', () => {
             + '\n'
           };
           const actl: SemTree | string = create('root', content, opts);
-          const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+          const expd: SemTree = (branchType === 'concrete') ? concreteData : virtualData;
           assert.deepStrictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; single file; accept different markdown list styles`, () => {
+        it(`${branchType} branches; single file; accept different markdown list styles`, () => {
           const content: Record<string,string> = {
             'root':
               '- [[child1]]\n'
@@ -178,11 +178,11 @@ describe('create()', () => {
             + '    - [[greatgrandchild1]]\n'
           };
           const actl: SemTree | string = create('root', content, opts);
-          const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+          const expd: SemTree = (branchType === 'concrete') ? concreteData : virtualData;
           assert.deepStrictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; single file; options; mkdnBullet: false`, () => {
+        it(`${branchType} branches; single file; options; mkdnBullet: false`, () => {
           const content: Record<string,string> = {
             'root':
               '[[child1]]\n'
@@ -191,11 +191,11 @@ describe('create()', () => {
             + '    [[greatgrandchild1]]\n'
           };
           const actl: SemTree | string = create('root', content, { ...opts, mkdnBullet: false });
-          const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+          const expd: SemTree = (branchType === 'concrete') ? concreteData : virtualData;
           assert.deepStrictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; single file; options; wikiLink: false`, () => {
+        it(`${branchType} branches; single file; options; wikiLink: false`, () => {
           const content: Record<string,string> = {
             'root':
               '- child1\n'
@@ -204,11 +204,11 @@ describe('create()', () => {
             + '    - greatgrandchild1\n'
           };
           const actl: SemTree | string = create('root', content, { ...opts, wikiLink: false });
-          const expd: SemTree = (trunkType === 'concrete') ? concreteData : virtualData;
+          const expd: SemTree = (branchType === 'concrete') ? concreteData : virtualData;
           assert.deepStrictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; single file; skips HTML comments`, () => {
+        it(`${branchType} branches; single file; skips HTML comments`, () => {
           const content: Record<string,string> = {
             'root':
               '<!-- this is a comment and should be ignored -->\n'
@@ -218,15 +218,15 @@ describe('create()', () => {
             + '  - [[grandchild1]]'
           };
           const actlData: SemTree | string = create('root', content, opts);
-          const expdData: SemTree = (trunkType === 'concrete') ? {
+          const expdData: SemTree = (branchType === 'concrete') ? {
             root: 'root',
-            trunk: ['root'],
+            branches: ['root'],
             petioleMap: {
               'root': 'root',
               'child1': 'root',
               'grandchild1': 'root',
             },
-            orphans: [],
+            orphanedBranches: [],
             nodes: [
               { text: 'root', ancestors: [], children: ['child1'] },
               { text: 'child1', ancestors: ['root'], children: ['grandchild1'] },
@@ -234,9 +234,9 @@ describe('create()', () => {
             ]
           } : {
             root: 'child1',
-            trunk: [],
+            branches: [],
             petioleMap: {},
-            orphans: [],
+            orphanedBranches: [],
             nodes: [
               { text: 'child1', ancestors: [], children: ['grandchild1'] },
               { text: 'grandchild1', ancestors: ['child1'], children: [] },
@@ -261,7 +261,7 @@ describe('create()', () => {
             };
             initialTree = {
               root: 'root',
-              trunk: ['root'],
+              branches: ['root'],
               petioleMap: {
                 'root': 'root',
                 'child1': 'root',
@@ -269,7 +269,7 @@ describe('create()', () => {
                 'grandchild2': 'root',
                 'child2': 'root',
               },
-              orphans: [],
+              orphanedBranches: [],
               nodes: [
                 { text: 'root', ancestors: [], children: ['child1', 'child2'] },
                 { text: 'child1', ancestors: ['root'], children: ['grandchild1', 'grandchild2'] },
@@ -280,7 +280,7 @@ describe('create()', () => {
             };
           });
 
-          it(`${trunkType} trunk; single file; options; graft`, () => {
+          it(`${branchType} branches; single file; options; graft`, () => {
             // setup
             const content = {
               'root':
@@ -301,7 +301,7 @@ describe('create()', () => {
             assert.equal(spyPrune.callCount, 0);
           });
 
-          it(`${trunkType} trunk; single file; options; graft; should not call for root node`, () => {
+          it(`${branchType} branches; single file; options; graft; should not call for root node`, () => {
             // setup
             const content = {
               'root':
@@ -320,7 +320,7 @@ describe('create()', () => {
 
       });
 
-      it(`${trunkType} trunk; single file; error handling; inconsistent indentation`, () => {
+      it(`${branchType} branches; single file; error handling; inconsistent indentation`, () => {
         const content: Record<string,string> = {
           'root':
               '- [[child1]]\n'
@@ -333,7 +333,7 @@ describe('create()', () => {
         assert.strictEqual(actl, expd);
       });
 
-      it(`${trunkType} trunk; single file; error handling; duplicate text`, () => {
+      it(`${branchType} branches; single file; error handling; duplicate text`, () => {
         const content: Record<string,string> = {
           'root':
               '- [[child1]]\n'
@@ -356,7 +356,7 @@ describe('create()', () => {
         beforeEach(() => {
           concreteData = {
             root: 'root',
-            trunk: ['root', 'branch'],
+            branches: ['root', 'branch'],
             petioleMap: {
               'root': 'root',
               'child1a': 'root',
@@ -364,7 +364,7 @@ describe('create()', () => {
               'branch': 'root',
               'child1b': 'branch',
             },
-            orphans: [],
+            orphanedBranches: [],
             nodes: [
               { text: 'root', ancestors: [], children: ['child1a'] },
               { text: 'child1a', ancestors: ['root'], children: ['grandchild1a', 'branch'] },
@@ -375,9 +375,9 @@ describe('create()', () => {
           };
           virtualData = {
             root: 'child1a',
-            trunk: [],
+            branches: [],
             petioleMap: {},
-            orphans: [],
+            orphanedBranches: [],
             nodes: [
               { text: 'child1a', ancestors: [], children: ['grandchild1a', 'child1b'] },
               { text: 'grandchild1a', ancestors: ['child1a'], children: [] },
@@ -386,7 +386,7 @@ describe('create()', () => {
           };
         });
 
-        it(`${trunkType} trunk; multi file; two files`, () => {
+        it(`${branchType} branches; multi file; two files`, () => {
           const content: Record<string,string> = {
             'root':
                 '- [[child1a]]\n'
@@ -396,11 +396,11 @@ describe('create()', () => {
               '- [[child1b]]\n',
           };
           const actlData: SemTree | string = create('root', content, opts);
-          const expdData: SemTree = trunkType === 'concrete' ? concreteData : virtualData;
+          const expdData: SemTree = branchType === 'concrete' ? concreteData : virtualData;
           assert.deepStrictEqual(actlData, expdData);
         });
 
-        it(`${trunkType} trunk; multi file; three files`, () => {
+        it(`${branchType} branches; multi file; three files`, () => {
           const content: Record<string,string> = {
             'root':
               '- [[child1a]]\n'
@@ -412,9 +412,9 @@ describe('create()', () => {
               '- [[child1c]]\n',
           };
           const actlData: SemTree | string = create('root', content, opts);
-          const expdData: SemTree = trunkType === 'concrete' ? {
+          const expdData: SemTree = branchType === 'concrete' ? {
             root: 'root',
-            trunk: ['root', 'branch1', 'branch2'],
+            branches: ['root', 'branch1', 'branch2'],
             petioleMap: {
               'root': 'root',
               'child1a': 'root',
@@ -423,7 +423,7 @@ describe('create()', () => {
               'child1b': 'branch1',
               'child1c': 'branch2',
             },
-            orphans: [],
+            orphanedBranches: [],
             nodes: [
               { text: 'root', ancestors: [], children: ['child1a'] },
               { text: 'child1a', ancestors: ['root'], children: ['branch1', 'branch2'] },
@@ -434,9 +434,9 @@ describe('create()', () => {
             ]
           } : {
             root: 'child1a',
-            trunk: [],
+            branches: [],
             petioleMap: {},
-            orphans: [],
+            orphanedBranches: [],
             nodes: [
               { text: 'child1a', ancestors: [], children: ['child1b', 'child1c'] },
               { text: 'child1b', ancestors: ['child1a'], children: [] },
@@ -446,7 +446,7 @@ describe('create()', () => {
           assert.deepStrictEqual(actlData, expdData);
         });
 
-        it(`${trunkType} trunk; multi file; unprocessed trunk files added to 'orphans'`, () => {
+        it(`${branchType} branches; multi file; unprocessed branch files added to 'orphanedBranches'`, () => {
           const content: Record<string, string> = {
             'root':
               '- [[child1]]\n',
@@ -459,15 +459,15 @@ describe('create()', () => {
           };
           
           const actlData: SemTree | string = create('root', content, opts);
-          const expdData: SemTree = trunkType === 'concrete' ? {
+          const expdData: SemTree = branchType === 'concrete' ? {
             root: 'root',
-            trunk: ['root', 'child1'],
+            branches: ['root', 'child1'],
             petioleMap: {
               'root': 'root',
               'child1': 'root',
               'grandchild1': 'child1',
             },
-            orphans: ['unused-file1', 'unused-file2'],
+            orphanedBranches: ['unused-file1', 'unused-file2'],
             nodes: [
               { text: 'root', ancestors: [], children: ['child1'] },
               { text: 'child1', ancestors: ['root'], children: ['grandchild1'] },
@@ -475,9 +475,9 @@ describe('create()', () => {
             ]
           } : {
             root: 'grandchild1',
-            trunk: [],
+            branches: [],
             petioleMap: {},
-            orphans: [],
+            orphanedBranches: [],
             nodes: [
               { text: 'grandchild1', ancestors: [], children: [] },
             ]
@@ -490,7 +490,7 @@ describe('create()', () => {
           }
         });
 
-        it(`${trunkType} trunk; multi file; deep backtracking`, () => {
+        it(`${branchType} branches; multi file; deep backtracking`, () => {
           const content: Record<string,string> = {
             'root':
               '- [[childa]]\n'
@@ -504,9 +504,9 @@ describe('create()', () => {
               '- [[childb]]\n',
           };
           const actlData: SemTree | string = create('root', content, opts);
-          const expdData: SemTree = trunkType === 'concrete' ? {
+          const expdData: SemTree = branchType === 'concrete' ? {
             root: 'root',
-            trunk: ['root', 'branch'],
+            branches: ['root', 'branch'],
             petioleMap: {
               'root': 'root',
               'childa': 'root',
@@ -518,7 +518,7 @@ describe('create()', () => {
               'childb': 'branch',
               'greatgrandchild2': 'root',
             },
-            orphans: [],
+            orphanedBranches: [],
             nodes: [
               { text: 'root', ancestors: [], children: ['childa'] },
               { text: 'childa', ancestors: ['root'], children: ['grandchild', 'branch'] },
@@ -532,9 +532,9 @@ describe('create()', () => {
             ]
           } : {
             root: 'childa',
-            trunk: [],
+            branches: [],
             petioleMap: {},
-            orphans: [],
+            orphanedBranches: [],
             nodes: [
               { text: 'childa', ancestors: [], children: ['grandchild', 'childb'] },
               { text: 'grandchild', ancestors: ['childa'], children: ['greatgrandchild1'] },
@@ -548,7 +548,7 @@ describe('create()', () => {
           assert.deepStrictEqual(actlData, expdData);
         });
 
-        it(`${trunkType} trunk; multi file; deep backtracking to 0-level`, () => {
+        it(`${branchType} branches; multi file; deep backtracking to 0-level`, () => {
           const content: Record<string,string> = {
             'root':
               '- [[childa]]\n'
@@ -561,9 +561,9 @@ describe('create()', () => {
               '- [[childb]]\n',
           };
           const actlData: SemTree | string = create('root', content, opts);
-          const expdData: SemTree | string = trunkType === 'concrete' ? {
+          const expdData: SemTree | string = branchType === 'concrete' ? {
             root: 'root',
-            trunk: ['root', 'branch'],
+            branches: ['root', 'branch'],
             petioleMap: {
               'root': 'root',
               'childa': 'root',
@@ -574,7 +574,7 @@ describe('create()', () => {
               'branch': 'root',
               'childb': 'branch',
             },
-            orphans: [],
+            orphanedBranches: [],
             nodes: [
               { text: 'root', ancestors: [], children: ['childa', 'branch'] },
               { text: 'childa', ancestors: ['root'], children: ['grandchild'] },
@@ -589,7 +589,7 @@ describe('create()', () => {
           assert.deepStrictEqual(actlData, expdData);
         });
 
-        it(`${trunkType} trunk; multi file; indentation not on root file`, () => {
+        it(`${branchType} branches; multi file; indentation not on root file`, () => {
           const content: Record<string,string> = {
             'root':
               '- [[branch1]]\n',
@@ -598,16 +598,16 @@ describe('create()', () => {
             + '  - [[child2b]]\n',
           };
           const actlData: SemTree | string = create('root', content, opts);
-          const expdData: SemTree = trunkType === 'concrete' ? {
+          const expdData: SemTree = branchType === 'concrete' ? {
             root: 'root',
-            trunk: ['root', 'branch1'],
+            branches: ['root', 'branch1'],
             petioleMap: {
               'root': 'root',
               'branch1': 'root',
               'child1b': 'branch1',
               'child2b': 'branch1',
             },
-            orphans: [],
+            orphanedBranches: [],
             nodes: [
               { text: 'root', ancestors: [], children: ['branch1'] },
               { text: 'branch1', ancestors: ['root'], children: ['child1b'] },
@@ -616,9 +616,9 @@ describe('create()', () => {
             ]
           } : {
             root: 'child1b',
-            trunk: [],
+            branches: [],
             petioleMap: {},
-            orphans: [],
+            orphanedBranches: [],
             nodes: [
               { text: 'child1b', ancestors: [], children: ['child2b'] },
               { text: 'child2b', ancestors: ['child1b'], children: [] },
@@ -627,7 +627,7 @@ describe('create()', () => {
           assert.deepStrictEqual(actlData, expdData);
         });
 
-        it(`${trunkType} trunk; multi file; root file's root node is a branch file`, () => {
+        it(`${branchType} branches; multi file; root file's root node is a branch file`, () => {
           const content: Record<string,string> = {
             'root':
               '- [[branch1]]\n',
@@ -636,16 +636,16 @@ describe('create()', () => {
             + '- [[child2b]]\n',
           };
           const actlData: SemTree | string = create('root', content, opts);
-          const expdData: SemTree | string = trunkType === 'concrete' ? {
+          const expdData: SemTree | string = branchType === 'concrete' ? {
             root: 'root',
-            trunk: ['root', 'branch1'],
+            branches: ['root', 'branch1'],
             petioleMap: {
               'root': 'root',
               'branch1': 'root',
               'child1b': 'branch1',
               'child2b': 'branch1',
             },
-            orphans: [],
+            orphanedBranches: [],
             nodes: [
               { text: 'root', ancestors: [], children: ['branch1'] },
               { text: 'branch1', ancestors: ['root'], children: ['child1b', 'child2b'] },
@@ -656,7 +656,7 @@ describe('create()', () => {
           assert.deepStrictEqual(actlData, expdData);
         });
 
-        it(`${trunkType} trunk; multi file; path only contains branch index files`, () => {
+        it(`${branchType} branches; multi file; path only contains branch index files`, () => {
           const content: Record<string,string> = {
             'root':
               '- [[branch1]]\n',
@@ -666,16 +666,16 @@ describe('create()', () => {
               '- [[child1c]]\n',
           };
           const actlData: SemTree | string = create('root', content, opts);
-          const expdData: SemTree = trunkType === 'concrete' ? {
+          const expdData: SemTree = branchType === 'concrete' ? {
             root: 'root',
-            trunk: ['root', 'branch1', 'branch2'],
+            branches: ['root', 'branch1', 'branch2'],
             petioleMap: {
               'root': 'root',
               'branch1': 'root',
               'branch2': 'branch1',
               'child1c': 'branch2',
             },
-            orphans: [],
+            orphanedBranches: [],
             nodes: [
               { text: 'root', ancestors: [], children: ['branch1'] },
               { text: 'branch1', ancestors: ['root'], children: ['branch2'] },
@@ -684,9 +684,9 @@ describe('create()', () => {
             ]
           } : {
             root: 'child1c',
-            trunk: [],
+            branches: [],
             petioleMap: {},
-            orphans: [],
+            orphanedBranches: [],
             nodes: [
               { text: 'child1c', ancestors: [], children: [] },
             ]
@@ -694,9 +694,9 @@ describe('create()', () => {
           assert.deepStrictEqual(actlData, expdData);
         });
 
-        // orphan trunk files
+        // orphaned branch files
 
-        it(`${trunkType} trunk; multi file; orphan trunk file`, () => {
+        it(`${branchType} branches; multi file; orphaned branch file`, () => {
           // setup
           const content: Record<string, string> = {
             'root':
@@ -707,15 +707,15 @@ describe('create()', () => {
               '- [[unused-child]]\n',
           };
           const actlResult: SemTree | string = create('root', content, opts);
-          const expdResult: SemTree = trunkType === 'concrete' ? {
+          const expdResult: SemTree = branchType === 'concrete' ? {
             root: 'root',
-            trunk: ['root', 'child1'],
+            branches: ['root', 'child1'],
             petioleMap: {
               'root': 'root',
               'child1': 'root',
               'grandchild1': 'child1',
             },
-            orphans: ['unused-file'],
+            orphanedBranches: ['unused-file'],
             nodes: [
               { text: 'root', ancestors: [], children: ['child1'] },
               { text: 'child1', ancestors: ['root'], children: ['grandchild1'] },
@@ -723,9 +723,9 @@ describe('create()', () => {
             ]
           } : {
             root: 'grandchild1',
-            trunk: [],
+            branches: [],
             petioleMap: {},
-            orphans: [],
+            orphanedBranches: [],
             nodes: [
               { text: 'grandchild1', ancestors: [], children: [] },
             ]
@@ -735,7 +735,7 @@ describe('create()', () => {
 
         // error handling
 
-        it(`${trunkType} trunk; multi file; error handling; cycle; self; root`, () => {
+        it(`${branchType} branches; multi file; error handling; cycle; self; root`, () => {
           const content: Record<string, string> = {
             'root':
               '- [[root]]\n'
@@ -753,7 +753,7 @@ describe('create()', () => {
           assert.strictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; multi file; error handling; cycle; cross-file; root`, () => {
+        it(`${branchType} branches; multi file; error handling; cycle; cross-file; root`, () => {
           const content: Record<string, string> = {
             'root':
               '- [[child1a]]\n'
@@ -770,7 +770,7 @@ describe('create()', () => {
           assert.strictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; multi file; error handling; cycle; cross-file; branch`, () => {
+        it(`${branchType} branches; multi file; error handling; cycle; cross-file; branch`, () => {
           const content: Record<string, string> = {
             'root':
               '- [[child1a]]\n'
@@ -791,7 +791,7 @@ describe('create()', () => {
           assert.strictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; multi file; error handling; inconsistent indentation`, () => {
+        it(`${branchType} branches; multi file; error handling; inconsistent indentation`, () => {
           const content: Record<string,string> = {
             'root':
               '- [[child1]]\n'
@@ -804,7 +804,7 @@ describe('create()', () => {
           assert.strictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; multi file; error handling; duplicate text`, () => {
+        it(`${branchType} branches; multi file; error handling; duplicate text`, () => {
           const content: Record<string,string> = {
             'root':
               '- [[child1]]\n'
@@ -821,8 +821,8 @@ describe('create()', () => {
           assert.strictEqual(actl, expd);
         });
 
-        it(`${trunkType} trunk; multi file; error handling; no root-level entry in virtual trunk mode`, () => {
-          if (trunkType === 'virtual') {
+        it(`${branchType} branches; multi file; error handling; no root-level entry in virtual branches mode`, () => {
+          if (branchType === 'virtual') {
             const content: Record<string,string> = {
               'root':
                 '- [[child1]]\n'
