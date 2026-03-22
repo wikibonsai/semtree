@@ -1,4 +1,4 @@
-import type { LintOpts } from './types';
+import type { ValidateOpts } from './types';
 import {
   defaultOpts,
   RGX_INDENT_SPACE,
@@ -9,9 +9,9 @@ import {
 import { checkComment } from './text';
 
 
-export const lint = (
+export const validate = (
   content: string | Record<string, string>,
-  opts: LintOpts,
+  opts: ValidateOpts,
 ): void | { warn: string, error: string } => {
   /* @ts-expect-error: opts.indentSize is optional */
   const indentKind: 'space' | 'tab' = opts.indentKind ?? defaultOpts.indentKind;
@@ -142,9 +142,9 @@ export const lint = (
   let errorMsg: string = '';
   const duplicateErrors = Array.from(entities.entries())
     .filter(([_, info]) => info.occurrences.length > 1)
-    .map(([content, info]) => 
+    .map(([content, info]) =>
       `- "${content}"\n` +
-      info.occurrences.map(({ fname, line }) => 
+      info.occurrences.map(({ fname, line }) =>
         fname
           ? line === -1
             ? `  - Root file "${fname}"\n`
@@ -153,10 +153,10 @@ export const lint = (
       ).join('')
     );
   if (duplicateErrors.length > 0) {
-    errorMsg += 'semtree.lint(): duplicate entity names found:\n\n' + duplicateErrors.join('');
+    errorMsg += 'duplicate entity names found:\n\n' + duplicateErrors.join('');
   }
   if (badIndentations.length > 0) {
-    errorMsg += 'semtree.lint(): improper indentation found:\n\n';
+    errorMsg += 'improper indentation found:\n\n';
     badIndentations.forEach(({ fname, line, content, reason }) => {
       errorMsg += fname
         ? `- File "${fname}" Line ${line} (${reason}): "${content}"\n`
@@ -168,14 +168,14 @@ export const lint = (
   // Check for unused content keys
   if (typeof content === 'object') {
     if (lintOrphanTrunks.length > 0) {
-      warnMsg += 'semtree.lint(): orphan trunk files found:\n\n';
+      warnMsg += 'orphan trunk files found:\n\n';
       lintOrphanTrunks.forEach(key => {
         warnMsg += `- ${key}\n`;
       });
     }
   }
   if (lintMkdnBullets.length > 0) {
-    warnMsg += 'semtree.lint(): ' + (mkdnBullet ? 'missing' : 'unexpected') + ' markdown bullet found:\n\n';
+    warnMsg += (mkdnBullet ? 'missing' : 'unexpected') + ' markdown bullet found:\n\n';
     lintMkdnBullets.forEach(({ fname, line, content }) => {
       warnMsg += fname
         ? `- File "${fname}" Line ${line}: "${content}"\n`
@@ -183,7 +183,7 @@ export const lint = (
     });
   }
   if (lintWikiLink.length > 0) {
-    warnMsg += 'semtree.lint(): ' + (wikiLink ? 'missing' : 'unexpected') + ' wikilink found:\n\n';
+    warnMsg += (wikiLink ? 'missing' : 'unexpected') + ' wikilink found:\n\n';
     lintWikiLink.forEach(({ fname, line, content }) => {
       warnMsg += fname
         ? `- File "${fname}" Line ${line}: "${content}"\n`

@@ -2,7 +2,8 @@
 export { create } from './lib/create';
 export { update } from './lib/update';
 // helper funcs
-export { lint } from './lib/lint';
+export { validate } from './lib/validate';
+export { validate as lint } from './lib/validate'; // backward-compat alias
 export { print } from './lib/print';
 // util funcs
 export {
@@ -13,7 +14,8 @@ export {
 } from './lib/text';
 // types
 export type {
-  LintOpts,
+  ValidateOpts,
+  ValidateOpts as LintOpts, // backward-compat alias
   SemTree,
   SemTreeOpts,
   TreeNode,

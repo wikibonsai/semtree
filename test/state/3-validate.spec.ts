@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 
 import type { TreeBuilderState, SemTreeOpts } from '../../src/lib/types';
-import { lintContent } from '../../src/lib/state';
+import { validateContent } from '../../src/lib/state';
 
 
-describe('state 3; lintContent()', () => {
+describe('state 3; validateContent()', () => {
 
   let opts: SemTreeOpts;
   let state: TreeBuilderState;
@@ -45,9 +45,9 @@ describe('state 3; lintContent()', () => {
       + '- [[node-3]]\n',
     };
     // go
-    const result: TreeBuilderState = lintContent(state);
+    const result: TreeBuilderState = validateContent(state);
     // assert
-    assert.strictEqual(result.state, 'LINTING_CONTENT');
+    assert.strictEqual(result.state, 'VALIDATING_CONTENT');
   });
 
   it('error', () => {
@@ -59,7 +59,7 @@ describe('state 3; lintContent()', () => {
       + '    - [[node-3]]',
     };
     // go and assert
-    assert.throws(() => lintContent(state), Error);
+    assert.throws(() => validateContent(state), Error);
   });
 
 });

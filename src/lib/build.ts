@@ -6,7 +6,7 @@ import type {
 import {
   createInitialState,
   extractContent,
-  lintContent,
+  validateContent,
   processRoot,
   processBranch,
   processLeaf,
@@ -34,7 +34,7 @@ export const build = (
     state = createInitialState(root, content, opts, existingTree);
     state = extractContent(state);
     state = processRoot(state);
-    state = lintContent(state);
+    state = validateContent(state);
     if (state.isUpdate) {
       state = storeState(state);
     }

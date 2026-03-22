@@ -422,7 +422,7 @@ describe('update()', () => {
       // go
       const result = update(initialTree, 'root', { 'root': replacement }, opts);
       // assert
-      const error: string = 'semtree.lint(): improper indentation found:\n'
+      const error: string = 'improper indentation found:\n'
                           + '\n'
                           + '- File "root" Line 2 (over-indented): "    - [[grandchild1]]"\n';
       assert.strictEqual(result, error);

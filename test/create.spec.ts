@@ -329,7 +329,7 @@ describe('create()', () => {
             + '     - [[greatgrandchild1]]\n'
         };
         const actl: SemTree | string = create('root', content, opts);
-        const expd: string = 'semtree.lint(): improper indentation found:\n\n- File "root" Line 4 (inconsistent indentation): "     - [[greatgrandchild1]]"\n';
+        const expd: string = 'improper indentation found:\n\n- File "root" Line 4 (inconsistent indentation): "     - [[greatgrandchild1]]"\n';
         assert.strictEqual(actl, expd);
       });
 
@@ -344,7 +344,7 @@ describe('create()', () => {
         };
         const actl: SemTree | string = create('root', content, opts);
         const expd: string =
-              'semtree.lint(): duplicate entity names found:\n'
+              'duplicate entity names found:\n'
             + '\n'
             + '- "grandchild2"\n'
             + '  - File "root" Line 3\n'
@@ -747,7 +747,7 @@ describe('create()', () => {
               '- [[child1b]]\n'
           };
           const actl: SemTree | string = create('root', content, opts);
-          const expd: string = 'semtree.lint(): duplicate entity names found:\n'
+          const expd: string = 'duplicate entity names found:\n'
                               + '\n'
                               + '- "root"\n'
                               + '  - Root file "root"\n'
@@ -765,7 +765,7 @@ describe('create()', () => {
               '- [[root]]\n'
           };
           const actl: SemTree | string = create('root', content, opts);
-          const expd: string = 'semtree.lint(): duplicate entity names found:\n'
+          const expd: string = 'duplicate entity names found:\n'
                               + '\n'
                               + '- "root"\n'
                               + '  - Root file "root"\n'
@@ -785,7 +785,7 @@ describe('create()', () => {
               '- [[branch1]]\n',
           };
           const actl: SemTree | string = create('root', content, opts);
-          const expd: string = 'semtree.lint(): duplicate entity names found:\n'
+          const expd: string = 'duplicate entity names found:\n'
                               + '\n'
                               + '- "branch1"\n'
                               + '  - File "root" Line 3\n'
@@ -802,7 +802,7 @@ describe('create()', () => {
             + '     - [[greatgrandchild1]]\n',
           };
           const actl: SemTree | string = create('root', content, opts);
-          const expd: string = 'semtree.lint(): improper indentation found:\n\n- File "root" Line 4 (inconsistent indentation): "     - [[greatgrandchild1]]"\n';
+          const expd: string = 'improper indentation found:\n\n- File "root" Line 4 (inconsistent indentation): "     - [[greatgrandchild1]]"\n';
           assert.strictEqual(actl, expd);
         });
 
@@ -816,7 +816,7 @@ describe('create()', () => {
             + '    - [[greatgrandchild1]]\n',
           };
           const actl: SemTree | string = create('root', content, opts);
-          const expd: string = 'semtree.lint(): duplicate entity names found:\n'
+          const expd: string = 'duplicate entity names found:\n'
                               + '\n'
                               + '- "grandchild2"\n'
                               + '  - File "root" Line 3\n'

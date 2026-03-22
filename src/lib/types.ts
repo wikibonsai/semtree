@@ -24,7 +24,7 @@ export interface BuildTreeOpts extends SemTreeOpts {
 export type TreeBuildingState = 'EXTRACTING_CONTENT'
                               | 'FINALIZING'
                               | 'INITIAL'
-                              | 'LINTING_CONTENT'
+                              | 'VALIDATING_CONTENT'
                               | 'PROCESSING_BRANCH'
                               | 'PROCESSING_LEAF'
                               | 'PROCESSING_ROOT'
@@ -70,9 +70,9 @@ export interface SemTree {
   petioleMap: Record<string, string>;
 }
 
-// lint
+// validate
 
-export interface LintOpts {
+export interface ValidateOpts {
   // syntax
   indentKind?: 'space' | 'tab';                        // the type of indentation (space or tab)
   indentSize?: number;                                 // the number of indentations per tree level

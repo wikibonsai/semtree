@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 
-import type { LintOpts } from '../src/lib/types';
-import { lint } from '../src/index';
+import type { ValidateOpts } from '../src/lib/types';
+import { validate } from '../src/index';
 
 
-describe('lint()', () => {
+describe('validate()', () => {
 
-  let opts: LintOpts;
-  
+  let opts: ValidateOpts;
+
   beforeEach(() => {
     opts = {
       indentKind: 'space',
@@ -29,7 +29,7 @@ describe('lint()', () => {
     // no error
     const expdResult: undefined = undefined;
     // go
-    const actlResult: void | { warn: string; error: string; } = lint(content, opts);
+    const actlResult: void | { warn: string; error: string; } = validate(content, opts);
     // assert
     assert.strictEqual(actlResult, expdResult);
   });
@@ -49,13 +49,13 @@ describe('lint()', () => {
       + '    - [[another-greatgrandchild]]\n',
     };
     const expdResult = {
-      warn: 'semtree.lint(): orphan trunk files found:\n'
+      warn: 'orphan trunk files found:\n'
       + '\n'
       + '- unused-trunk-file\n',
       error: '',
     };
     // go
-    const actlResult: void | { warn: string; error: string; } = lint(content, opts);
+    const actlResult: void | { warn: string; error: string; } = validate(content, opts);
     // assert
     assert.deepStrictEqual(actlResult, expdResult);
   });
@@ -73,13 +73,13 @@ describe('lint()', () => {
       + '    - [[another-greatgrandchild]]\n',
     };
     const expdResult = {
-      warn: 'semtree.lint(): orphan trunk files found:\n'
+      warn: 'orphan trunk files found:\n'
       + '\n'
       + '- unused-trunk-file\n',
       error: '',
     };
     // go
-    const actlResult: void | { warn: string; error: string; } = lint(content, opts);
+    const actlResult: void | { warn: string; error: string; } = validate(content, opts);
     // assert
     assert.deepStrictEqual(actlResult, expdResult);
   });
@@ -96,14 +96,14 @@ describe('lint()', () => {
     };
     const expdResult = {
       warn: '',
-      error: 'semtree.lint(): duplicate entity names found:\n'
+      error: 'duplicate entity names found:\n'
       + '\n'
       + '- "duplicategrandchild"\n'
       + '  - File "root" Line 2\n'
       + '  - File "root" Line 3\n',
     };
     // go
-    const actlResult: void | { warn: string; error: string; } = lint(content, opts);
+    const actlResult: void | { warn: string; error: string; } = validate(content, opts);
     // assert
     assert.deepStrictEqual(actlResult, expdResult);
   });
@@ -123,11 +123,11 @@ describe('lint()', () => {
       + '  - [[anotherduplicate]]\n',
     };
     const expdResult = {
-      warn: 'semtree.lint(): orphan trunk files found:\n'
+      warn: 'orphan trunk files found:\n'
       + '\n'
       + '- another-file\n'
       + '- third-file\n',
-      error: 'semtree.lint(): duplicate entity names found:\n'
+      error: 'duplicate entity names found:\n'
       + '\n'
       + '- "duplicategrandchild"\n'
       + '  - File "root" Line 2\n'
@@ -137,7 +137,7 @@ describe('lint()', () => {
       + '  - File "third-file" Line 2\n',
     };
     // go
-    const actlResult: void | { warn: string; error: string; } = lint(content, opts);
+    const actlResult: void | { warn: string; error: string; } = validate(content, opts);
     // assert
     assert.deepStrictEqual(actlResult, expdResult);
   });
@@ -155,13 +155,13 @@ describe('lint()', () => {
     };
     const expdResult = {
       warn: '',
-      error: 'semtree.lint(): improper indentation found:\n'
+      error: 'improper indentation found:\n'
       + '\n'
       + '- File "root" Line 3 (inconsistent indentation): "   - [[greatgrandchild]]"\n'
       + '- File "root" Line 4 (inconsistent indentation): " - [[badindentchild]]"\n',
     };
     // go
-    const actlResult: void | { warn: string; error: string; } = lint(content, opts);
+    const actlResult: void | { warn: string; error: string; } = validate(content, opts);
     // assert
     assert.deepStrictEqual(actlResult, expdResult);
   });
@@ -177,13 +177,13 @@ describe('lint()', () => {
     };
     const expdResult = {
       warn: '',
-      error: 'semtree.lint(): improper indentation found:\n'
+      error: 'improper indentation found:\n'
       + '\n'
       + '- File "root" Line 3 (over-indented): "      - [[overindentgreatgrandchild]]"\n'
       + '- File "root" Line 4 (inconsistent indentation): " - [[badindentchild]]"\n',
     };
     // go
-    const actlResult: void | { warn: string; error: string; } = lint(content, opts);
+    const actlResult: void | { warn: string; error: string; } = validate(content, opts);
     // assert
     assert.deepStrictEqual(actlResult, expdResult);
   });
@@ -203,7 +203,7 @@ describe('lint()', () => {
       // no error
       const expdError: undefined = undefined;
       // go
-      const actlError: void | { warn: string; error: string; } = lint(content, { ...opts, indentKind: 'space' });
+      const actlError: void | { warn: string; error: string; } = validate(content, { ...opts, indentKind: 'space' });
       // assert
       assert.strictEqual(actlError, expdError);
     });
@@ -219,13 +219,13 @@ describe('lint()', () => {
       const expdError = {
         warn: '',
         error:
-          'semtree.lint(): improper indentation found:\n'
+          'improper indentation found:\n'
         + '\n'
         + '- File "root" Line 2 (tabs found): "\t\t- [[grandchild]]"\n'
         + '- File "root" Line 3 (tabs found): "\t\t\t\t- [[greatgrandchild]]"\n',
       };
       // go
-      const actlError: void | { warn: string; error: string; } = lint(content, { ...opts, indentKind: 'space' });
+      const actlError: void | { warn: string; error: string; } = validate(content, { ...opts, indentKind: 'space' });
       // assert
       assert.deepStrictEqual(actlError, expdError);
     });
@@ -241,7 +241,7 @@ describe('lint()', () => {
       // no error
       const expdError: undefined = undefined;
       // go
-      const actlError: void | { warn: string; error: string; } = lint(content, { ...opts, indentKind: 'tab' });
+      const actlError: void | { warn: string; error: string; } = validate(content, { ...opts, indentKind: 'tab' });
       // assert
       assert.strictEqual(actlError, expdError);
     });
@@ -257,13 +257,13 @@ describe('lint()', () => {
       const expdError = {
         warn: '',
         error:
-          'semtree.lint(): improper indentation found:\n'
+          'improper indentation found:\n'
         + '\n'
         + '- File "root" Line 2 (spaces found): "  - [[grandchild]]"\n'
         + '- File "root" Line 3 (spaces found): "    - [[greatgrandchild]]"\n',
       };
       // go
-      const actlError: void | { warn: string; error: string; } = lint(content, { ...opts, indentKind: 'tab' });
+      const actlError: void | { warn: string; error: string; } = validate(content, { ...opts, indentKind: 'tab' });
       // assert
       assert.deepStrictEqual(actlError, expdError);
     });
@@ -287,7 +287,7 @@ describe('lint()', () => {
       // setup
       const expdResult: undefined = undefined;
       // go
-      const actlResult: void | { warn: string; error: string; } = lint(content, opts);
+      const actlResult: void | { warn: string; error: string; } = validate(content, opts);
       // assert
       assert.strictEqual(actlResult, expdResult);
     });
@@ -302,13 +302,13 @@ describe('lint()', () => {
       };
       const expdResult = {
         warn: '',
-        error: 'semtree.lint(): improper indentation found:\n'
+        error: 'improper indentation found:\n'
         + '\n'
         + '- File "root" Line 2 (inconsistent indentation): "   - [[grandchild]]"\n'
         + '- File "root" Line 3 (over-indented): "      - [[greatgrandchild]]"\n',
       };
       // go
-      const actlResult: void | { warn: string; error: string; } = lint(content, opts);
+      const actlResult: void | { warn: string; error: string; } = validate(content, opts);
       // assert
       assert.deepStrictEqual(actlResult, expdResult);
     });
@@ -324,7 +324,7 @@ describe('lint()', () => {
       // no error
       const expdResult: undefined = undefined;
       // go
-      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, indentSize: 3 });
+      const actlResult: void | { warn: string; error: string; } = validate(content, { ...opts, indentSize: 3 });
       // assert
       assert.strictEqual(actlResult, expdResult);
     });
@@ -333,13 +333,13 @@ describe('lint()', () => {
       // setup
       const expdResult = {
         warn: '',
-        error: 'semtree.lint(): improper indentation found:\n'
+        error: 'improper indentation found:\n'
         + '\n'
         + '- File "root" Line 2 (inconsistent indentation): "  - [[grandchild]]"\n'
         + '- File "root" Line 3 (inconsistent indentation): "    - [[greatgrandchild]]"\n',
       };
       // go
-      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, indentSize: 3 });
+      const actlResult: void | { warn: string; error: string; } = validate(content, { ...opts, indentSize: 3 });
       // assert
       assert.deepStrictEqual(actlResult, expdResult);
     });
@@ -359,7 +359,7 @@ describe('lint()', () => {
       // no error
       const expdResult: undefined = undefined;
       // go
-      const actlResult: void | { warn: string; error: string; } = lint(content, opts);
+      const actlResult: void | { warn: string; error: string; } = validate(content, opts);
       // assert
       assert.strictEqual(actlResult, expdResult);
     });
@@ -373,13 +373,13 @@ describe('lint()', () => {
         + '  [[grandchild2]]\n',
       };
       const expdResult = {
-        warn: 'semtree.lint(): missing markdown bullet found:\n'
+        warn: 'missing markdown bullet found:\n'
         + '\n'
         + '- File "root" Line 3: "  [[grandchild2]]"\n',
         error: '',
       };
       // go
-      const actlResult: void | { warn: string; error: string; } = lint(content, opts);
+      const actlResult: void | { warn: string; error: string; } = validate(content, opts);
       // assert
       assert.deepStrictEqual(actlResult, expdResult);
     });
@@ -395,7 +395,7 @@ describe('lint()', () => {
       // no error
       const expdResult: undefined = undefined;
       // go
-      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, mkdnBullet: false });
+      const actlResult: void | { warn: string; error: string; } = validate(content, { ...opts, mkdnBullet: false });
       // assert
       assert.strictEqual(actlResult, expdResult);
     });
@@ -409,13 +409,13 @@ describe('lint()', () => {
         + '  - [[grandchild2]]\n',
       };
       const expdResult = {
-        warn: 'semtree.lint(): unexpected markdown bullet found:\n'
+        warn: 'unexpected markdown bullet found:\n'
         + '\n'
         + '- File "root" Line 3: "  - [[grandchild2]]"\n',
         error: '',
       };
       // go
-      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, mkdnBullet: false });
+      const actlResult: void | { warn: string; error: string; } = validate(content, { ...opts, mkdnBullet: false });
       // assert
       assert.deepStrictEqual(actlResult, expdResult);
     });
@@ -435,7 +435,7 @@ describe('lint()', () => {
       // no error
       const expdResult: undefined = undefined;
       // go
-      const actlResult: void | { warn: string; error: string; } = lint(content, opts);
+      const actlResult: void | { warn: string; error: string; } = validate(content, opts);
       // assert
       assert.strictEqual(actlResult, expdResult);
     });
@@ -449,13 +449,13 @@ describe('lint()', () => {
         + '  - grandchild2\n',
       };
       const expdResult = {
-        warn: 'semtree.lint(): missing wikilink found:\n'
+        warn: 'missing wikilink found:\n'
         + '\n'
         + '- File "root" Line 3: "  - grandchild2"\n',
         error: '',
       };
       // go
-      const actlResult: void | { warn: string; error: string; } = lint(content, opts);
+      const actlResult: void | { warn: string; error: string; } = validate(content, opts);
       // assert
       assert.deepStrictEqual(actlResult, expdResult);
     });
@@ -471,7 +471,7 @@ describe('lint()', () => {
       // no error
       const expdResult: undefined = undefined;
       // go
-      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, wikiLink: false });
+      const actlResult: void | { warn: string; error: string; } = validate(content, { ...opts, wikiLink: false });
       // assert
       assert.strictEqual(actlResult, expdResult);
     });
@@ -485,13 +485,13 @@ describe('lint()', () => {
         + '  - [[grandchild2]]\n',
       };
       const expdResult = {
-        warn: 'semtree.lint(): unexpected wikilink found:\n'
+        warn: 'unexpected wikilink found:\n'
         + '\n'
         + '- File "root" Line 3: "  - [[grandchild2]]"\n',
         error: '',
       };
       // go
-      const actlResult: void | { warn: string; error: string; } = lint(content, { ...opts, wikiLink: false });
+      const actlResult: void | { warn: string; error: string; } = validate(content, { ...opts, wikiLink: false });
       // assert
       assert.deepStrictEqual(actlResult, expdResult);
     });

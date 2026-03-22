@@ -1,5 +1,5 @@
 import type { SemTreeOpts, SemTree, TreeBuilderState, TreeNode } from './types';
-import { lint } from './lint';
+import { validate } from './validate';
 import { pruneOrphans } from './orphan';
 import { rawText, extractTreeContent } from './text';
 
@@ -48,20 +48,20 @@ export const processRoot = (state: TreeBuilderState): TreeBuilderState => {
   };
 };
 
-export const lintContent = (state: TreeBuilderState): TreeBuilderState => {
-  const lintError: { warn: string, error: string } | void = lint(state.content as Record<string, string>, {
+export const validateContent = (state: TreeBuilderState): TreeBuilderState => {
+  const validateError: { warn: string, error: string } | void = validate(state.content as Record<string, string>, {
     indentKind: state.opts.indentKind,
     indentSize: state.opts.indentSize,
     mkdnBullet: state.opts.mkdnBullet,
     wikiLink: state.opts.wikiLink,
     root: state.virtualRoot ?? state.root ?? undefined,
   });
-  if (lintError?.error) {
-    throw new Error(lintError.warn + lintError.error);
+  if (validateError?.error) {
+    throw new Error(validateError.warn + validateError.error);
   }
   return {
     ...state,
-    state: 'LINTING_CONTENT',
+    state: 'VALIDATING_CONTENT',
   };
 };
 

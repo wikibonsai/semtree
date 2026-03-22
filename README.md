@@ -13,7 +13,7 @@
 
 `semtree` is a utility to construct a semantic tree from word lists/indexes which may span multiple objects -- the most likely setup being multiple filenames which map to their file content.
 
-`semtree` itself is essentially a collection of functions to facilitate the cultivation of this tree, namely with [`lint()`](#lintcontent-string--recordstring-string-opts-lintopts-void--string), [`create()`](#createroot-string-content-recordstring-string-opts-semtreeopts--defaultopts-semtree--string), [`update()`](#updatetree-semtree-subroot-string-content-recordstring-string-opts-semtreeopts--defaultopts-semtree--string), or [`print()`](#printtree-semtree-print-boolean--true-string--undefined), and handles the build process via a [state machine](https://mfaani.com/posts/interviewing/how-understanding-state-machines-helps-with-building-trees-and-graphs/).
+`semtree` itself is essentially a collection of functions to facilitate the cultivation of this tree, namely with [`validate()`](#validatecontent-string--recordstring-string-opts-validateopts-void--string), [`create()`](#createroot-string-content-recordstring-string-opts-semtreeopts--defaultopts-semtree--string), [`update()`](#updatetree-semtree-subroot-string-content-recordstring-string-opts-semtreeopts--defaultopts-semtree--string), or [`print()`](#printtree-semtree-print-boolean--true-string--undefined), and handles the build process via a [state machine](https://mfaani.com/posts/interviewing/how-understanding-state-machines-helps-with-building-trees-and-graphs/).
 
 This package can be used in conjunction with [treehouze](https://github.com/wikibonsai/treehouze) and is compatible with [`[[wikirefs]]`](https://github.com/wikibonsai/wikirefs), [caml](https://github.com/wikibonsai/caml-mkdn) and [yaml](https://yaml.org/) syntaxes.
 
@@ -215,9 +215,9 @@ Name of the root node of the tree.
 
 Options object -- see [options](#Options) below.
 
-### `lint(content: string | Record<string, string>, opts: LintOpts): void | string`
+### `validate(content: string | Record<string, string>, opts: ValidateOpts): void | string`
 
-Lint a file's content or a record of multiple files' file content.
+Validate a file's content or a record of multiple files' file content.
 
 Checks for:
 
@@ -229,7 +229,7 @@ Checks for:
 - [WikiLink](#wikilink-boolean)
 - Lists files that weren't linked in the tree
 
-(Note: Lint line numbers returned will be offset by wherever the target semtree content started within the file. If the content starts at line 5 and the linter says an error occurred on line 1, then the error probably occurs on line 6 of the file.)
+(Note: Validate line numbers returned will be offset by wherever the target semtree content started within the file. If the content starts at line 5 and the validator says an error occurred on line 1, then the error probably occurs on line 6 of the file.)
 
 #### Parameters
 
@@ -237,9 +237,9 @@ Checks for:
 
 A content string or a `Record` whose keys are entities (such as files) and values are content strings of those entities.
 
-##### `opts: LintOpts`
+##### `opts: ValidateOpts`
 
-Lint options:
+Validate options:
 
 ###### `indentKind?: 'space' | 'tab'`
 
@@ -251,11 +251,11 @@ Number of indentations (spaces or tabs) which represent each level in the tree.
 
 ###### `mkdnBullet?: boolean`
 
-Whether the linter should check for markdown bullets (`-`, `*`, `+`)  and print a warning if any nodes are missing them.
+Whether the validator should check for markdown bullets (`-`, `*`, `+`)  and print a warning if any nodes are missing them.
 
 ###### `wikiLink?: boolean`
 
-Whether the linter should check for `[[wikilink]]` and print a warning if any nodes are missing them.
+Whether the validator should check for `[[wikilink]]` and print a warning if any nodes are missing them.
 
 ###### `root?: string`
 
@@ -322,7 +322,7 @@ Whether or not to include the semtree/index files themselves as nodes in the tre
 
 Note: If `virtualTrunk` is set to `true`, the resulting tree will not be updatable via the `update` function.
 
-### Text / Lint
+### Text / Validate
 
 #### `delimiter: string = 'semtree'`
 
