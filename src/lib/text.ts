@@ -42,14 +42,24 @@ export const rawText = (
 export const extractTreeContent = (
   content: Record<string, string>,
   delimiter: string = 'semtree',
-): Record<string, string> => {
+): {
+  content: Record<string, string>,
+  lineOffsets: Record<string, number>,
+} => {
   const extractedContent: Record<string, string> = {};
+  const lineOffsets: Record<string, number> = {};
   for (const [key, text] of Object.entries(content)) {
     let tmpContent: string = text;
+    let offset: number = 0;
     // first, check semtree markers
     const semtreeRegex: RegExp = new RegExp(`<!--<${delimiter}>-->([\\s\\S]*?)<!--</${delimiter}>-->`, 's');
     const semtreeMatch: RegExpMatchArray | null = tmpContent.match(semtreeRegex);
     if (semtreeMatch) {
+      // compute offset: count lines before and including the opening delimiter
+      const matchStart: number = tmpContent.indexOf(semtreeMatch[0]);
+      const beforeMatch: string = tmpContent.substring(0, matchStart);
+      // lines before delimiter + 1 for the delimiter line itself
+      offset = beforeMatch.split('\n').length;
       // clean semtree markers
       tmpContent = semtreeMatch[1].trim();
     } else {
@@ -64,11 +74,27 @@ export const extractTreeContent = (
       /* eslint-enable indent */
       const cleanContent: string = yamlData.content;
       tmpContent = cleanContent;
+      // compute offset: find where the cleaned content starts in the original
+      const trimmedClean: string = tmpContent.replace(/^\s+/, '');
+      if (trimmedClean.length > 0) {
+        const firstContentLine: string = trimmedClean.split('\n')[0];
+        const originalLines: string[] = text.split('\n');
+        for (let i = 0; i < originalLines.length; i++) {
+          if (originalLines[i].trimStart() === firstContentLine.trimStart()) {
+            offset = i;
+            break;
+          }
+        }
+      }
     }
     // finally, remove any leading/trailing newlines
     extractedContent[key] = tmpContent.replace(/^\s+|\s+$/g, '');
+    lineOffsets[key] = offset;
   }
-  return extractedContent;
+  return {
+    content: extractedContent,
+    lineOffsets: lineOffsets,
+  };
 };
 
 // todo: remove when caml supports wikiattrs

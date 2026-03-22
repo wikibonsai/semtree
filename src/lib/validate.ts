@@ -21,6 +21,7 @@ export const validate = (
   const mkdnBullet: boolean = opts.mkdnBullet ?? defaultOpts.mkdnBullet;
   /* @ts-expect-error: opts.wikiLink is optional */
   const wikiLink: boolean = opts.wikiLink ?? defaultOpts.wikiLink;
+  const lineOffsets: Record<string, number> = opts.lineOffsets ?? {};
   // warnings
   const badIndentations: { fname?: string, line: number; content: string; reason: string }[] = [];
   // Update the entities type
@@ -106,21 +107,19 @@ export const validate = (
     }
   };
 
-  // single file
-  if (typeof content === 'string') {
-    const lines: string[] = content.split('\n');
+  // normalize to entries: single file uses empty-string key
+  const entries: [string, string][] = (typeof content === 'string')
+    ? [['', content]]
+    : Object.entries(content);
+  for (const [fname, fileContent] of entries) {
+    const lines: string[] = fileContent.split('\n');
+    const offset: number = lineOffsets[fname] || 0;
+    previousIndent = 0; // reset for each file
     for (let i = 0; i < lines.length; i++) {
-      lintLine(lines[i], i + 1);
+      lintLine(lines[i], i + 1 + offset, fname || undefined);
     }
-  // multi file
-  } else {
-    for (const [filename, fileContent] of Object.entries(content)) {
-      const lines: string[] = fileContent.split('\n');
-      previousIndent = 0; // reset for each file
-      for (let i = 0; i < lines.length; i++) {
-        lintLine(lines[i], i + 1, filename);
-      }
-    }
+  }
+  if (typeof content !== 'string') {
     // if a root is given we can check for unused trunk files
     if (opts.root) {
       // track trunk/index usage

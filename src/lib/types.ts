@@ -47,6 +47,7 @@ export type TreeBuilderState = {
   level: number;
   currentAncestors: string[];
   virtualRoot?: string; // for virtual trunk mode
+  lineOffsets?: Record<string, number>; // per-file line offsets from content extraction
   // subtree
   originalState?: SemTree;
   isUpdate: boolean;
@@ -80,4 +81,6 @@ export interface ValidateOpts {
   wikiLink?: boolean;                                  // whether or not to expect [[wikilink square brackets]] so they may be ignored when processing tree text
   // tree
   root?: string;                                       // for linting duplicates (cycles) and unused turnk files
+  // line offset
+  lineOffsets?: Record<string, number>;                // per-file line offsets to adjust reported line numbers (e.g. after stripping frontmatter)
 }

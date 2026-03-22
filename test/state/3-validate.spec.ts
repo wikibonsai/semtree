@@ -62,4 +62,24 @@ describe('state 3; validateContent()', () => {
     assert.throws(() => validateContent(state), Error);
   });
 
+  it('error with lineOffsets — adjusted line numbers in error message', () => {
+    // setup
+    state.content = {
+      'root':
+        '- [[node-1]]\n'
+      + '- [[node-2]]\n'
+      + '    - [[node-3]]',
+    };
+    state.lineOffsets = { 'root': 5 };
+    // go and assert — error message should contain adjusted line number (3 + 5 = 8)
+    assert.throws(
+      () => validateContent(state),
+      (err: Error) => {
+        assert.ok(err.message.includes('Line 8'), `Expected "Line 8" in error message, got: ${err.message}`);
+        assert.ok(!err.message.includes('Line 3'), `Should not contain unadjusted "Line 3", got: ${err.message}`);
+        return true;
+      },
+    );
+  });
+
 });

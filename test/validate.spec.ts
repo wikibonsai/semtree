@@ -498,4 +498,143 @@ describe('validate()', () => {
 
   });
 
+  describe('opt; lineOffsets', () => {
+
+    it('error; indentation error with offset (yaml has 4 header lines, error on extracted line 3 → reported as line 7)', () => {
+      // setup — content is already extracted, offset represents the 4 yaml lines + 1 blank stripped
+      const content: Record<string, string> = {
+        'root':
+          '- [[child]]\n'
+        + '  - [[grandchild]]\n'
+        + '      - [[overindented]]\n',
+      };
+      const lineOffsets: Record<string, number> = { 'root': 4 };
+      const expdResult = {
+        warn: '',
+        error: 'improper indentation found:\n'
+        + '\n'
+        + '- File "root" Line 7 (over-indented): "      - [[overindented]]"\n',
+      };
+      // go
+      const actlResult: void | { warn: string; error: string; } = validate(content, { ...opts, lineOffsets });
+      // assert
+      assert.deepStrictEqual(actlResult, expdResult);
+    });
+
+    it('error; duplicate error with offset (caml has 2 attr lines + blank, duplicates on extracted lines 2,3 → reported as lines 5,6)', () => {
+      // setup
+      const content: Record<string, string> = {
+        'root':
+          '- [[child]]\n'
+        + '  - [[dupchild]]\n'
+        + '  - [[dupchild]]\n',
+      };
+      const lineOffsets: Record<string, number> = { 'root': 3 };
+      const expdResult = {
+        warn: '',
+        error: 'duplicate entity names found:\n'
+        + '\n'
+        + '- File "root"\n'
+        + '  - "dupchild" found on lines: 5, 6\n',
+      };
+      // go
+      const actlResult: void | { warn: string; error: string; } = validate(content, { ...opts, lineOffsets });
+      // assert
+      assert.deepStrictEqual(actlResult, expdResult);
+    });
+
+    it('warn; markdown bullet warning with offset', () => {
+      // setup
+      const content: Record<string, string> = {
+        'root':
+          '- [[child]]\n'
+        + '  - [[grandchild]]\n'
+        + '  [[nobullet]]\n',
+      };
+      const lineOffsets: Record<string, number> = { 'root': 5 };
+      const expdResult = {
+        warn: 'missing markdown bullet found:\n'
+        + '\n'
+        + '- File "root" Line 8: "  [[nobullet]]"\n',
+        error: '',
+      };
+      // go
+      const actlResult: void | { warn: string; error: string; } = validate(content, { ...opts, lineOffsets });
+      // assert
+      assert.deepStrictEqual(actlResult, expdResult);
+    });
+
+    it('warn; wikilink warning with offset', () => {
+      // setup
+      const content: Record<string, string> = {
+        'root':
+          '- [[child]]\n'
+        + '  - [[grandchild]]\n'
+        + '  - nowikilink\n',
+      };
+      const lineOffsets: Record<string, number> = { 'root': 5 };
+      const expdResult = {
+        warn: 'missing wikilink found:\n'
+        + '\n'
+        + '- File "root" Line 8: "  - nowikilink"\n',
+        error: '',
+      };
+      // go
+      const actlResult: void | { warn: string; error: string; } = validate(content, { ...opts, lineOffsets });
+      // assert
+      assert.deepStrictEqual(actlResult, expdResult);
+    });
+
+    it('single-file string with offset (empty-string key)', () => {
+      // setup
+      const content: string =
+        '- [[child]]\n'
+      + '  - [[grandchild]]\n'
+      + '      - [[overindented]]\n';
+      const lineOffsets: Record<string, number> = { '': 4 };
+      const expdResult = {
+        warn: '',
+        error: 'improper indentation found:\n'
+        + '\n'
+        + '- Line 7 (over-indented): "      - [[overindented]]"\n',
+      };
+      // go
+      const actlResult: void | { warn: string; error: string; } = validate(content, { ...opts, lineOffsets });
+      // assert
+      assert.deepStrictEqual(actlResult, expdResult);
+    });
+
+    it('multi-file with different offsets', () => {
+      // setup
+      const content: Record<string, string> = {
+        'root':
+          '- [[child]]\n'
+        + '  - [[grandchild]]\n'
+        + '      - [[overindented]]\n',
+        'branch':
+          '- [[leaf]]\n'
+        + '  - [[dup]]\n'
+        + '  - [[dup]]\n',
+      };
+      const lineOffsets: Record<string, number> = { 'root': 4, 'branch': 2 };
+      const expdResult = {
+        warn: 'orphan trunk files found:\n'
+        + '\n'
+        + '- branch\n',
+        error: 'duplicate entity names found:\n'
+        + '\n'
+        + '- File "branch"\n'
+        + '  - "dup" found on lines: 4, 5\n'
+        + 'improper indentation found:\n'
+        + '\n'
+        + '- File "root" Line 7 (over-indented): "      - [[overindented]]"\n',
+      };
+      // go
+      const actlResult: void | { warn: string; error: string; } = validate(content, { ...opts, lineOffsets });
+      // assert
+      assert.deepStrictEqual(actlResult, expdResult);
+    });
+
+  });
+
 });

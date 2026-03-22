@@ -25,10 +25,12 @@ export const createInitialState = (
 });
 
 export const extractContent = (state: TreeBuilderState): TreeBuilderState => {
+  const result = extractTreeContent(state.content as Record<string, string>);
   return {
     ...state,
     state: 'EXTRACTING_CONTENT',
-    content: extractTreeContent(state.content as Record<string, string>),
+    content: result.content,
+    lineOffsets: result.lineOffsets,
   };
 };
 
@@ -55,6 +57,7 @@ export const validateContent = (state: TreeBuilderState): TreeBuilderState => {
     mkdnBullet: state.opts.mkdnBullet,
     wikiLink: state.opts.wikiLink,
     root: state.virtualRoot ?? state.root ?? undefined,
+    lineOffsets: state.lineOffsets,
   });
   if (validateError?.error) {
     throw new Error(validateError.warn + validateError.error);
