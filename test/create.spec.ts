@@ -346,9 +346,8 @@ describe('create()', () => {
         const expd: string =
               'duplicate entity names found:\n'
             + '\n'
-            + '- "grandchild2"\n'
-            + '  - File "root" Line 3\n'
-            + '  - File "root" Line 4\n';
+            + '- File "root"\n'
+            + '  - "grandchild2" found on lines: 3, 4\n';
         assert.strictEqual(actl, expd);
       });
 
@@ -749,9 +748,8 @@ describe('create()', () => {
           const actl: SemTree | string = create('root', content, opts);
           const expd: string = 'duplicate entity names found:\n'
                               + '\n'
-                              + '- "root"\n'
-                              + '  - Root file "root"\n'
-                              + '  - File "root" Line 1\n';
+                              + '- File "root"\n'
+                              + '  - "root" found on line: 1\n';
           assert.strictEqual(actl, expd);
         });
 
@@ -767,9 +765,8 @@ describe('create()', () => {
           const actl: SemTree | string = create('root', content, opts);
           const expd: string = 'duplicate entity names found:\n'
                               + '\n'
-                              + '- "root"\n'
-                              + '  - Root file "root"\n'
-                              + '  - File "branch" Line 1\n';
+                              + '- File "branch"\n'
+                              + '  - "root" found on line: 1\n';
           assert.strictEqual(actl, expd);
         });
 
@@ -787,9 +784,10 @@ describe('create()', () => {
           const actl: SemTree | string = create('root', content, opts);
           const expd: string = 'duplicate entity names found:\n'
                               + '\n'
-                              + '- "branch1"\n'
-                              + '  - File "root" Line 3\n'
-                              + '  - File "branch2" Line 1\n';
+                              + '- File "root"\n'
+                              + '  - "branch1" found on line: 3\n'
+                              + '- File "branch2"\n'
+                              + '  - "branch1" found on line: 1\n';
           assert.strictEqual(actl, expd);
         });
 
@@ -818,9 +816,8 @@ describe('create()', () => {
           const actl: SemTree | string = create('root', content, opts);
           const expd: string = 'duplicate entity names found:\n'
                               + '\n'
-                              + '- "grandchild2"\n'
-                              + '  - File "root" Line 3\n'
-                              + '  - File "root" Line 4\n';
+                              + '- File "root"\n'
+                              + '  - "grandchild2" found on lines: 3, 4\n';
           assert.strictEqual(actl, expd);
         });
 

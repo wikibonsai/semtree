@@ -140,20 +140,43 @@ export const validate = (
 
   // errors
   let errorMsg: string = '';
-  const duplicateErrors = Array.from(entities.entries())
-    .filter(([_, info]) => info.occurrences.length > 1)
-    .map(([content, info]) =>
-      `- "${content}"\n` +
-      info.occurrences.map(({ fname, line }) =>
-        fname
-          ? line === -1
-            ? `  - Root file "${fname}"\n`
-            : `  - File "${fname}" Line ${line}\n`
-          : `  - Line ${line}\n`
-      ).join('')
-    );
-  if (duplicateErrors.length > 0) {
-    errorMsg += 'duplicate entity names found:\n\n' + duplicateErrors.join('');
+  const duplicates = Array.from(entities.entries())
+    .filter(([_, info]) => info.occurrences.length > 1);
+  if (duplicates.length > 0) {
+    // group by file
+    const fileMap: Map<string, { entity: string, lines: number[] }[]> = new Map();
+    for (const [entity, info] of duplicates) {
+      const byFile: Map<string, number[]> = new Map();
+      for (const { fname, line } of info.occurrences) {
+        const key = fname || '';
+        if (!byFile.has(key)) byFile.set(key, []);
+        byFile.get(key)!.push(line);
+      }
+      for (const [fname, lines] of byFile) {
+        if (!fileMap.has(fname)) fileMap.set(fname, []);
+        const displayLines = lines.filter(l => l !== -1);
+        if (displayLines.length > 0) {
+          fileMap.get(fname)!.push({ entity, lines: displayLines });
+        }
+      }
+    }
+    // format
+    let dupMsg = '';
+    for (const [fname, entries] of fileMap) {
+      if (entries.length === 0) continue;
+      if (fname) {
+        dupMsg += `- File "${fname}"\n`;
+      }
+      for (const { entity, lines } of entries) {
+        const lineStr = lines.length > 1
+          ? `found on lines: ${lines.join(', ')}`
+          : `found on line: ${lines[0]}`;
+        dupMsg += fname
+          ? `  - "${entity}" ${lineStr}\n`
+          : `- "${entity}" ${lineStr}\n`;
+      }
+    }
+    errorMsg += 'duplicate entity names found:\n\n' + dupMsg;
   }
   if (badIndentations.length > 0) {
     errorMsg += 'improper indentation found:\n\n';

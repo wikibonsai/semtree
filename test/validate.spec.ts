@@ -98,9 +98,8 @@ describe('validate()', () => {
       warn: '',
       error: 'duplicate entity names found:\n'
       + '\n'
-      + '- "duplicategrandchild"\n'
-      + '  - File "root" Line 2\n'
-      + '  - File "root" Line 3\n',
+      + '- File "root"\n'
+      + '  - "duplicategrandchild" found on lines: 2, 3\n'
     };
     // go
     const actlResult: void | { warn: string; error: string; } = validate(content, opts);
@@ -129,12 +128,13 @@ describe('validate()', () => {
       + '- third-file\n',
       error: 'duplicate entity names found:\n'
       + '\n'
-      + '- "duplicategrandchild"\n'
-      + '  - File "root" Line 2\n'
-      + '  - File "another-file" Line 2\n'
-      + '- "anotherduplicate"\n'
-      + '  - File "another-file" Line 3\n'
-      + '  - File "third-file" Line 2\n',
+      + '- File "root"\n'
+      + '  - "duplicategrandchild" found on line: 2\n'
+      + '- File "another-file"\n'
+      + '  - "duplicategrandchild" found on line: 2\n'
+      + '  - "anotherduplicate" found on line: 3\n'
+      + '- File "third-file"\n'
+      + '  - "anotherduplicate" found on line: 2\n',
     };
     // go
     const actlResult: void | { warn: string; error: string; } = validate(content, opts);
