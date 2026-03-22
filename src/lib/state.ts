@@ -25,7 +25,10 @@ export const createInitialState = (
 });
 
 export const extractContent = (state: TreeBuilderState): TreeBuilderState => {
-  const result = extractTreeContent(state.content as Record<string, string>);
+  const result: {
+    content: Record<string, string>,
+    lineOffsets: Record<string, number>,
+  } = extractTreeContent(state.content);
   return {
     ...state,
     state: 'EXTRACTING_CONTENT',
