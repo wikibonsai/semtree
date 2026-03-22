@@ -201,6 +201,30 @@ interface SemTree {
 
 Create a tree from a given `Record`, where keys represent nodes in a tree and values represent multiple values in the tree (such as filenames and their content) and build a tree from them. Will return a tree instance upon successful creation. Will return an error string otherwise, for example if there are duplicates found in the tree.
 
+```typescript
+import { create } from 'semtree';
+import type { SemTree, SemTreeOpts } from 'semtree';
+
+const content: Record<string, string> = {
+  'fname-a': '- [[node-1]]\n  - [[node-1a]]\n- [[fname-b]]\n',
+  'fname-b': '- [[node-2]]\n  - [[node-2a]]\n',
+};
+const opts: SemTreeOpts = { wikiLink: true };
+const tree: SemTree | string = create('fname-a', content, opts);
+// tree = {
+//   root: 'fname-a',
+//   nodes: [
+//     { text: 'fname-a', ancestors: [], children: ['node-1', 'fname-b'] },
+//     { text: 'node-1',  ancestors: ['fname-a'], children: ['node-1a'] },
+//     { text: 'node-1a', ancestors: ['fname-a', 'node-1'], children: [] },
+//     ...
+//   ],
+//   trunk: ['fname-a', 'fname-b'],
+//   petioleMap: { 'node-1': 'fname-a', 'node-2': 'fname-b', ... },
+//   orphans: [],
+// }
+```
+
 #### Parameters
 
 ##### `content: Record<string, string>`
@@ -215,7 +239,7 @@ Name of the root node of the tree.
 
 Options object -- see [options](#Options) below.
 
-### `validate(content: string | Record<string, string>, opts: ValidateOpts): void | string`
+### `validate(content: string | Record<string, string>, opts: ValidateOpts): void | { warn: string, error: string }`
 
 Validate a file's content or a record of multiple files' file content.
 
@@ -229,7 +253,37 @@ Checks for:
 - [WikiLink](#wikilink-boolean)
 - Lists files that weren't linked in the tree
 
-(Note: Validate line numbers returned will be offset by wherever the target semtree content started within the file. If the content starts at line 5 and the validator says an error occurred on line 1, then the error probably occurs on line 6 of the file.)
+```typescript
+import { validate } from 'semtree';
+import type { ValidateOpts } from 'semtree';
+
+const content: Record<string, string> = {
+  'root': '- [[child]]\n  - [[grandchild]]\n      - [[overindented]]\n',
+};
+const opts: ValidateOpts = {
+  indentKind: 'space',
+  indentSize: 2,
+  mkdnBullet: true,
+  wikiLink: true,
+  root: 'root',
+};
+const result: void | { warn: string; error: string } = validate(content, opts);
+// result = {
+//   warn: '',
+//   error: 'improper indentation found:\n\n'
+//        + '- File "root" Line 3 (over-indented): "      - [[overindented]]"\n',
+// }
+```
+
+Line numbers can be adjusted via `lineOffsets` when content has been extracted from files with frontmatter:
+
+```typescript
+const result: void | { warn: string; error: string } = validate(content, {
+  ...opts,
+  lineOffsets: { 'root': 5 }, // 5 lines of yaml stripped before tree content
+});
+// Line 3 error now reported as Line 8
+```
 
 #### Parameters
 
@@ -265,6 +319,17 @@ The root filename is needed to print the names of any orphan (unprocessed / unli
 
 Print the contents of a tree to console logs and return the string if there was a valid tree to print. Returns `undefined` if the tree is invalid.
 
+```typescript
+import { print } from 'semtree';
+import type { SemTree } from 'semtree';
+
+const output: string | undefined = print(tree);
+// prints to console and returns the string
+
+const silent: string | undefined = print(tree, false);
+// returns the string without printing to console
+```
+
 Example output:
 
 ```
@@ -293,6 +358,33 @@ Seeing this to `false` will suppress printing the tree to the console log and ju
 ### `update(tree: SemTree, subroot: string, content: Record<string, string>, opts?: SemTreeOpts): SemTree | string;`
 
 A method to update a subtree within the semantic tree. (Best used to update individual `index` documents.) The given `tree` will be directly updated and the updated subtree nodes will be returned separately by `update()`.
+
+```typescript
+import { create, update } from 'semtree';
+import type { SemTree, SemTreeOpts, TreeNode } from 'semtree';
+
+const opts: SemTreeOpts = { wikiLink: true };
+const tree: SemTree | string = create('root', {
+  'root':   '- [[child-a]]\n  - [[branch]]\n  - [[child-b]]\n',
+  'branch': '- [[leaf-1]]\n',
+}, opts);
+
+// partial update: only update 'branch', rest of tree stays intact
+const updatedNodes: TreeNode[] | string = update(
+  tree as SemTree,
+  'branch',
+  { 'branch': '- [[leaf-1]]\n- [[leaf-2]]\n' },
+  opts,
+);
+// updatedNodes = [
+//   { text: 'branch', ancestors: ['root', 'child-a'], children: ['leaf-1', 'leaf-2'] },
+//   { text: 'leaf-1', ancestors: ['root', 'child-a', 'branch'], children: [] },
+//   { text: 'leaf-2', ancestors: ['root', 'child-a', 'branch'], children: [] },
+// ]
+//
+// tree is mutated in place — 'root', 'child-a', 'child-b' unchanged,
+// 'branch' now has 'leaf-2' added alongside 'leaf-1'
+```
 
 #### Parameters
 
