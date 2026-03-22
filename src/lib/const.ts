@@ -10,10 +10,10 @@ export const defaultOpts: SemTreeOpts = {
   wikiLink: true,
 };
 
-export const RGX_INDENT       = /^[ \t]*/;
-export const RGX_INDENT_SPACE = /^ +/;
-export const RGX_INDENT_TAB   = /^\t+/;
-export const RGX_MKDN_BLT     = /^[-+*] /;
-export const RGX_WIKI         = /\[\[.*?\]\]/;
-export const RGX_WIKI_OPEN    = /\[\[/;
-export const RGX_WIKI_CLOSE = /\]\]/;
+export const RGX_INDENT      : RegExp = /^[ \t]*/;
+export const RGX_INDENT_SPACE: RegExp = /^ +/;
+export const RGX_INDENT_TAB  : RegExp = /^\t+/;
+export const RGX_MKDN_BLT    : RegExp = /^[-+*] /;
+export const RGX_WIKI        : RegExp = /\[\[.*?\]\]/;
+export const RGX_WIKI_OPEN   : RegExp = /\[\[/;
+export const RGX_WIKI_CLOSE  : RegExp = /\]\]/;

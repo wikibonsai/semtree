@@ -11,7 +11,7 @@ export const checkComment = (line: string): boolean => {
 };
 
 export const getLevel = (line: string, indentSize: number): number => {
-  const match = line.match(RGX_INDENT);
+  const match: RegExpMatchArray | null = line.match(RGX_INDENT);
   return match ? Math.floor(match[0].length / indentSize) : 0;
 };
 

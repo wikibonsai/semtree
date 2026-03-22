@@ -15,7 +15,7 @@ export const pruneOrphans = (tree: SemTree): SemTree | string => {
   const root: TreeNode | undefined = tree.nodes.find((n: TreeNode) => tree.root === n.text);
   if (root == undefined) { return 'semtree.pruneOrphans: could not find root node'; }
   traverseTree(root.text);
-  const orphans = tree.nodes.filter((n: TreeNode) => !connectedNodes.has(n.text)).map((n: TreeNode) => n.text);
+  const orphans: string[] = tree.nodes.filter((n: TreeNode) => !connectedNodes.has(n.text)).map((n: TreeNode) => n.text);
   if (orphans.length > 0) {
     for (const orphan of orphans) {
       const curNodeIndex: number | undefined = tree.nodes.findIndex((n: TreeNode) => n.text === orphan);

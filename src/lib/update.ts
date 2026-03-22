@@ -13,18 +13,18 @@ export const update = (
     return 'semtree.update(): cannot run updates on a virtual trunk';
   }
   // validate subroot
-  const subrootNode = tree.nodes.find(node => node.text === subroot);
+  const subrootNode: TreeNode | undefined = tree.nodes.find(node => node.text === subroot);
   if (!subrootNode) {
     return `semtree.update(): subroot not found in the tree: "${subroot}"`;
   }
   // track updated trunk nodes
   const updatedTrunkNodes: string[] = Object.keys(content);
   // grab all original connections
-  const originalConnections = new Set(
+  const originalConnections: Set<string> = new Set(
     tree.nodes.flatMap(node => node.children.map(child => `${node.text}:${child}`))
   );
   // go
-  const updatedTree = build(subroot, content, {
+  const updatedTree: SemTree | string = build(subroot, content, {
     ...defaultOpts,
     ...opts,
     subroot: subroot,
@@ -33,18 +33,18 @@ export const update = (
     return updatedTree;
   }
   // grab updated connections
-  const updatedConnections = new Set(
+  const updatedConnections: Set<string> = new Set(
     updatedTree.nodes.flatMap(node => node.children.map(child => `${node.text}:${child}`))
   );
   // Create a set of all nodes in the updated tree
-  const updatedNodeSet = new Set(updatedTree.nodes.map(node => node.text));
+  const updatedNodeSet: Set<string> = new Set(updatedTree.nodes.map(node => node.text));
 
   // Remove nodes that are no longer in the tree
   tree.nodes = tree.nodes.filter(node => updatedNodeSet.has(node.text));
 
   // Update existing nodes and add new ones
   updatedTree.nodes.forEach(updatedNode => {
-    const existingNode = tree.nodes.find(node => node.text === updatedNode.text);
+    const existingNode: TreeNode | undefined = tree.nodes.find(node => node.text === updatedNode.text);
     if (existingNode) {
       existingNode.ancestors = updatedNode.ancestors;
       existingNode.children = updatedNode.children;
@@ -65,7 +65,7 @@ export const update = (
   if (opts?.graft) {
     for (const connection of updatedConnections) {
       if (!originalConnections.has(connection)) {
-        const [parent, child] = connection.split(':');
+        const [parent, child]: string[] = connection.split(':');
         opts.graft(parent, child);
       }
     }
@@ -73,7 +73,7 @@ export const update = (
   if (opts?.prune) {
     for (const connection of originalConnections) {
       if (!updatedConnections.has(connection)) {
-        const [parent, child] = connection.split(':');
+        const [parent, child]: string[] = connection.split(':');
         opts.prune(parent, child);
       }
     }

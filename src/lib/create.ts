@@ -8,7 +8,7 @@ export const create = (
   content: Record<string, string>,
   opts?: SemTreeOpts,
 ): SemTree | string => {
-  const result = build(root, content, { ...defaultOpts, ...opts });
+  const result: SemTree | string = build(root, content, { ...defaultOpts, ...opts });
 
   if (typeof result === 'string') {
     return result;
@@ -21,7 +21,7 @@ export const create = (
   if (opts?.graft) {
     for (const node of result.nodes) {
       if (node.ancestors.length > 0) {
-        const parentText = node.ancestors[node.ancestors.length - 1];
+        const parentText: string = node.ancestors[node.ancestors.length - 1];
         opts.graft(parentText, node.text);
       }
     }

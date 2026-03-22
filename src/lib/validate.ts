@@ -98,7 +98,7 @@ export const validate = (
                                      .replace(/\]\]/, '');
       /* eslint-enable indent */
       if (entities.has(entityName)) {
-        const entityInfo = entities.get(entityName)!;
+        const entityInfo: { occurrences: { fname?: string, line: number }[] } = entities.get(entityName)!;
         entityInfo.occurrences.push({ fname, line: lineNumber });
       } else {
         entities.set(entityName, { occurrences: [{ fname, line: lineNumber }] });
@@ -140,7 +140,7 @@ export const validate = (
 
   // errors
   let errorMsg: string = '';
-  const duplicates = Array.from(entities.entries())
+  const duplicates: [string, { occurrences: { fname?: string, line: number }[] }][] = Array.from(entities.entries())
     .filter(([_, info]) => info.occurrences.length > 1);
   if (duplicates.length > 0) {
     // group by file
@@ -148,27 +148,27 @@ export const validate = (
     for (const [entity, info] of duplicates) {
       const byFile: Map<string, number[]> = new Map();
       for (const { fname, line } of info.occurrences) {
-        const key = fname || '';
+        const key: string = fname || '';
         if (!byFile.has(key)) byFile.set(key, []);
         byFile.get(key)!.push(line);
       }
       for (const [fname, lines] of byFile) {
         if (!fileMap.has(fname)) fileMap.set(fname, []);
-        const displayLines = lines.filter(l => l !== -1);
+        const displayLines: number[] = lines.filter(l => l !== -1);
         if (displayLines.length > 0) {
           fileMap.get(fname)!.push({ entity, lines: displayLines });
         }
       }
     }
     // format
-    let dupMsg = '';
+    let dupMsg: string = '';
     for (const [fname, entries] of fileMap) {
       if (entries.length === 0) continue;
       if (fname) {
         dupMsg += `- File "${fname}"\n`;
       }
       for (const { entity, lines } of entries) {
-        const lineStr = lines.length > 1
+        const lineStr: string = lines.length > 1
           ? `found on lines: ${lines.join(', ')}`
           : `found on line: ${lines[0]}`;
         dupMsg += fname
