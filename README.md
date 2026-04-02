@@ -97,11 +97,11 @@ graph TD;
   fname-b-->node-4;
 ```
 
-## Parsing, Syntax, and Validity
+## Tree Behavior
 
 Tree requirements are sparse because the idea is to allow the end-user to determine the shape and structure of their tree in their markdown files. This package merely creates a single, virtual tree so as to better present that unified structure to the end-user.
 
-Parsing:
+### Parsing
 
 - Semtree will check for delimiters delineating where the index content is:
   ```markdown
@@ -139,17 +139,21 @@ Parsing:
     - [[node-c]]
   ```
 
-Syntax:
+### Syntax
 
 - Indentation size defaults to `2` `'space'`s. (see options [`indentKind`](#indentkind-space--tab--space) and [`indentSize`](#indentsize-number--2)).
 - Markdown bullets (`-*+`) are optional (see option [`mkdnBullet`](#mkdnbullet-boolean--true)).
 - `[[wikilink]]` syntax is optional (see option [`wikiLink`](#wikilink-boolean--true)).
 
-Validity:
+### Validity
 
 - Every node in the tree should be unique; e.g. each list-item's text should be unique.
 - Must be a directed-acyclic-graph (DAG).
 - Each level can have any number of nodes.
+
+### Structure
+
+While semtree supports full-file index files (metadata + outline only) and inline index files (using `<!-- semtree -->` delimeters), be mindful of how many files the tree spans. Relying on inline index files is likely to span more files than full index files, which naturally will incur a speed cost.
 
 ## API
 
